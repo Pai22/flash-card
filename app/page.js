@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <main className='flex flex-col items-center pt-10'>
       <h1 className='text-4xl font-bold mb-8'>Welcome to my Flash Card</h1>
-      <Link href='/flashcard'>
+      <Link href='/dashboard'>
         <Button color="primary">
           Get Started
         </Button>

@@ -1,11 +1,11 @@
-"use client"
+"use client";
+
 import React, { useState } from 'react';
 import { Button, Input } from "@nextui-org/react";
-import { auth } from '../../lip/firebase/clientApp';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '../../lip/firebase/clientApp';
+import { createUserWithEmailAndPassword, getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../../lip/firebase/clientApp';
 
 const SignUp = () => {
   const [loading, setLoading] = useState(false);
@@ -40,11 +40,11 @@ const SignUp = () => {
         const userRef = collection(db, 'names');
         await addDoc(userRef, {
           uid: user.uid,
-          name: name, // Add the name field
+          name: name,
           email: email,
         });
         setLoading(false);
-        router.push("/todo-app");
+        router.push("/dashboard");
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -52,6 +52,29 @@ const SignUp = () => {
         console.log(errorCode, errorMessage);
         setLoading(false);
       });
+  };
+
+  const signUpWithGoogle = async () => {
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log(user);
+      // Store name in Cloud Firestore
+      const userRef = collection(db, 'names');
+      await addDoc(userRef, {
+        uid: user.uid,
+        name: user.displayName, // Use Google account name
+        email: user.email,
+      });
+      setLoading(false);
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error signing up with Google: ", error.message);
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,9 +86,10 @@ const SignUp = () => {
         <Input type="password" name="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         <Input type="password" name="rePassword" placeholder="Re-Password" value={rePassword} onChange={(e) => setRePassword(e.target.value)} required />
         <Button color="primary" type='submit'>Sign Up</Button>
+        <Button color="warning" type='button' onClick={signUpWithGoogle}>Sign Up with Google</Button>
         <p>{loading ? 'Signing up...' : ''}</p>
         <p className='text-center mt-4'>
-          Already have an account? <a href="/todo-app" className='text-blue-500'>Sign In</a>
+          Already have an account? <a href="/dashboard" className='text-blue-500'>Sign In</a>
         </p>
       </form>
     </div>
