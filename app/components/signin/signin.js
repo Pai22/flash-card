@@ -19,10 +19,11 @@ const SignIn = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         setLoading(false);
-        router.push("/todo-app");
+        router.push("/dashboard");
       })
       .catch((error) => {
         console.log(error);
+        alert("รหัสไม่ถูกต้องโปรดใส่ใหม่อีกครั้ง"); 
         setLoading(false);
       });
   };
@@ -30,11 +31,13 @@ const SignIn = () => {
   const signInWithGoogle = async () => {
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
+    setLoading(true);
     try {
       await signInWithPopup(auth, provider);
-      router.push("/todo-app");
+      router.push("/dashboard");
     } catch (e) {
       console.error("Error signing in with Google:", e.message);
+      setLoading(false);
     }
   };
 
