@@ -1,4 +1,3 @@
-## TTT
 ## Install Project
 ```bash
 git clone https://github.com/Pai22/flash-card.git
