@@ -1,5 +1,4 @@
 import React from "react";
-import styles from "../../styles/LoadingRout.module.css";
 
 const LoadingComponent = () => {
   return (
