@@ -47,11 +47,11 @@ const LoadingComponent = () => {
   
         `}
       </style>
-      <div class={styles.blocks}>
-        <div class={styles.block}></div>
-        <div class={styles.block}></div>
-        <div class={styles.block}></div>
-        <div class={styles.block}></div>
+      <div class="blocks">
+        <div class="block"></div>
+        <div class="block"></div>
+        <div class="block"></div>
+        <div class="block"></div>
       </div>
     </>
   );
