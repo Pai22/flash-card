@@ -5,6 +5,7 @@ import { db } from '../../lip/firebase/clientApp';
 import { collection, onSnapshot } from 'firebase/firestore';
 import useAuth from '../../lip/hooks/useAuth';
 import {Card, CardHeader, CardBody, Button, CardFooter, Link} from "@nextui-org/react";
+import DeckDelete from './DeckDelete';
 
 const DeckListComponent = () => {
   const [decks, setDecks] = useState([]);
@@ -45,12 +46,7 @@ const DeckListComponent = () => {
             <small className="text-default-500">{deck.description}</small>
           </CardBody >
           <CardFooter className='flex justify-end'>
-            <Button auto flat color="primary" className="mr-2">
-              Edit
-            </Button>
-            <Button auto flat color="error">
-              Delete
-            </Button>
+            <DeckDelete deck={deck}/>
           </CardFooter>
         </Card>
       </div>

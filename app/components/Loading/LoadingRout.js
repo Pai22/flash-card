@@ -1,3 +1,10 @@
+import React from "react";
+
+const LoadingComponent = () => {
+  return (
+    <>
+      <style>
+        {`
 .blocks {
     border: 2px solid #2b83e2;
     max-width: 158px;
@@ -38,3 +45,16 @@
     }
   }
   
+        `}
+      </style>
+      <div class="blocks">
+        <div class="block"></div>
+        <div class="block"></div>
+        <div class="block"></div>
+        <div class="block"></div>
+      </div>
+    </>
+  );
+};
+
+export default LoadingComponent;
