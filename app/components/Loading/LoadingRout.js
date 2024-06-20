@@ -1,3 +1,11 @@
+import React from "react";
+import styles from "../../styles/LoadingRout.module.css";
+
+const LoadingComponent = () => {
+  return (
+    <>
+      <style>
+        {`
 .blocks {
     border: 2px solid #2b83e2;
     max-width: 158px;
@@ -38,3 +46,16 @@
     }
   }
   
+        `}
+      </style>
+      <div class={styles.blocks}>
+        <div class={styles.block}></div>
+        <div class={styles.block}></div>
+        <div class={styles.block}></div>
+        <div class={styles.block}></div>
+      </div>
+    </>
+  );
+};
+
+export default LoadingComponent;
