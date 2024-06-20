@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import SignIn from '../components/signin/signin';
+import SignIn from '../components/signin/page';
 import "../globals.css";
 import useAuth from '../lip/hooks/useAuth';
 
