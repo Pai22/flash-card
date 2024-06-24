@@ -1,3 +1,4 @@
+// app/lip/hooks/useAuth.js
 'use client'
 
 import { useState, useEffect } from "react";
