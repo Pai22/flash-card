@@ -14,15 +14,20 @@ export default function App() {
   return (
     <Navbar isBordered>
       <NavbarBrand>
-        <img
-          src="/assets/Flashcard.png"
-          alt="Google"
-          className="w-20"
-        />
+        <Link href="/dashboard">
+          <img src="/assets/FlashcardLogo.png" alt="Google" className="w-20" />
+        </Link>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="solid">
+          <Link color="foreground" href="#">
+          <img src="/assets/FC.png" alt="Google" className="w-60" />
+          </Link>
+        </NavbarItem>
+        </NavbarContent>
+        <NavbarContent justify="end">
+        <NavbarItem className="hidden lg:flex">
+          <Button as={Link}  href="#" variant="solid">
             Sign Up
           </Button>
         </NavbarItem>

@@ -1,60 +1,148 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const LoadingComponent = () => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <>
-      <style>
-        {`
-.blocks {
-    border: 2px solid #2b83e2;
-    max-width: 158px;
-    padding: 4px;
-    border-radius: 8px;
-    gap: 4px;
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .blocks .block {
-    display: flex;
-    flex: 1;
-    border-radius: 4px;
-    background: #2b83e2;
-    width: 75px;
-    height: 75px;
-    animation: blockLoading 1s infinite;
-  }
-  .blocks .block:nth-child(1) {
-    animation-delay: 0ms;
-  }
-  .blocks .block:nth-child(2) {
-    animation-delay: 200ms;
-  }
-  .blocks .block:nth-child(3) {
-    animation-delay: 400ms;
-  }
-  .blocks .block:nth-child(4) {
-    animation-delay: 600ms;
-  }
-  @keyframes blockLoading {
-    0%,
-    100% {
-      flex: 1;
-    }
-    50% {
-      flex: 4;
-    }
-  }
-  
-        `}
-      </style>
-      <div class="blocks">
-        <div class="block"></div>
-        <div class="block"></div>
-        <div class="block"></div>
-        <div class="block"></div>
+      {isClient && (
+        <style>
+          {`
+            .loader {
+              width: 80px;
+              height: 50px;
+              position: relative;
+            }
+
+            .loader-text {
+              position: absolute;
+              top: 0;
+              padding: 0;
+              margin: 0;
+              color: #C8B6FF;
+              animation: text_713 3.5s ease both infinite;
+              font-size: .8rem;
+              letter-spacing: 1px;
+            }
+
+            .load {
+              background-color: #9A79FF;
+              border-radius: 50px;
+              display: block;
+              height: 16px;
+              width: 16px;
+              bottom: 0;
+              position: absolute;
+              transform: translateX(64px);
+              animation: loading_713 3.5s ease both infinite;
+            }
+
+            .load::before {
+              position: absolute;
+              content: "";
+              width: 100%;
+              height: 100%;
+              background-color: #D1C2FF;
+              border-radius: inherit;
+              animation: loading2_713 3.5s ease both infinite;
+            }
+
+            @keyframes text_713 {
+              0% {
+                letter-spacing: 1px;
+                transform: translateX(0px);
+              }
+
+              40% {
+                letter-spacing: 2px;
+                transform: translateX(26px);
+              }
+
+              80% {
+                letter-spacing: 1px;
+                transform: translateX(32px);
+              }
+
+              90% {
+                letter-spacing: 2px;
+                transform: translateX(0px);
+              }
+
+              100% {
+                letter-spacing: 1px;
+                transform: translateX(0px);
+              }
+            }
+
+            @keyframes loading_713 {
+              0% {
+                width: 16px;
+                transform: translateX(0px);
+              }
+
+              40% {
+                width: 100%;
+                transform: translateX(0px);
+              }
+
+              80% {
+                width: 16px;
+                transform: translateX(64px);
+              }
+
+              90% {
+                width: 100%;
+                transform: translateX(0px);
+              }
+
+              100% {
+                width: 16px;
+                transform: translateX(0px);
+              }
+            }
+
+            @keyframes loading2_713 {
+              0% {
+                transform: translateX(0px);
+                width: 16px;
+              }
+
+              40% {
+                transform: translateX(0%);
+                width: 80%;
+              }
+
+              80% {
+                width: 100%;
+                transform: translateX(0px);
+              }
+
+              90% {
+                width: 80%;
+                transform: translateX(15px);
+              }
+
+              100% {
+                transform: translateX(0px);
+                width: 16px;
+              }
+            }
+          `}
+        </style>
+      )}
+
+      <div className="loader">
+        <span className="loader-text">loading</span>
+        <span className="load"></span>
       </div>
     </>
   );
 };
 
 export default LoadingComponent;
+
+

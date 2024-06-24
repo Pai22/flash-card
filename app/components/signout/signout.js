@@ -18,7 +18,7 @@ const SignOut = () => {
       <Button
         color="danger"
         type="button"
-        variant="solid"
+        variant="bordered"
         onClick={handleSignOut}
         className=" text-sm py-2 px-4 "
       >
