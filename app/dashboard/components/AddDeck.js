@@ -38,7 +38,7 @@ const AddToDeckComponent = () => {
     <>
       <Button
         radius="lg"
-        className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg m-5">
+        className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg m-5" onPress={onOpen}>
         New Deck
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
