@@ -78,13 +78,13 @@ const SignUp = () => {
   };
 
   return (
-    <div className='rounded-md text-sm px-4 flex flex-col pt-12 items-center '>
+    <div className='rounded-md  px-4 flex flex-col pt-12 items-center '>
       <form onSubmit={handleSignUp} className='grid grid-cols-1 gap-2 w-[250px] min-w-fit items-center justify-center'>
-        <h1 className='text-center'>Sign Up</h1>
-        <Input type="text" name="name" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-        <Input type="email" name="email" placeholder="Email" required />
-        <Input type="password" name="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <Input type="password" name="rePassword" placeholder="Re-Password" value={rePassword} onChange={(e) => setRePassword(e.target.value)} required />
+        <h1 className='text-center text-4xl font-bold'>Sign Up</h1>
+        <Input size="sm" type="text" name="name" label="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+        <Input size="sm" type="email" name="email" label="Email" required />
+        <Input size="sm" type="password" name="password" label="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <Input size="sm" type="password" name="rePassword" label="Re-Password" value={rePassword} onChange={(e) => setRePassword(e.target.value)} required />
         <Button color="primary" type='submit'>Sign Up</Button>
         <Button color="warning" type='button' onClick={signUpWithGoogle}>Sign Up with Google</Button>
         <p>{loading ? 'Signing up...' : ''}</p>
