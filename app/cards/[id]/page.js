@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { db } from '../../lip/firebase/clientApp'; 
-import { collection, onSnapshot, doc } from 'firebase/firestore';
+import { onSnapshot, doc } from 'firebase/firestore';
 import useAuth from '../../lip/hooks/useAuth'; 
 import { useParams } from 'next/navigation'; 
 import { Button} from '@nextui-org/react';
-import { useRouter } from 'next/navigation'; // นำเข้าการใช้งาน useRouter จาก next/navigation
+import { useRouter } from 'next/navigation'; 
 import LoadingComponent from '../../components/Loading/LoadingRout';
 import CardList from '../components/CardList';
 
