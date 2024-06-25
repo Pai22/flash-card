@@ -7,39 +7,36 @@ import DeckListComponent from "./components/DeckList";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faLayerGroup,
-  faUser,
-  faPlus,
-  faShareNodes,
-  faTrashAlt,
+  faCircleUser,
+  faShare,
+  faShareAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Dashboard() {
   const user = useAuth();
-  
+
   return (
-   
-    <div className=" bg-cray-400 p-10">
-      <div className="flex items-center mb-6">
-        <FontAwesomeIcon style={{ fontSize: "25px" }} icon={faLayerGroup} />
-        <span className="ml-2 text-2xl font-bold">Dashboard</span>
+    <div className=" p-10 ">
+      <div className="flex items-center mb-10">
+        <FontAwesomeIcon style={{ fontSize: "28px" }} icon={faLayerGroup} />
+        <span className="ml-2 text-2xl font-semibold">Dashboard</span>
       </div>
-      <div className="flex items-center">
-        <FontAwesomeIcon style={{ fontSize: "25px" }} icon={faUser} />
-        <span className="ml-2 text-xl font-semibold">My Cards</span>
+
+      <div className="flex items-center ml-2">
+        <FontAwesomeIcon style={{ fontSize: "23px" }} icon={faCircleUser}>
+          My Cards
+        </FontAwesomeIcon>
+        <span className="ml-2  text-md font-semibold">My Cards</span>
       </div>
-      
-      {user ? (
-        <>
-          <p>Hello, {user.displayName || user.email}</p>
-        </>
-      ) : (
-        <p>Please sign in or sign up to continue.</p>
-      )}
-      
       <AddToDeckComponent />
       <DeckListComponent />
+      <div className="flex items-center ml-2 m-10">
+        <FontAwesomeIcon
+          style={{ fontSize: "23px" }}
+          icon={faShareAlt}
+        ></FontAwesomeIcon>
+        <span className="ml-2  text-md font-semibold">Your Friend Deck</span>
+      </div>
     </div>
-    
-    
   );
 }

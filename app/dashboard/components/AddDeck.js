@@ -3,6 +3,9 @@ import { db } from '../../lip/firebase/clientApp';
 import { addDoc, collection } from 'firebase/firestore';
 import useAuth from '@/app/lip/hooks/useAuth';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input } from '@nextui-org/react';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
+
 
 const AddToDeckComponent = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -38,8 +41,11 @@ const AddToDeckComponent = () => {
     <>
       <Button
         radius="lg"
-        className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg m-5" onPress={onOpen}>
-        New Deck
+        className="font-semibold bg-gradient-to-r from-red-500 to-red-700 text-white shadow-lg my-6 ml-2" onPress={onOpen}>
+         <FontAwesomeIcon
+          style={{ fontSize: "16px" }}
+          icon={faCirclePlus}
+        ></FontAwesomeIcon>New Flashcard Deck
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
         <ModalContent>

@@ -52,7 +52,7 @@ const CardList = ({ deckId }) => {
       {cards.map((card) => (
         <div key={card.id} className="flex-shrink-0 w-56 h-72 mx-10 mb-16 ">
           <div className="flex justify-center">
-            <p>Switch Icon</p>
+          <FontAwesomeIcon className="p-2" style={{ fontSize: "20px" }} icon={faRepeat} />
           </div>
           <Card shadow hoverable className="bg-gray-100 rounded-lg h-full">
             <CardBody className="flex-grow flex items-center justify-center">

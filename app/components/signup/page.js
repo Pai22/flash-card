@@ -84,7 +84,7 @@ const SignUp = () => {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-sky-100">
+      <div className="flex items-center justify-center">
         <div className="container xs:max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl mx-auto bg-white rounded-lg shadow-lg p-8">
           <h2 className="pb-3 text-4xl font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-yellow-400">
             Sign up
