@@ -1,5 +1,6 @@
 import { Button } from "@nextui-org/react";
 import Link from "next/link";
+import "./globals.css";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <Link href="/dashboard">
         <Button color="primary">Get Started</Button>
       </Link>
+   
     </>
   );
 }
