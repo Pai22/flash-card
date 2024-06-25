@@ -13,7 +13,7 @@ import {
   Link,
 } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShare } from "@fortawesome/free-solid-svg-icons";
+import { faShare, faPlay } from "@fortawesome/free-solid-svg-icons";
 import DeckDelete from "./DeckDelete";
 
 const DeckListComponent = () => {
@@ -59,7 +59,15 @@ const DeckListComponent = () => {
           >
             <Link href={"/cards/" + deck.id} underline="none">
               <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
-                <h2 className="text-md uppercase font-semibold">{deck.title}</h2>
+                <h2 className="text-md uppercase font-semibold">
+                  {deck.title}
+                </h2>
+                <div className="cursor-pointer ml-2">
+                  <FontAwesomeIcon
+                    style={{ fontSize: "20px" }}
+                    icon={faPlay}
+                  />
+                </div>
               </CardHeader>
             </Link>
             <CardBody className="pb-0 pt-2 px-4 overflow-visible py-2">
