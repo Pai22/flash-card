@@ -29,20 +29,16 @@ export default function App() {
       setNavButton(
         <>
           <NavbarItem>
-            <Button as={Link} href="/dashboard" color="primary" variant="solid">
-              Sign In
-            </Button>
-          </NavbarItem>
-          <NavbarItem>
             <Button
               as={Link}
-              href="/components/signup"
+              href="/dashboard"
               color="primary"
-              variant="solid"
+              className=" text-md font-bold text-white py-2 px-4 "
             >
-              Sign Up
+              Log in
             </Button>
           </NavbarItem>
+          <NavbarItem></NavbarItem>
         </>
       );
     }
@@ -52,11 +48,9 @@ export default function App() {
     <Navbar isBordered>
       <NavbarBrand>
         <img src="/assets/FlashCardlogo.png" alt="Logo" className="w-20" />
+        <img src="/assets/FC.png" alt="Logo" className="w-60" />
       </NavbarBrand>
-      <NavbarContent justify="hidden sm:flex gap-4 center">
-      <img src="/assets/FC.png" alt="Logo" className="w-60" />
-      </NavbarContent>
-      <NavbarContent className="hidden sm:flex gap-4" justify="end">
+      <NavbarContent className="" justify="end">
         {navButton}
       </NavbarContent>
     </Navbar>
