@@ -5,6 +5,7 @@ import { Card, CardBody, Link } from "@nextui-org/react";
 import LoadingCard from "@/app/components/Loading/LoadingCard";
 import useAuth from "../../lip/hooks/useAuth";
 import DeleteCard from "./DeleteCard";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 
 const CardList = ({ deckId }) => {
