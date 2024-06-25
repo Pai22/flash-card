@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { collection, addDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db } from '../../lip/firebase/clientApp';
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react';
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Card, CardBody, Link } from '@nextui-org/react';
 import useAuth from '../../lip/hooks/useAuth';
 import AddCardFront from './AddCardFront';
 import AddCardBack from './AddCardBack';
@@ -81,9 +81,16 @@ const AddNewCard = ({ deckId }) => {
 
   return (
     <>
-      <Button onPress={onOpen} color="default" variant="bordered" className="mt-4">
-        Add New Card
-      </Button>
+    <Link onPress={onOpen}>
+      <div className="flex-shrink-0 w-56 h-72 mx-10 mb-16 mt-6">
+          <Card shadow hoverable className="bg-gray-100 rounded-lg h-full">
+            <CardBody className="flex-grow flex items-center justify-center">
+              Icon Add Card
+            </CardBody>
+          </Card>
+      </div>
+    </Link>
+      
 
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
         <ModalContent>

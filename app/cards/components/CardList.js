@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../lip/firebase/clientApp";
-import { Card, CardBody, CardFooter } from "@nextui-org/react";
+import { Card, CardBody } from "@nextui-org/react";
 import LoadingCard from "@/app/components/Loading/LoadingCard";
 import useAuth from "../../lip/hooks/useAuth";
 import DeleteCard from "./DeleteCard";
+import AddNewCard from "./AddCard";
 
 const CardList = ({ deckId }) => {
   const [cards, setCards] = useState([]);
@@ -39,8 +40,9 @@ const CardList = ({ deckId }) => {
 
   return (
     <div className="flex flex-wrap mt-10 rounded-lg">
+      <AddNewCard deckId={deckId} />
       {cards.map((card) => (
-        <div key={card.id} className="flex-shrink-0 w-56 h-72 mx-10 mb-16">
+        <div key={card.id} className="flex-shrink-0 w-56 h-72 mx-10 mb-16 ">
           <div className="flex justify-center">
             <p>Switch Icon</p>
           </div>

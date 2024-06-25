@@ -8,7 +8,6 @@ import { useParams } from 'next/navigation';
 import { Button} from '@nextui-org/react';
 import { useRouter } from 'next/navigation'; // นำเข้าการใช้งาน useRouter จาก next/navigation
 import LoadingComponent from '../../components/Loading/LoadingRout';
-import AddNewCard from '../components/AddCard';
 import CardList from '../components/CardList';
 
 const DeckDetailComponent = () => {
@@ -58,7 +57,7 @@ const DeckDetailComponent = () => {
         <h3 className="text-xl mb-4">Cards</h3>
         <CardList deckId={deckId} />
 
-        <AddNewCard deckId={deckId} />
+        
       </div>
     </>
   );
