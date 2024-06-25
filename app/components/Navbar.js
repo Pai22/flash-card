@@ -1,7 +1,7 @@
 // app/components/Navbar.js
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from "next/navigation";
 import {
   Navbar,
   NavbarBrand,
@@ -29,15 +29,16 @@ export default function App() {
       setNavButton(
         <>
           <NavbarItem>
-            <Button as={Link} href="/dashboard" color="primary" variant="solid">
-              Sign In
+            <Button
+              as={Link}
+              href="/dashboard"
+              color="primary"
+              className=" text-md font-bold text-white py-2 px-4 "
+            >
+              Log in
             </Button>
           </NavbarItem>
-          <NavbarItem>
-            <Button as={Link} href="/components/signup" color="primary" variant="solid">
-              Sign Up
-            </Button>
-          </NavbarItem>
+          <NavbarItem></NavbarItem>
         </>
       );
     }
@@ -46,9 +47,10 @@ export default function App() {
   return (
     <Navbar isBordered>
       <NavbarBrand>
-        <img src="/assets/Flashcard.png" alt="Logo" className="w-20" />
+        <img src="/assets/FlashCardlogo.png" alt="Logo" className="w-20" />
+        <img src="/assets/FC.png" alt="Logo" className="w-60" />
       </NavbarBrand>
-      <NavbarContent className="hidden sm:flex gap-4" justify="center">
+      <NavbarContent className="" justify="end">
         {navButton}
       </NavbarContent>
     </Navbar>
