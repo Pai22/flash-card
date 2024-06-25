@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../lip/firebase/clientApp";
-import { Card, CardBody } from "@nextui-org/react";
+import { Card, CardBody, Link } from "@nextui-org/react";
 import LoadingCard from "@/app/components/Loading/LoadingCard";
 import useAuth from "../../lip/hooks/useAuth";
 import DeleteCard from "./DeleteCard";
-import AddNewCard from "./AddCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faRepeat
-} from "@fortawesome/free-solid-svg-icons";
+
 
 const CardList = ({ deckId }) => {
   const [cards, setCards] = useState([]);
@@ -44,7 +41,15 @@ const CardList = ({ deckId }) => {
 
   return (
     <div className="flex flex-wrap mt-10 rounded-lg">
-      <AddNewCard deckId={deckId} />
+      <Link href={'/Card/'+ deckId}>
+      <div className="flex-shrink-0 w-56 h-72 mx-10 mb-16 mt-6">
+          <Card shadow hoverable className="bg-gray-100 rounded-lg h-full">
+            <CardBody className="flex-grow flex items-center justify-center">
+              Icon Add Card
+            </CardBody>
+          </Card>
+      </div>
+    </Link>
       {cards.map((card) => (
         <div key={card.id} className="flex-shrink-0 w-56 h-72 mx-10 mb-16 ">
           <div className="flex justify-center">
