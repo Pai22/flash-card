@@ -53,11 +53,8 @@ const DeckDetailComponent = () => {
           <h2 className="text-lg font-bold col-span-2">{deck.title}</h2>
           <Button color="warning" onClick={handleNavigate} className="col-start-10">Dashboard</Button>
         </div>
-
         <h3 className="text-xl mb-4">Cards</h3>
         <CardList deckId={deckId} />
-
-        
       </div>
     </>
   );
