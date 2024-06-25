@@ -22,7 +22,7 @@ const CardList = ({ deckId }) => {
             ...doc.data(),
             id: doc.id,
           }))
-          .sort((a, b) => a.timestamp - b.timestamp); // เรียงลำดับตาม timestamp จากใหม่ไปเก่า
+          .sort((a, b) => a.timestamp - b.timestamp); 
         setCards(cardData);
       } else {
         setCards([]);
@@ -38,21 +38,54 @@ const CardList = ({ deckId }) => {
   }
 
   return (
-    <>
+    <div className="flex flex-wrap mt-10 rounded-lg">
       {cards.map((card) => (
-        <div>
-          <Card key={card.id} shadow hoverable className="mb-4 bg-slate-200 rounded-lg">
-            <CardBody>
-              <h4>Question: {card.question}</h4>
-              <p>Answer: {card.answer}</p>
+        <div key={card.id} className="flex-shrink-0 w-56 h-72 mx-10 mb-16">
+          <div className="flex justify-center">
+            <p>Switch Icon</p>
+          </div>
+          <Card shadow hoverable className="bg-gray-100 rounded-lg h-full">
+            <CardBody className="flex-grow flex items-center justify-center">
+              <div>
+                <h4 className="font-semibold">(Front): {card.questionFront}</h4>
+                {card.imageUrlFront && (
+                  <img
+                    src={card.imageUrlFront}
+                    alt="Front"
+                    className=" w-full h-20 object-cover" 
+                  />
+                )}
+                {card.audioUrlFront && (
+                  <audio controls className="w-5 absolute bottom-0 right-0">
+                    <source src={card.audioUrlFront} type="audio/mpeg" />
+                  </audio>
+                )}
+              </div>
             </CardBody>
-            <CardFooter className="flex justify-end">
-              <DeleteCard deckId={deckId} cardId={card.id} />
-            </CardFooter>
+            <CardBody className=" bg-white text-center flex-grow flex items-center justify-center">
+              <div>
+                <h4 className="font-semibold">(Back): {card.questionBack}</h4>
+                {card.imageUrlBack && (
+                  <img
+                    src={card.imageUrlBack}
+                    alt="Back"
+                    className="w-full h-20 object-cover" 
+                  />
+                )}
+                {card.audioUrlBack && (
+                  <audio controls className="w-5 absolute bottom-0 right-0">
+                    <source src={card.audioUrlBack} type="audio/mpeg" />
+                  </audio>
+                )}
+              </div>
+            </CardBody>
           </Card>
+          <div className="flex justify-end">
+            <DeleteCard deckId={deckId} cardId={card.id} />
+          </div>
         </div>
       ))}
-    </>
+    </div>
   );
 };
 

@@ -2,16 +2,20 @@ import React, { useState } from 'react';
 import { collection, addDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db } from '../../lip/firebase/clientApp';
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, useDisclosure } from '@nextui-org/react';
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/react';
 import useAuth from '../../lip/hooks/useAuth';
+import AddCardFront from './AddCardFront';
+import AddCardBack from './AddCardBack';
 
 const AddNewCard = ({ deckId }) => {
   const auth = useAuth();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [question, setQuestion] = useState('');
-  const [answer, setAnswer] = useState('');
-  const [imageFile, setImageFile] = useState(null);
-  const [audioFile, setAudioFile] = useState(null);
+  const [questionFront, setQuestionFront] = useState('');
+  const [imageFront, setImageFront] = useState(null);
+  const [audioFront, setAudioFront] = useState(null);
+  const [questionBack, setQuestionBack] = useState('');
+  const [imageBack, setImageBack] = useState(null);
+  const [audioBack, setAudioBack] = useState(null);
   const [loading, setLoading] = useState(false);
   const storage = getStorage();
 
@@ -28,31 +32,45 @@ const AddNewCard = ({ deckId }) => {
     setLoading(true);
 
     try {
-      let imageUrl = '';
-      let audioUrl = '';
+      let imageUrlFront = '';
+      let audioUrlFront = '';
+      let imageUrlBack = '';
+      let audioUrlBack = '';
 
-      if (imageFile) {
-        imageUrl = await handleFileUpload(imageFile, `images/${auth.uid}/${deckId}/${imageFile.name}`);
+      if (imageFront) {
+        imageUrlFront = await handleFileUpload(imageFront, `images/${auth.uid}/${deckId}/ImageFront/${imageFront.name}`);
       }
 
-      if (audioFile) {
-        audioUrl = await handleFileUpload(audioFile, `audio/${auth.uid}/${deckId}/${audioFile.name}`);
+      if (audioFront) {
+        audioUrlFront = await handleFileUpload(audioFront, `audio/${auth.uid}/${deckId}/AudioFront/${audioFront.name}`);
+      }
+
+      if (imageBack) {
+        imageUrlBack = await handleFileUpload(imageBack, `images/${auth.uid}/${deckId}/ImageBack/${imageBack.name}`);
+      }
+
+      if (audioBack) {
+        audioUrlBack = await handleFileUpload(audioBack, `audio/${auth.uid}/${deckId}/AudioBack/${audioBack.name}`);
       }
 
       const cardsRef = collection(db, 'Deck', auth.uid, 'title', deckId, 'cards');
       await addDoc(cardsRef, {
-        question: question,
-        answer: answer,
-        imageUrl: imageUrl,
-        audioUrl: audioUrl,
+        questionFront: questionFront,
+        imageUrlFront: imageUrlFront,
+        audioUrlFront: audioUrlFront,
+        questionBack: questionBack,
+        imageUrlBack: imageUrlBack,
+        audioUrlBack: audioUrlBack,
         timestamp: new Date().getTime(),
       });
 
       console.log('Card added successfully');
-      setQuestion('');
-      setAnswer('');
-      setImageFile(null);
-      setAudioFile(null);
+      setQuestionFront('');
+      setImageFront(null);
+      setAudioFront(null);
+      setQuestionBack('');
+      setImageBack(null);
+      setAudioBack(null);
       onOpenChange(false);
     } catch (error) {
       console.error('Error adding card:', error);
@@ -74,36 +92,21 @@ const AddNewCard = ({ deckId }) => {
               <form onSubmit={addCardToDeck}>
                 <ModalHeader className="flex flex-col gap-1">Add Card</ModalHeader>
                 <ModalBody>
-                  <Input
-                    autoFocus
-                    label="Question"
-                    name="question"
-                    value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
-                    placeholder="Enter your question"
-                    variant="bordered"
+                  <AddCardFront
+                    setQuestionFront={setQuestionFront}
+                    setImageFront={setImageFront}
+                    setAudioFront={setAudioFront}
+                    questionFront={questionFront}
+                    imageFront={imageFront}
+                    audioFront={audioFront}
                   />
-                  <Input
-                    label="Answer"
-                    name="answer"
-                    value={answer}
-                    onChange={(e) => setAnswer(e.target.value)}
-                    placeholder="Enter your answer"
-                    variant="bordered"
-                  />
-                  <Input
-                    type="file"
-                    label="Upload Image"
-                    accept="image/*"
-                    onChange={(e) => setImageFile(e.target.files[0])}
-                    variant="bordered"
-                  />
-                  <Input
-                    type="file"
-                    label="Upload Audio"
-                    accept="audio/*"
-                    onChange={(e) => setAudioFile(e.target.files[0])}
-                    variant="bordered"
+                  <AddCardBack
+                    setQuestionBack={setQuestionBack}
+                    setImageBack={setImageBack}
+                    setAudioBack={setAudioBack}
+                    questionBack={questionBack}
+                    imageBack={imageBack}
+                    audioBack={audioBack}
                   />
                 </ModalBody>
                 <ModalFooter>
