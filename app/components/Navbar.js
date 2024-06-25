@@ -1,7 +1,7 @@
 // app/components/Navbar.js
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from "next/navigation";
 import {
   Navbar,
   NavbarBrand,
@@ -34,7 +34,12 @@ export default function App() {
             </Button>
           </NavbarItem>
           <NavbarItem>
-            <Button as={Link} href="/components/signup" color="primary" variant="solid">
+            <Button
+              as={Link}
+              href="/components/signup"
+              color="primary"
+              variant="solid"
+            >
               Sign Up
             </Button>
           </NavbarItem>
@@ -46,9 +51,12 @@ export default function App() {
   return (
     <Navbar isBordered>
       <NavbarBrand>
-        <img src="/assets/Flashcard.png" alt="Logo" className="w-20" />
+        <img src="/assets/FlashCardlogo.png" alt="Logo" className="w-20" />
       </NavbarBrand>
-      <NavbarContent className="hidden sm:flex gap-4" justify="center">
+      <NavbarContent justify="hidden sm:flex gap-4 center">
+      <img src="/assets/FC.png" alt="Logo" className="w-60" />
+      </NavbarContent>
+      <NavbarContent className="hidden sm:flex gap-4" justify="end">
         {navButton}
       </NavbarContent>
     </Navbar>
