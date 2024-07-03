@@ -6,7 +6,7 @@ import LoadingCard from "@/app/components/Loading/LoadingCard";
 import useAuth from "../../lip/hooks/useAuth";
 import DeleteCard from "./DeleteCard";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRepeat } from '@fortawesome/free-solid-svg-icons';
+import { faRepeat, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
 
 
 const CardList = ({ deckId }) => {
@@ -44,9 +44,10 @@ const CardList = ({ deckId }) => {
     <div className="flex flex-wrap mt-10 rounded-lg">
       <Link href={'/Card/'+ deckId}>
       <div className="flex-shrink-0 w-56 h-72 mx-10 mb-16 mt-9">
-          <Card shadow hoverable className="bg-gray-100 rounded-lg h-full">
-            <CardBody className="flex-grow flex items-center justify-center">
-              Icon Add Card
+          <Card shadow hoverable className="bg-gray-100  rounded-3xl h-full">
+            <CardBody className="flex-grow flex items-center justify-center text-2xl font-bold bg-gray-200 hover:bg-gradient-to-r from-red-400 to-red-700 ">
+            <FontAwesomeIcon className="p-2" style={{ fontSize: "48px" }} icon={faCirclePlus} />
+              New Card
             </CardBody>
           </Card>
       </div>
