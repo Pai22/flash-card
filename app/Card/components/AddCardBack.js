@@ -1,32 +1,59 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from '@nextui-org/react';
 
 const AddCardBack = ({ setQuestionBack, setImageBack, setAudioBack, questionBack, imageBack, audioBack }) => {
+  const handleImageBackChange = (e) => {
+    const file = e.target.files[0];
+    setImageBack(file);
+  };
+
+  const handleAudioBackChange = (e) => {
+    const file = e.target.files[0];
+    setAudioBack(file);
+  };
+
   return (
-    <div className="mb-4">
-      <h3 className="text-lg font-semibold">Back Side</h3>
+    <div className="mb-4 p-4 border rounded-lg shadow-sm bg-white">
+      <h3 className="text-lg font-semibold mb-2">ด้านหลัง</h3>
       <Input
-        label="Question (Back)"
+        label="คำถาม (ด้านหลัง)"
         name="questionBack"
         value={questionBack}
         onChange={(e) => setQuestionBack(e.target.value)}
-        placeholder="Enter your question for the back"
+        placeholder="กรอกคำถามสำหรับด้านหลัง"
         variant="bordered"
+        fullWidth
       />
       <Input
         type="file"
-        label="Upload Image (Back)"
+        label="อัปโหลดรูปภาพ (ด้านหลัง)"
         accept="image/*"
-        onChange={(e) => setImageBack(e.target.files[0])}
+        onChange={handleImageBackChange}
         variant="bordered"
+        fullWidth
+        className="mt-4"
       />
+      {imageBack && (
+        <div className="mt-2">
+          <img src={URL.createObjectURL(imageBack)} alt="Image Back" className="max-h-40" />
+        </div>
+      )}
       <Input
         type="file"
-        label="Upload Audio (Back)"
+        label="อัปโหลดไฟล์เสียง (ด้านหลัง)"
         accept="audio/*"
-        onChange={(e) => setAudioBack(e.target.files[0])}
+        onChange={handleAudioBackChange}
         variant="bordered"
+        fullWidth
+        className="mt-4"
       />
+      {audioBack && (
+        <div className="mt-2">
+          <audio controls>
+            <source src={URL.createObjectURL(audioBack)} type="audio/mpeg" />
+          </audio>
+        </div>
+      )}
     </div>
   );
 };

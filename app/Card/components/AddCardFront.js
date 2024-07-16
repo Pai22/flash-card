@@ -1,33 +1,60 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from '@nextui-org/react';
 
 const AddCardFront = ({ setQuestionFront, setImageFront, setAudioFront, questionFront, imageFront, audioFront }) => {
+  const handleImageFrontChange = (e) => {
+    const file = e.target.files[0];
+    setImageFront(file);
+  };
+
+  const handleAudioFrontChange = (e) => {
+    const file = e.target.files[0];
+    setAudioFront(file);
+  };
+
   return (
-    <div className="mb-4">
-      <h3 className="text-lg font-semibold">Front Side</h3>
+    <div className="mb-4 p-4 border rounded-lg shadow-sm bg-white">
+      <h3 className="text-lg font-semibold mb-2">ด้านหน้า</h3>
       <Input
         autoFocus
-        label="Question (Front)"
+        label="คำถาม (ด้านหน้า)"
         name="questionFront"
         value={questionFront}
         onChange={(e) => setQuestionFront(e.target.value)}
-        placeholder="Enter your question for the front"
+        placeholder="กรอกคำถามสำหรับด้านหน้า"
         variant="bordered"
+        fullWidth
       />
       <Input
         type="file"
-        label="Upload Image (Front)"
+        label="อัปโหลดรูปภาพ (ด้านหน้า)"
         accept="image/*"
-        onChange={(e) => setImageFront(e.target.files[0])}
+        onChange={handleImageFrontChange}
         variant="bordered"
+        fullWidth
+        className="mt-4"
       />
+      {imageFront && (
+        <div className="mt-2">
+          <img src={URL.createObjectURL(imageFront)} alt="Image Front" className="max-h-40" />
+        </div>
+      )}
       <Input
         type="file"
-        label="Upload Audio (Front)"
+        label="อัปโหลดไฟล์เสียง (ด้านหน้า)"
         accept="audio/*"
-        onChange={(e) => setAudioFront(e.target.files[0])}
+        onChange={handleAudioFrontChange}
         variant="bordered"
+        fullWidth
+        className="mt-4"
       />
+      {audioFront && (
+        <div className="mt-2">
+          <audio controls>
+            <source src={URL.createObjectURL(audioFront)} type="audio/mpeg" />
+          </audio>
+        </div>
+      )}
     </div>
   );
 };
