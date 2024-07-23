@@ -45,7 +45,7 @@ export default function App() {
   }, [auth, router.pathname]);
 
   return (
-    <Navbar isBordered>
+    <Navbar isBordered className="bg-yellow-200 p-2">
       <NavbarBrand>
         <img src="/assets/FlashCardlogo.png" alt="Logo" className="w-20" />
         <img src="/assets/FC.png" alt="Logo" className="w-60" />

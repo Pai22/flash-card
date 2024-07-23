@@ -117,7 +117,7 @@ const CardPage = () => {
             color="warning"
             onClick={() => router.push(`/cards/${deckId}`)}
           >
-            กลับไปยังการ์ด
+            Back to deck
           </Button>
         </div>
       </div>
