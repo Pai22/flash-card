@@ -1,0 +1,61 @@
+/* กำหนดสไตล์ของ flip card */
+.flip-card {
+    background-color: transparent; /* ตั้งค่าพื้นหลังเป็นโปร่งใสเพื่อให้เห็นเนื้อหาภายใน */
+    width: 550px; /* กำหนดความกว้างของ flip card */
+    height: 600px; /* กำหนดความสูงของ flip card */
+    perspective: 1000px; /* กำหนดระยะห่างของมุมมอง 3D (ค่ามากจะทำให้เอฟเฟกต์ 3D ลดลง) */
+    margin: 20px auto; /* ตั้งค่าระยะห่างด้านบนและด้านล่างเป็น 100px และจัดกลางตามแนวนอน */
+}
+
+/* กำหนดสไตล์ของ title ใน flip card */
+.title {
+    font-size: 1.5em; /* ขนาดฟอนต์เป็น 1.5 เท่าของขนาดฟอนต์ของพาเรนต์ */
+    font-weight: 900; /* น้ำหนักฟอนต์ให้หนามาก */
+    text-align: center; /* จัดข้อความให้อยู่ตรงกลางแนวนอน */
+    margin: 0; /* ลบระยะห่างเริ่มต้นของข้อความ */
+    color: #333; /* สีข้อความเป็นสีเทาเข้ม */
+}
+
+/* กำหนดสไตล์ของ container ภายใน flip card */
+.flip-card-inner {
+    position: relative; /* ตั้งตำแหน่งเป็นสัมพัทธ์กับตำแหน่งปกติ */
+    width: 100%; /* กำหนดความกว้างเป็น 100% ของพาเรนต์ */
+    height: 100%; /* กำหนดความสูงเป็น 100% ของพาเรนต์ */
+    text-align: center; /* จัดข้อความให้ตรงกลางแนวนอน */
+    transition: transform 0.8s; /* เพิ่มเอฟเฟกต์การเปลี่ยนแปลงที่ราบรื่น 0.8 วินาทีเมื่อการหมุน */
+    transform-style: preserve-3d; /* ทำให้ลูกของถูกเรนเดอร์ในพื้นที่ 3D */
+    border-radius: 15px; /* ทำมุมของกรอบให้โค้งด้วยรัศมี 15px */
+}
+
+/* กำหนดสไตล์ของด้านหน้าและด้านหลังของ flip card */
+.flip-card-front,
+.flip-card-back {
+    box-shadow: 0 8px 14px 0 rgba(0, 0, 0, 0.2); /* เพิ่มเงาให้ดูมีมิติ */
+    position: absolute; /* ตั้งตำแหน่งเป็นแบบสัมบูรณ์ภายใน .flip-card-inner */
+    display: flex; /* ใช้ flexbox สำหรับจัดเรียงลูกของ */
+    flex-direction: column; /* จัดเรียงลูกของในแนวตั้ง */
+    justify-content: center; /* จัดลูกของให้อยู่ตรงกลางแนวตั้ง */
+    width: 100%; /* กำหนดความกว้างเป็น 100% ของพาเรนต์ */
+    height: 100%; /* กำหนดความสูงเป็น 100% ของพาเรนต์ */
+    backface-visibility: hidden; /* ซ่อนด้านหลังเมื่อหัน away จากผู้ชม */
+    border: 1px solid grey; /* เพิ่มกรอบสีเทา */
+    border-radius: 15px; /* ทำมุมของกรอบให้โค้งด้วยรัศมี 15px */
+}
+
+/* กำหนดสไตล์ของด้านหน้า flip card */
+.flip-card-front {
+    background: whitesmoke; /* ตั้งค่าสีพื้นหลังเป็นสีเทาอ่อน */
+    color: black; /* ตั้งค่าสีข้อความเป็นสีดำ */
+}
+
+/* กำหนดสไตล์ของด้านหลัง flip card */
+.flip-card-back {
+    background: whitesmoke; /* ตั้งค่าสีพื้นหลังเป็นสีเทาอ่อน */
+    color: black; /* ตั้งค่าสีข้อความเป็นสีดำ */
+    transform: rotateY(180deg); /* หมุนด้านหลัง 180 องศา along the Y-axis เพื่อให้ซ่อนในตอนเริ่มต้น */
+}
+
+/* กำหนดสไตล์ของ flip card เมื่อต้องการให้มันหมุน */
+.flipped {
+    transform: rotateY(180deg); /* หมุน flip card 180 องศา along the Y-axis เพื่อแสดงด้านหลัง */
+}
