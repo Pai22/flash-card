@@ -1,13 +1,13 @@
+// app/Card/[id]/page.js
 "use client";
 import React, { useState } from "react";
 import { collection, addDoc } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../../lip/firebase/clientApp";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db } from "../../lip/firebase/clientApp";
 import { Button } from "@nextui-org/react";
 import useAuth from "../../lip/hooks/useAuth";
 import { useRouter, useParams } from "next/navigation";
-import AddCardFront from "../components/AddCardFront";
-import AddCardBack from "../components/AddCardBack";
 import "tailwindcss/tailwind.css"; // นำเข้า Tailwind CSS
 import LayoutCard from "../components/LayoutCard";
 
@@ -22,7 +22,6 @@ const CardPage = () => {
   const [audioBack, setAudioBack] = useState(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const storage = getStorage();
 
   const handleFileUpload = async (file, path) => {
     const storageRef = ref(storage, path);

@@ -1,3 +1,4 @@
+// app/cards/components/CardList.js
 import React, { useEffect, useState } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../lip/firebase/clientApp";
@@ -7,7 +8,6 @@ import useAuth from "../../lip/hooks/useAuth";
 import DeleteCard from "./DeleteCard";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRepeat, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
-
 
 const CardList = ({ deckId }) => {
   const [cards, setCards] = useState([]);
@@ -43,29 +43,29 @@ const CardList = ({ deckId }) => {
   return (
     <div className="flex flex-wrap mt-10 rounded-lg">
       <Link href={'/Card/'+ deckId}>
-      <div className="flex-shrink-0 w-56 h-72 mx-10 mb-16 mt-9">
+        <div className="flex-shrink-0 w-56 h-72 mx-10 mb-16 mt-9">
           <Card shadow hoverable className="bg-gray-100  rounded-3xl h-full">
             <CardBody className="flex-grow flex items-center justify-center text-2xl font-bold bg-gray-200 hover:bg-gradient-to-r from-red-400 to-red-700 ">
-            <FontAwesomeIcon className="p-2" style={{ fontSize: "48px" }} icon={faCirclePlus} />
+              <FontAwesomeIcon className="p-2" style={{ fontSize: "48px" }} icon={faCirclePlus} />
               New Card
             </CardBody>
           </Card>
-      </div>
-    </Link>
+        </div>
+      </Link>
       {cards.map((card) => (
         <div key={card.id} className="flex-shrink-0 w-56 h-72 mx-10 mb-16 ">
           <div className="flex justify-center">
-          <FontAwesomeIcon className="p-2" style={{ fontSize: "20px" }} icon={faRepeat} />
+            <FontAwesomeIcon className="p-2" style={{ fontSize: "20px" }} icon={faRepeat} />
           </div>
           <Card shadow hoverable className="bg-gray-100 rounded-lg h-full">
             <CardBody className="flex-grow flex items-center justify-center">
               <div>
-                <h4 className="font-semibold">(Front): {card.questionFront}</h4>
+                <h4 className="font-semibold text-center"> {card.questionFront}</h4>
                 {card.imageUrlFront && (
                   <img
                     src={card.imageUrlFront}
                     alt="Front"
-                    className=" w-full h-20 object-cover" 
+                    className="w-full h-20 object-cover" 
                   />
                 )}
                 {card.audioUrlFront && (
@@ -77,7 +77,7 @@ const CardList = ({ deckId }) => {
             </CardBody>
             <CardBody className=" bg-white text-center flex-grow flex items-center justify-center">
               <div>
-                <h4 className="font-semibold">(Back): {card.questionBack}</h4>
+                <h4 className="font-semibold text-center"> {card.questionBack}</h4>
                 {card.imageUrlBack && (
                   <img
                     src={card.imageUrlBack}
@@ -94,7 +94,14 @@ const CardList = ({ deckId }) => {
             </CardBody>
           </Card>
           <div className="flex justify-end">
-            <DeleteCard deckId={deckId} cardId={card.id} />
+            <DeleteCard
+              deckId={deckId}
+              cardId={card.id}
+              imageFront={card.imageUrlFront}
+              imageBack={card.imageUrlBack}
+              audioFront={card.audioUrlFront}
+              audioBack={card.audioUrlBack}
+            />
           </div>
         </div>
       ))}
