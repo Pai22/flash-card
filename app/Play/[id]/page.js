@@ -17,7 +17,7 @@ export default function Play() {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [showPopup, setShowPopup] = useState(true);
   const [mode, setMode] = useState("Single");
-  const [startSide, setStartSide] = useState("Front");
+  let [startSide, setStartSide] = useState("Front");
   const [cardCount, setCardCount] = useState(0);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -29,16 +29,28 @@ export default function Play() {
   const handleNextCard = () => {
     if (currentCardIndex < cards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
-      setIsFlipped(false);
+      // รักษาสถานะการพลิกการ์ดตาม startSide
+      if (startSide === "Back") {
+        setIsFlipped(true); // เปลี่ยนไปที่ด้านหลัง
+      } else {
+        setIsFlipped(false); // เปลี่ยนไปที่ด้านหน้า
+      }
     }
   };
+  
 
   const handlePreviousCard = () => {
     if (currentCardIndex > 0) {
       setCurrentCardIndex(currentCardIndex - 1);
-      setIsFlipped(false);
+      // รักษาสถานะการพลิกการ์ดตาม startSide
+      if (startSide === "Back") {
+        setIsFlipped(true); // เปลี่ยนไปที่ด้านหลัง
+      } else {
+        setIsFlipped(false); // เปลี่ยนไปที่ด้านหน้า
+      }
     }
   };
+  
 
   const handleExit = () => {
     router.push("/dashboard");
@@ -138,7 +150,7 @@ export default function Play() {
             </div>
             <div className="flex items-center justify-end pr-10">
               <FontAwesomeIcon
-                style={{ fontSize: "40px", cursor: "pointer", color: "#e5380e"}}
+                style={{ fontSize: "40px", cursor: "pointer" }}
                 icon={faSquareXmark}
                 onClick={handleExit}
               />
@@ -179,7 +191,7 @@ export default function Play() {
               </div>
             </div>
           </div>
-          <div className="m-7">
+          <div className="m-5">
               <span className="flex justify-center space-x-5">
                 <FontAwesomeIcon
                   style={{ fontSize: "40px", cursor: "pointer" }}
