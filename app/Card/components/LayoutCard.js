@@ -1,6 +1,7 @@
+// app/Card/components/LayoutCard.js
 "use client";
 import { useState, useEffect } from "react";
-import { Switch, Input } from "@nextui-org/react";
+import { Switch, Input, colors } from "@nextui-org/react";
 import styles from "../CreateCard.module.css";
 import useAuth from "@/app/lip/hooks/useAuth";
 
@@ -18,6 +19,10 @@ export default function LayoutCard({
   questionFront,
   imageFront,
   audioFront,
+  setLayoutBack,
+  setLayoutFront,
+  layoutFront,
+  layoutBack,
 }) {
   const [selectedContentFront, setSelectedContentFront] = useState(null);
   const [selectedContentBack, setSelectedContentBack] = useState(null);
@@ -188,6 +193,7 @@ export default function LayoutCard({
       },
     ],
   };
+  
 
   const renderCard = (card, side) => (
     <div
@@ -377,8 +383,8 @@ export default function LayoutCard({
       <div className="flex-1 p-4 bg-gray-200 flex items-center justify-center">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {isSelected
-            ? cards.back.map((card) => renderCard(card, "back"))
-            : cards.front.map((card) => renderCard(card, "front"))}
+            ? cards.back.map((card) => renderCard(card, "back") || layoutCard(card))
+            : cards.front.map((card) => renderCard(card, "front") || layoutCard(card))}
         </div>
       </div>
       <div className="flex-1 bg-gray-300 flex flex-col items-center justify-center">
