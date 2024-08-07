@@ -51,14 +51,14 @@ const DeckListComponent = () => {
             className="m-2 shadow-md h-full flex flex-col justify-between"
           >
             <Link href={"/cards/" + deck.id} underline="none">
-              <CardHeader className="pb-0 pt-2 px-4 flex justify-between items-center">
+              <CardHeader className="pb-0 pt-4 px-4 flex justify-between items-center">
                 <h2 className="text-lg text-neutral-700 uppercase font-semibold">
                   {deck.title}
                 </h2>
-                <div className="cursor-pointer pt-2 ml-2">
+                <div className="cursor-pointer  ml-2 mr-3">
                 <Link href={"/Play/" + deck.id} underline="none">
                   <FontAwesomeIcon
-                    style={{ fontSize: "30px", color: "#a3e635" }}
+                    style={{ fontSize: "30px", color: "#be123c" }}
                     icon={faPlay}
                   ></FontAwesomeIcon>
                 </Link>

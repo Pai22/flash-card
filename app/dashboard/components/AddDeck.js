@@ -4,7 +4,7 @@ import { addDoc, collection } from 'firebase/firestore';
 import useAuth from '@/app/lip/hooks/useAuth';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input } from '@nextui-org/react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 
 const AddToDeckComponent = () => {
@@ -40,12 +40,13 @@ const AddToDeckComponent = () => {
   return (
     <>
       <Button
-        radius="lg"
-        className="font-semibold bg-gradient-to-r from-red-500 to-red-700 text-white shadow-lg my-6 ml-2" onPress={onOpen}>
+        radius="sm"
+        className="font-semibold bg-sky-400 border-2 border-sky-400 text-white text-[15px] shadow-lg my-5 ml-2" onPress={onOpen}>
          <FontAwesomeIcon
-          style={{ fontSize: "16px" }}
-          icon={faCirclePlus}
-        ></FontAwesomeIcon>New Flashcard Deck
+          style={{ fontSize: "20px"}}
+          icon={faPlus}
+        /><span>New Deck</span>
+       
       </Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
         <ModalContent>
