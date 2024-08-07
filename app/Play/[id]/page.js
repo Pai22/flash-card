@@ -178,7 +178,8 @@ export default function Play() {
                 </div>
               </div>
             </div>
-            <div className="m-5">
+          </div>
+          <div className="m-5">
               <span className="flex justify-center space-x-5">
                 <FontAwesomeIcon
                   style={{ fontSize: "40px", cursor: "pointer" }}
@@ -192,7 +193,6 @@ export default function Play() {
                 />
               </span>
             </div>
-          </div>
         </>
       )}
     </div>
