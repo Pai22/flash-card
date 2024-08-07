@@ -138,7 +138,7 @@ export default function Play() {
             </div>
             <div className="flex items-center justify-end pr-10">
               <FontAwesomeIcon
-                style={{ fontSize: "40px", cursor: "pointer" }}
+                style={{ fontSize: "40px", cursor: "pointer", color: "#e5380e"}}
                 icon={faSquareXmark}
                 onClick={handleExit}
               />
@@ -179,7 +179,7 @@ export default function Play() {
               </div>
             </div>
           </div>
-          <div className="m-5">
+          <div className="m-7">
               <span className="flex justify-center space-x-5">
                 <FontAwesomeIcon
                   style={{ fontSize: "40px", cursor: "pointer" }}
