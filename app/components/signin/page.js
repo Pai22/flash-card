@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Button, Input, Link, Spinner } from "@nextui-org/react";
-import { auth, app } from "../../lip/firebase/clientApp";
+import { auth, app, db } from "../../lip/firebase/clientApp";
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -10,10 +10,12 @@ import {
   GoogleAuthProvider,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [isVisible, setIsVisible] = useState(false);
 
   const handleSignIn = (e) => {
     e.preventDefault();
@@ -38,14 +40,26 @@ const SignIn = () => {
     const provider = new GoogleAuthProvider();
     setLoading(true);
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      const userDoc = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDoc);
+
+      if (!userDocSnap.exists()) {
+        // If user doesn't exist in Firestore, create a new document
+        await setDoc(userDoc, {
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+        });
+      }
       router.push("/dashboard");
     } catch (e) {
       console.error("Error signing in with Google:", e.message);
       setLoading(false);
     }
   };
-  const [isVisible, setIsVisible] = React.useState(false);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-sky-100">
@@ -83,16 +97,14 @@ const SignIn = () => {
             />
           </div>
           <Button
-            className=" font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-500"
+            className="font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-500"
             variant="solid"
             color="primary"
             type="submit"
           >
             Sign in
           </Button>
-          {loading && (
-            <Spinner color="default" labelColor="foreground"/>
-          )}
+          {loading && <Spinner color="default" labelColor="foreground" />}
           <div className="flex items-center my-4">
             <hr className="flex-grow border-gray-300" />
             <span className="mx-4 text-gray-600">or</span>

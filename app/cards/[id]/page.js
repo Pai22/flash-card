@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { db } from '../../lip/firebase/clientApp'; 
-import { onSnapshot, doc } from 'firebase/firestore';
+import { onSnapshot, doc, collection } from 'firebase/firestore';
 import useAuth from '../../lip/hooks/useAuth'; 
 import { useParams } from 'next/navigation'; 
 import { Button} from '@nextui-org/react';
@@ -13,6 +13,7 @@ import CardList from '../components/CardList';
 
 const DeckDetailComponent = () => {
   const [deck, setDeck] = useState(null);
+  const [cards, setCards] = useState([]);
   const auth = useAuth();
   const { id: deckId } = useParams(); // ใช้ useParams เพื่อดึง deckId จาก URL
   const [isNavigating, setIsNavigating] = useState(false); // เพิ่ม state สำหรับการโหลดหน้า dashboard
@@ -29,8 +30,18 @@ const DeckDetailComponent = () => {
         setDeck(null);
       }
     });
+    
+    //ดึงข้อมูลในการ์ดที่อยู่ใน Deck
+    const cardsRef = collection(db, "Deck", auth.uid, "title", deckId, "cards");
+    const unsubscribeCards = onSnapshot(cardsRef, (snapshot) =>{
+      const cardList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}));
+      setCards(cardList);
+    });
 
-    return () => unsubscribeDeck();
+    return () => {
+      unsubscribeCards();
+      unsubscribeDeck();
+    };
   }, [auth, deckId]);
 
 
@@ -54,7 +65,7 @@ const DeckDetailComponent = () => {
           <h2 className="text-lg font-bold col-span-2">{deck.title}</h2>
           <Button color="warning" onClick={handleNavigate} className="col-start-10">Dashboard</Button>
         </div>
-        <h3 className="text-xl mb-4">Cards</h3>
+        <h3 className="text-xl mb-4">Cards ({cards.length})</h3>
         <CardList deckId={deckId} />
       </div>
     </>

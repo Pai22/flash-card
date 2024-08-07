@@ -20,6 +20,8 @@ const CardPage = () => {
   const [questionBack, setQuestionBack] = useState("");
   const [imageBack, setImageBack] = useState(null);
   const [audioBack, setAudioBack] = useState(null);
+  let [layoutFront, setLayoutFront] = useState("");
+  let [layoutBack, setLayoutBack] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -91,6 +93,8 @@ const CardPage = () => {
         questionBack: questionBack,
         imageUrlBack: imageUrlBack,
         audioUrlBack: audioUrlBack,
+        layoutFront: layoutFront,
+        layoutBack: layoutBack,
         timestamp: new Date().getTime(),
       });
 
@@ -101,6 +105,8 @@ const CardPage = () => {
       setQuestionBack("");
       setImageBack(null);
       setAudioBack(null);
+      setLayoutFront("");
+      setLayoutBack("");
     } catch (error) {
       console.error("Error adding card:", error);
     } finally {
@@ -136,6 +142,10 @@ const CardPage = () => {
           questionBack={questionBack}
           imageBack={imageBack}
           audioBack={audioBack}
+          setLayoutBack={setLayoutBack}
+          setLayoutFront={setLayoutFront}
+          layoutBack={layoutBack}
+          layoutFront={layoutFront}
         />
 
         <div className="flex justify-end space-x-4">
