@@ -1,6 +1,6 @@
 // app/Play/[id]/page.js
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { db } from '../../lip/firebase/clientApp';
 import { onSnapshot, collection } from "firebase/firestore";
 import useAuth from "../../lip/hooks/useAuth";
@@ -8,6 +8,7 @@ import { useParams, useRouter } from "next/navigation";
 import styles from "../Play.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleArrowLeft, faCircleArrowRight, faSquareXmark } from "@fortawesome/free-solid-svg-icons";
+import { faPlay, faPause } from "@fortawesome/free-solid-svg-icons";
 
 export default function Play() {
   const { id: deckId } = useParams();
@@ -21,7 +22,19 @@ export default function Play() {
   const [cardCount, setCardCount] = useState(0);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
 
+  const handleAudioPlayPause = (event) => {
+    event.stopPropagation(); // Prevent click from triggering card flip
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+  
   const handleClick = () => {
     setIsFlipped(!isFlipped);
   };
@@ -72,6 +85,8 @@ export default function Play() {
           .map((doc) => ({
             ...doc.data(),
             id: doc.id,
+            layoutFront: doc.data().layoutFront || null,
+            layoutBack: doc.data().layoutBack || null,
           }))
           .sort((a, b) => a.timestamp - b.timestamp);
         setCards(cardData);
@@ -90,6 +105,55 @@ export default function Play() {
   }
 
   const currentCard = cards[currentCardIndex];
+  console.log("layoutFront:", currentCard.layoutFront);
+  console.log("layoutBack:", currentCard.layoutBack);
+
+  const renderCardContent = (card, side) => {
+    if (!card) return null;
+  
+    const layout = side === "front" ? card.layoutFront : card.layoutBack;
+  
+    switch (layout) {
+      case "text":
+        return (
+          <div className={styles.textContent}>
+            <p>{side === "front" ? card.questionFront : card.questionBack}</p>
+          </div>
+        );
+      case "image":
+        return (
+          <div className={styles.imageContent}>
+            <img
+              src={side === "front" ? card.imageUrlFront : card.imageUrlBack}
+              alt={`${side} image`}
+            />
+          </div>
+        );
+      case "TextImage":
+        return (
+          <div className={styles.textImageContent}>
+            <p>{side === "front" ? card.questionFront : card.questionBack}</p>
+            <img
+              src={side === "front" ? card.imageUrlFront : card.imageUrlBack}
+              alt={`${side} image`}
+            />
+          </div>
+        );
+      case "ImageText":
+        return (
+          <div className={styles.imageTextContent}>
+            <img
+              src={side === "front" ? card.imageUrlFront : card.imageUrlBack}
+              alt={`${side} image`}
+            />
+            <p>{side === "front" ? card.questionFront : card.questionBack}</p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+  
 
   return (
     <div className="w-full h-screen items-start justify-center bg-sky-200 rounded-sm">
@@ -158,39 +222,51 @@ export default function Play() {
           </div>
 
           <div className={`${styles["flip-card"]} cursor-pointer`} onClick={handleClick}>
-            <div className={`${styles["flip-card-inner"]} ${isFlipped ? styles["flipped"] : ""}`}>
-              <div className={`${styles["flip-card-front"]} my-2 space-y-0`}>
-                <div className="bg-yellow-100 p-4 rounded-lg shadow-md">
-                  <h3 className="font-bold mb-2">Question:</h3>
-                  <p>{currentCard.questionFront}</p>
-                  {currentCard.imageUrlFront && (
-                    <img src={currentCard.imageUrlFront} alt="front image" className="w-full mt-2" />
-                  )}
-                  {currentCard.audioUrlFront && (
-                    <audio controls className="w-full mt-2">
-                      <source src={currentCard.audioUrlFront} type="audio/mp3" />
-                      Your browser does not support the audio element.
-                    </audio>
-                  )}
-                </div>
-              </div>
-              <div className={styles["flip-card-back"]}>
-                <div className="bg-yellow-100 p-4 rounded-lg shadow-md">
-                  <h3 className="font-bold mb-2">Answer:</h3>
-                  <p>{currentCard.questionBack}</p>
-                  {currentCard.imageUrlBack && (
-                    <img src={currentCard.imageUrlBack} alt="back image" className="w-full mt-2" />
-                  )}
-                  {currentCard.audioUrlBack && (
-                    <audio controls className="w-full mt-2">
-                      <source src={currentCard.audioUrlBack} type="audio/mp3" />
-                      Your browser does not support the audio element.
-                    </audio>
-                  )}
-                </div>
-              </div>
-            </div>
+  <div className={`${styles["flip-card-inner"]} ${isFlipped ? styles["flipped"] : ""}`}>
+    <div className={`${styles["flip-card-front"]} my-2 space-y-0`}>
+      <div className={`p-4 ${currentCard.layoutFront || ''}`}>
+        {renderCardContent(currentCard, "front")}
+      </div>
+      <div className="absolute bottom-2 right-2">
+  {currentCard.audioUrlFront && (
+    <div className="audio-container p-2 bg-white rounded-full shadow-md">
+      <audio ref={audioRef} className="hidden">
+        <source src={currentCard.audioUrlFront} type="audio/mp3" />
+        Your browser does not support the audio element.
+      </audio>
+      <FontAwesomeIcon
+        icon={isPlaying ? faPause : faPlay}
+        onClick={handleAudioPlayPause}
+        className="audio-icon cursor-pointer"
+      />
+    </div>
+  )}
+</div>
+
+    </div>
+
+    <div className={styles["flip-card-back"]}>
+      <div className={`p-4 ${currentCard.layoutBack || ''}`}>
+        {renderCardContent(currentCard, "back")}
+      </div>
+      <div className="absolute bottom-2 right-2">
+        {currentCard.audioUrlBack && (
+          <div className="audio-container p-2 bg-white rounded-full shadow-md">
+            <audio ref={audioRef} className="hidden">
+              <source src={currentCard.audioUrlBack} type="audio/mp3" />
+              Your browser does not support the audio element.
+            </audio>
+            <FontAwesomeIcon
+              icon={isPlaying ? faPause : faPlay}
+              onClick={handleAudioPlayPause}
+              className="audio-icon"
+            />
           </div>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
           <div className="m-5">
               <span className="flex justify-center space-x-5">
                 <FontAwesomeIcon
