@@ -194,16 +194,27 @@ export default function LayoutCard({
     ],
   };
   
+  const handleLayoutSelect = (side, layout) => {
+    if (side === "front") {
+      setLayoutFront(layout);
+    } else {
+      setLayoutBack(layout);
+    }
+  };
 
   const renderCard = (card, side) => (
     <div
       key={card.id}
       className="w-full bg-white shadow-md rounded-lg cursor-pointer"
-      onClick={() =>
-        side === "front"
-          ? setSelectedContentFront(card)
-          : setSelectedContentBack(card)
-      }
+      onClick={() => {
+        if (side === "front") {
+          setSelectedContentFront(card);
+          handleLayoutSelect(side, card.type);
+        } else {
+          setSelectedContentBack(card);
+          handleLayoutSelect(side, card.type);
+        }
+      }}
     >
       <div className="p-20 flex items-center justify-center overflow-hidden">
         <div>
