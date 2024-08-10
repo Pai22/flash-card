@@ -86,7 +86,7 @@ const CardList = ({ deckId }) => {
           <Card shadow hoverable className="bg-gray-100 rounded-lg h-full">
             {card.flipped ? (
               <>
-                <CardBody className="bg-white text-center flex-grow flex items-center justify-center">
+                <CardBody className="bg-white text-center h-64 flex items-center justify-center">
                   <div>
                     <h4 className="font-semibold text-center">
                       {card.questionBack}
@@ -105,7 +105,7 @@ const CardList = ({ deckId }) => {
                     )}
                   </div>
                 </CardBody>
-                <CardBody className="flex-grow flex items-center justify-center">
+                <CardBody className="bg-gray-100  h-64 flex items-center justify-center">
                   <div>
                     <h4 className="font-semibold text-center">
                       {card.questionFront}
@@ -127,7 +127,7 @@ const CardList = ({ deckId }) => {
               </>
             ) : (
               <>
-                <CardBody className="flex-grow flex items-center justify-center">
+                <CardBody className=" h-64 flex items-center justify-center">
                   <div>
                     <h4 className="font-semibold text-center">
                       {card.questionFront}
@@ -146,7 +146,7 @@ const CardList = ({ deckId }) => {
                     )}
                   </div>
                 </CardBody>
-                <CardBody className="bg-white text-center flex-grow flex items-center justify-center">
+                <CardBody className="bg-white text-center  h-64 flex items-center justify-center">
                   <div>
                     <h4 className="font-semibold text-center">
                       {card.questionBack}
