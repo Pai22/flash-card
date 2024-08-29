@@ -2,9 +2,16 @@
 import React from 'react';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { getStorage, ref, deleteObject } from 'firebase/storage';
-import { Button } from '@nextui-org/react';
 import { db } from '../../lip/firebase/clientApp';
 import useAuth from '../../lip/hooks/useAuth';
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@nextui-org/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEllipsis, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
 const DeleteCard = ({ deckId, cardId, imageFront, imageBack, audioFront, audioBack }) => {
   const auth = useAuth();
@@ -47,9 +54,18 @@ const DeleteCard = ({ deckId, cardId, imageFront, imageBack, audioFront, audioBa
   };
 
   return (
-    <Button color="error" onPress={handleDelete}>
-      Delete
-    </Button>
+<Dropdown>
+      <DropdownTrigger>
+        <div className="mt-2 cursor-pointer">
+          <FontAwesomeIcon style={{ fontSize: "20px" }} icon={faEllipsis}></FontAwesomeIcon>
+        </div>
+      </DropdownTrigger>
+      <DropdownMenu  className="" color="danger" variant="flat">
+        <DropdownItem size="sm" onClick={handleDelete}>
+          <FontAwesomeIcon style={{ fontSize: "20px" }} icon={faTrashAlt}></FontAwesomeIcon> Remove 
+        </DropdownItem>
+      </DropdownMenu>
+    </Dropdown>
   );
 };
 
