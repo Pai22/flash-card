@@ -34,7 +34,7 @@ const DeckDetailComponent = () => {
     //ดึงข้อมูลในการ์ดที่อยู่ใน Deck
     const cardsRef = collection(db, "Deck", auth.uid, "title", deckId, "cards");
     const unsubscribeCards = onSnapshot(cardsRef, (snapshot) =>{
-      const cardList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}));
+    const cardList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data()}));
       setCards(cardList);
     });
 

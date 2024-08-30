@@ -24,7 +24,11 @@ const CardPage = () => {
   let [layoutBack, setLayoutBack] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
+  let [imageUrlFront,setImageUrlFront] = useState(null);
+  let [imageUrlBack,setImageUrlBack] = useState(null);
+  let [audioUrlFront, setAudioUrlFront] = useState(null);
+  let [audioUrlBack, setAudioUrlBack] = useState(null);
+  
   const handleFileUpload = async (file, path) => {
     const timestamp = new Date().getTime(); // เพิ่ม timestamp
     const storageRef = ref(storage, `${path}_${timestamp}`);
@@ -34,11 +38,6 @@ const CardPage = () => {
   
 
   const handleUploadFiles = async () => {
-    let imageUrlFront = "";
-    let audioUrlFront = "";
-    let imageUrlBack = "";
-    let audioUrlBack = "";
-
     if (imageFront) {
       imageUrlFront = await handleFileUpload(
         imageFront,
@@ -118,8 +117,8 @@ const CardPage = () => {
 
   return (
     <>
-      <div className="container mx-auto p-4">
-        <div className="flex justify-end mb-4">
+      <div className="bg-red-300 container mx-auto p-4">
+        <div className="bg-red-200 flex justify-end mb-4">
           <Button
             color="warning"
             onClick={() => router.push(`/cards/${deckId}`)}
@@ -128,7 +127,7 @@ const CardPage = () => {
           </Button>
         </div>
       </div>
-      <form onSubmit={addCardToDeck} className="space-y-6">
+      <form onSubmit={addCardToDeck} className="bg-green-400 space-y-6">
         <LayoutCard
           title="เพิ่มการ์ดใหม่"
           deckId={deckId}
@@ -149,7 +148,7 @@ const CardPage = () => {
           loading = {loading}
         />
 
-        <div className="flex justify-end space-x-4">
+        <div className=" bg-green-700 flex justify-end space-x-4">
           <Button
             color="error"
             type="button"

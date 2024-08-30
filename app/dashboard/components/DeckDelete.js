@@ -3,7 +3,6 @@ import React from "react";
 import { db, storage } from "../../lip/firebase/clientApp";
 import { doc, deleteDoc, collection, getDocs, query } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
-import { Button } from "@nextui-org/react";
 import useAuth from "../../lip/hooks/useAuth";
 import {
   Dropdown,
@@ -66,7 +65,7 @@ const DeckDelete = ({ deck }) => {
       </DropdownTrigger>
       <DropdownMenu color="danger" variant="flat">
         <DropdownItem size="sm" onClick={handleDelete}>
-          <FontAwesomeIcon style={{ fontSize: "20px" }} icon={faTrashAlt}></FontAwesomeIcon> Remove deck
+          <FontAwesomeIcon style={{ fontSize: "20px" }} icon={faTrashAlt}></FontAwesomeIcon> Remove 
         </DropdownItem>
       </DropdownMenu>
     </Dropdown>

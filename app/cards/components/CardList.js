@@ -110,10 +110,11 @@ const CardList = ({ deckId }) => {
           </Card>
         </div>
       </Link>
-      {cards.map((card) => (
+      {cards.map((card, index) => (
         <div key={card.id} className="flex-shrink-0 w-56 h-72 mx-10 mb-16">
           <div className="flex justify-center p-2">
             <FontAwesomeIcon
+              className="text-black hover:text-green-500 active:text-green-400 cursor-pointer"
               style={{ fontSize: "20px" }}
               icon={faRepeat}
               onClick={() => handleFlip(card.id)}
@@ -204,15 +205,20 @@ const CardList = ({ deckId }) => {
               </>
             )}
           </Card>
-          <div className="flex justify-end">
-            <DeleteCard
-              deckId={deckId}
-              cardId={card.id}
-              imageFront={card.imageUrlFront}
-              imageBack={card.imageUrlBack}
-              audioFront={card.audioUrlFront}
-              audioBack={card.audioUrlBack}
-            />
+          <div class="flex flex-row ">
+            <div class=" flex justify-end basis-1/2 pt-1 text-l font-semibold">
+              {index + 1}
+            </div>
+            <div class="flex justify-start basis-1/2 pl-2 ">
+              <DeleteCard
+                deckId={deckId}
+                cardId={card.id}
+                imageFront={card.imageUrlFront}
+                imageBack={card.imageUrlBack}
+                audioFront={card.audioUrlFront}
+                audioBack={card.audioUrlBack}
+              />
+            </div>
           </div>
         </div>
       ))}
