@@ -1,7 +1,7 @@
 // app/Card/components/LayoutCard.js
 "use client";
 import { useState, useEffect } from "react";
-import { Switch, Input, colors } from "@nextui-org/react";
+import { Switch, Input } from "@nextui-org/react";
 import styles from "../CreateCard.module.css";
 import useAuth from "@/app/lip/hooks/useAuth";
 
@@ -21,8 +21,7 @@ export default function LayoutCard({
   audioFront,
   setLayoutBack,
   setLayoutFront,
-  layoutFront,
-  layoutBack,
+ 
 }) {
   const [selectedContentFront, setSelectedContentFront] = useState(null);
   const [selectedContentBack, setSelectedContentBack] = useState(null);
@@ -36,11 +35,22 @@ export default function LayoutCard({
   const handleFileChange = (setter) => (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
-      setter(file);
+      setter(file)
     } else {
       alert('กรุณาเลือกไฟล์ภาพเท่านั้น');
     }
   };
+
+  const handleButton = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file);
+      setImageFrontURL(url);
+    } else {
+      alert('กรุณาเลือกไฟล์ภาพเท่านั้น');
+    }
+  }
+
 
   const handleAudioChange = (setter) => (e) => {
     const file = e.target.files[0];
@@ -93,14 +103,15 @@ export default function LayoutCard({
         top: null,
         bottom: (
           <>
+          <div className="bg-amber-400">
             <Input
               type="file"
               label="อัปโหลดรูปภาพ (ด้านหน้า)"
               accept="image/*"
-              onChange={handleFileChange(setImageFront)}
-              variant="bordered"
+              // onChange={handleFileChange(setImageFront)}
+              variant=""
               fullWidth
-              className="mt-4"
+              className=" m-10"
             />
             {imageFrontURL && (
               <div className="mt-2">
@@ -111,6 +122,7 @@ export default function LayoutCard({
                 />
               </div>
             )}
+            </div>
           </>
         ),
       },
@@ -123,7 +135,7 @@ export default function LayoutCard({
               type="file"
               label="อัปโหลดรูปภาพ (ด้านหน้า)"
               accept="image/*"
-              onChange={handleFileChange(setImageFront)}
+              // onChange={handleFileChange(setImageFront)}
               variant="bordered"
               fullWidth
               className="mt-4"
@@ -155,7 +167,7 @@ export default function LayoutCard({
               type="file"
               label="อัปโหลดรูปภาพ (ด้านหลัง)"
               accept="image/*"
-              onChange={handleFileChange(setImageBack)}
+              // onChange={handleFileChange(setImageBack)}
               variant="bordered"
               fullWidth
               className="mt-4"
@@ -177,10 +189,10 @@ export default function LayoutCard({
               type="file"
               label="อัปโหลดรูปภาพ (ด้านหลัง)"
               accept="image/*"
-              onChange={handleFileChange(setImageBack)}
+              // onChange={handleFileChange(setImageBack)}
               variant="bordered"
               fullWidth
-              className="mt-4"
+              className=" mt-4"
             />
             {imageBackURL && (
               <div className="mt-2">
@@ -216,19 +228,19 @@ export default function LayoutCard({
         }
       }}
     >
-      <div className="p-20 flex items-center justify-center overflow-hidden">
+      <div className=" bg-blue-300 rounded-lg flex items-center justify-center hover:bg-teal-400">
         <div>
           {card.type === "text" ? (
-            <img src="/assets/TextIcon.png" alt="TextIcon" className="w-20" />
+            <img src="/assets/TextIcon.png" alt="TextIcon" className="p-20 " />
           ) : card.type === "image" ? (
-            <img src="/assets/ImageIcon.png" alt="ImageIcon" className="w-20" />
+            <img src="/assets/ImageIcon.png" alt="ImageIcon" className="" />
           ) : card.type === "TextImage" ? (
             <div>
-              <img src="/assets/TextIcon.png" alt="TextIcon" className="w-20" />
+              <img src="/assets/TextIcon.png" alt="TextIcon" className="" />
               <img
                 src="/assets/ImageIcon.png"
                 alt="ImageIcon"
-                className="w-20"
+                className=""
               />
             </div>
           ) : (
@@ -236,9 +248,9 @@ export default function LayoutCard({
               <img
                 src="/assets/ImageIcon.png"
                 alt="ImageIcon"
-                className="w-20"
+                className=""
               />
-              <img src="/assets/TextIcon.png" alt="TextIcon" className="w-20" />
+              <img src="/assets/TextIcon.png" alt="TextIcon" className="" />
             </div>
           )}
         </div>
@@ -250,14 +262,14 @@ export default function LayoutCard({
     <div
       className={`${
         styles[`flip-card-${side}`]
-      } flex flex-col items-center justify-center`}
+      } flex flex-col items-center justify-center `}
     >
       {selectedContent ? (
         selectedContent.type === "TextImage" ||
         selectedContent.type === "ImageText" ? (
           <>
-            <div className="p-10 flex items-center justify-center overflow-hidden">
-              <div>
+            <div className=" flex items-center justify-center overflow-hidden">
+              <div className="bg-yellow-400">
                 {selectedContent.top === null ? (
                   <Input
                     autoFocus
@@ -285,8 +297,9 @@ export default function LayoutCard({
               </div>
             </div>
             <div className="border-t border-gray-300 mb-4"></div>
-            <div className="p-4 flex flex-col items-center justify-center overflow-hidden">
-              <div>
+            <div className="flex flex-col items-center justify-center overflow-hidden">
+            <div className="bg-green-400 p-10">
+
                 {selectedContent.bottom === null ? (
                   <Input
                     autoFocus
@@ -342,9 +355,9 @@ export default function LayoutCard({
                   side === "front" ? "หน้า" : "หลัง"
                 })`}
                 accept="image/*"
-                onChange={handleFileChange(
-                  side === "front" ? setImageFront : setImageBack
-                )}
+                onChange={
+                  (handleFileChange(side === "front" ? setImageFront : setImageBack))
+                }
                 variant="bordered"
                 fullWidth
                 className="mt-4"
@@ -413,10 +426,14 @@ export default function LayoutCard({
               isSelected ? styles["flipped"] : ""
             }`}
           >
-            {renderSelectedCard(
+
+            <input type="file" onChange={(e) => {handleButton(e)}}></input>
+            <img src={imageFrontURL} className="max-h-40"/> 
+
+            {/* {renderSelectedCard(
               isSelected ? selectedContentBack : selectedContentFront,
               isSelected ? "back" : "front"
-            )}
+            )} */}
           </div>
         </div>
       </div>

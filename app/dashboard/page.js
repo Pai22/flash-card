@@ -10,7 +10,9 @@ import {
   faLayerGroup,
   faCircleUser,
   faShareAlt,
+  faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
+import { Input } from "@nextui-org/react";
 
 export default function Dashboard() {
   const user = useAuth();
@@ -40,9 +42,26 @@ export default function Dashboard() {
 
   return (
     <div className="p-10">
-      <div className="flex items-center mb-10">
-        <FontAwesomeIcon style={{ fontSize: "28px" }} icon={faLayerGroup} />
-        <span className="ml-2 text-2xl font-semibold">Dashboard</span>
+      <div className="flex justify-between">
+        <div className="mb-10">
+          <FontAwesomeIcon style={{ fontSize: "28px" }} icon={faLayerGroup} />
+          <span className="ml-2 text-2xl font-semibold">Dashboard</span>
+        </div>
+        <div className="mb-10">
+          <Input
+            type="text"
+            color="secondary"
+            label="Search"
+            placeholder="Find your friend decks"
+            className="max-w-[220px]"
+            startContent={
+              <FontAwesomeIcon
+                style={{ fontSize: "17px" }}
+                icon={faMagnifyingGlass}
+              />
+            }
+          />
+        </div>
       </div>
       {user ? (
         <div>
@@ -52,9 +71,7 @@ export default function Dashboard() {
         <p>กรุณาเข้าสู่ระบบ.</p>
       )}
       <div className="flex items-center ml-2">
-        <FontAwesomeIcon style={{ fontSize: "23px" }} icon={faCircleUser}>
-          My Cards
-        </FontAwesomeIcon>
+        <FontAwesomeIcon style={{ fontSize: "23px" }} icon={faCircleUser} />
         <span className="ml-2 text-md font-semibold">My Cards</span>
       </div>
       <AddToDeckComponent />
