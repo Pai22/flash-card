@@ -1,9 +1,11 @@
 // app/Card/components/LayoutCard.js
 "use client";
 import { useState, useEffect } from "react";
-import { Switch, Input, colors } from "@nextui-org/react";
+import { Switch} from "@nextui-org/react";
+import RenderSelectedCard from "./RenderSelectedCard";
 import styles from "../CreateCard.module.css";
 import useAuth from "@/app/lip/hooks/useAuth";
+import { cards, handleLayoutSelect } from "./cardLayoutUtils"; 
 
 export default function LayoutCard({
   deckId,
@@ -21,8 +23,8 @@ export default function LayoutCard({
   audioFront,
   setLayoutBack,
   setLayoutFront,
-  layoutFront,
-  layoutBack,
+  resetState,
+  loading,
 }) {
   const [selectedContentFront, setSelectedContentFront] = useState(null);
   const [selectedContentBack, setSelectedContentBack] = useState(null);
@@ -35,19 +37,19 @@ export default function LayoutCard({
 
   const handleFileChange = (setter) => (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       setter(file);
     } else {
-      alert('กรุณาเลือกไฟล์ภาพเท่านั้น');
+      alert("กรุณาเลือกไฟล์ภาพเท่านั้น");
     }
   };
 
   const handleAudioChange = (setter) => (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith('audio/')) {
+    if (file && file.type.startsWith("audio/")) {
       setter(file);
     } else {
-      alert('กรุณาเลือกไฟล์เสียงเท่านั้น');
+      alert("กรุณาเลือกไฟล์เสียงเท่านั้น");
     }
   };
 
@@ -83,124 +85,28 @@ export default function LayoutCard({
     }
   }, [audioBack]);
 
-  const cards = {
-    front: [
-      { id: 1, type: "text" },
-      { id: 2, type: "image" },
-      {
-        id: 3,
-        type: "TextImage",
-        top: null,
-        bottom: (
-          <>
-            <Input
-              type="file"
-              label="อัปโหลดรูปภาพ (ด้านหน้า)"
-              accept="image/*"
-              onChange={handleFileChange(setImageFront)}
-              variant="bordered"
-              fullWidth
-              className="mt-4"
-            />
-            {imageFrontURL && (
-              <div className="mt-2">
-                <img
-                  src={imageFrontURL}
-                  alt="Image Front"
-                  className="max-h-40"
-                />
-              </div>
-            )}
-          </>
-        ),
-      },
-      {
-        id: 4,
-        type: "ImageText",
-        top: (
-          <>
-            <Input
-              type="file"
-              label="อัปโหลดรูปภาพ (ด้านหน้า)"
-              accept="image/*"
-              onChange={handleFileChange(setImageFront)}
-              variant="bordered"
-              fullWidth
-              className="mt-4"
-            />
-            {imageFrontURL && (
-              <div className="mt-2">
-                <img
-                  src={imageFrontURL}
-                  alt="Image Front"
-                  className="max-h-40"
-                />
-              </div>
-            )}
-          </>
-        ),
-        bottom: null,
-      },
-    ],
-    back: [
-      { id: 5, type: "text" },
-      { id: 6, type: "image" },
-      {
-        id: 7,
-        type: "TextImage",
-        top: null,
-        bottom: (
-          <>
-            <Input
-              type="file"
-              label="อัปโหลดรูปภาพ (ด้านหลัง)"
-              accept="image/*"
-              onChange={handleFileChange(setImageBack)}
-              variant="bordered"
-              fullWidth
-              className="mt-4"
-            />
-            {imageBackURL && (
-              <div className="mt-2">
-                <img src={imageBackURL} alt="Image Back" className="max-h-40" />
-              </div>
-            )}
-          </>
-        ),
-      },
-      {
-        id: 8,
-        type: "ImageText",
-        top: (
-          <>
-            <Input
-              type="file"
-              label="อัปโหลดรูปภาพ (ด้านหลัง)"
-              accept="image/*"
-              onChange={handleFileChange(setImageBack)}
-              variant="bordered"
-              fullWidth
-              className="mt-4"
-            />
-            {imageBackURL && (
-              <div className="mt-2">
-                <img src={imageBackURL} alt="Image Back" className="max-h-40" />
-              </div>
-            )}
-          </>
-        ),
-        bottom: null,
-      },
-    ],
-  };
-  
-  const handleLayoutSelect = (side, layout) => {
-    if (side === "front") {
-      setLayoutFront(layout);
-    } else {
-      setLayoutBack(layout);
-    }
-  };
+ 
+
+  useEffect(() => {
+  if (!loading) {
+    setSelectedContentFront(null);
+    setSelectedContentBack(null);
+    setIsSelected(false);
+    setImageFrontURL(null);
+    setImageBackURL(null);
+    setAudioFrontURL(null);
+    setAudioBackURL(null);
+    setImageFront(null);
+    setAudioFront(null);
+    setImageBack(null);
+    setAudioBack(null);
+    setQuestionFront("");
+    setQuestionBack("");
+    setLayoutFront("");
+    setLayoutBack("");
+    
+  }
+}, [loading]);
 
   const renderCard = (card, side) => (
     <div
@@ -209,10 +115,10 @@ export default function LayoutCard({
       onClick={() => {
         if (side === "front") {
           setSelectedContentFront(card);
-          handleLayoutSelect(side, card.type);
+          handleLayoutSelect(side, card.type,setLayoutFront, setLayoutBack);
         } else {
           setSelectedContentBack(card);
-          handleLayoutSelect(side, card.type);
+          handleLayoutSelect(side, card.type,setLayoutFront, setLayoutBack);
         }
       }}
     >
@@ -246,156 +152,16 @@ export default function LayoutCard({
     </div>
   );
 
-  const renderSelectedCard = (selectedContent, side) => (
-    <div
-      className={`${
-        styles[`flip-card-${side}`]
-      } flex flex-col items-center justify-center`}
-    >
-      {selectedContent ? (
-        selectedContent.type === "TextImage" ||
-        selectedContent.type === "ImageText" ? (
-          <>
-            <div className="p-10 flex items-center justify-center overflow-hidden">
-              <div>
-                {selectedContent.top === null ? (
-                  <Input
-                    autoFocus
-                    label={`ข้อความ (ด้าน${
-                      side === "front" ? "หน้า" : "หลัง"
-                    })`}
-                    name={`question${
-                      side.charAt(0).toUpperCase() + side.slice(1)
-                    }`}
-                    value={side === "front" ? questionFront : questionBack}
-                    onChange={(e) =>
-                      side === "front"
-                        ? setQuestionFront(e.target.value)
-                        : setQuestionBack(e.target.value)
-                    }
-                    placeholder={`กรอกข้อความสำหรับด้าน${
-                      side === "front" ? "หน้า" : "หลัง"
-                    }`}
-                    variant="bordered"
-                    fullWidth
-                  />
-                ) : (
-                  selectedContent.top
-                )}
-              </div>
-            </div>
-            <div className="border-t border-gray-300 mb-4"></div>
-            <div className="p-4 flex flex-col items-center justify-center overflow-hidden">
-              <div>
-                {selectedContent.bottom === null ? (
-                  <Input
-                    autoFocus
-                    label={`ข้อความ (ด้าน${
-                      side === "front" ? "หน้า" : "หลัง"
-                    })`}
-                    name={`question${
-                      side.charAt(0).toUpperCase() + side.slice(1)
-                    }`}
-                    value={side === "front" ? questionFront : questionBack}
-                    onChange={(e) =>
-                      side === "front"
-                        ? setQuestionFront(e.target.value)
-                        : setQuestionBack(e.target.value)
-                    }
-                    placeholder={`กรอกข้อความสำหรับด้าน${
-                      side === "front" ? "หน้า" : "หลัง"
-                    }`}
-                    variant="bordered"
-                    fullWidth
-                  />
-                ) : (
-                  selectedContent.bottom
-                )}
-              </div>
-            </div>
-          </>
-        ) : selectedContent.type === "text" ? (
-          <div className="p-20 flex items-center justify-center overflow-hidden">
-            <Input
-              autoFocus
-              label={` (ด้าน${side === "front" ? "หน้า" : "หลัง"})`}
-              name={`question${side.charAt(0).toUpperCase() + side.slice(1)}`}
-              value={side === "front" ? questionFront : questionBack}
-              onChange={(e) =>
-                side === "front"
-                  ? setQuestionFront(e.target.value)
-                  : setQuestionBack(e.target.value)
-              }
-              placeholder={`กรอกข้อความสำหรับด้าน${
-                side === "front" ? "หน้า" : "หลัง"
-              }`}
-              variant="bordered"
-              fullWidth
-            />
-          </div>
-        ) : (
-          <div className="p-20 flex items-center justify-center overflow-hidden">
-            <div>
-              <Input
-                type="file"
-                label={`อัปโหลดรูปภาพ (ด้าน${
-                  side === "front" ? "หน้า" : "หลัง"
-                })`}
-                accept="image/*"
-                onChange={handleFileChange(
-                  side === "front" ? setImageFront : setImageBack
-                )}
-                variant="bordered"
-                fullWidth
-                className="mt-4"
-              />
-              {(side === "front" ? imageFrontURL : imageBackURL) && (
-                <div className="mt-2">
-                  <img
-                    src={side === "front" ? imageFrontURL : imageBackURL}
-                    alt={`Image ${
-                      side.charAt(0).toUpperCase() + side.slice(1)
-                    }`}
-                    className="max-h-40"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        )
-      ) : (
-        <p className={`${styles.title}`}>{`${side.toUpperCase()} SIDE`}</p>
-      )}
-      <div className="flex items-center justify-center">
-        <Input
-          type="file"
-          label={`อัปโหลดไฟล์เสียง (ด้าน${side === "front" ? "หน้า" : "หลัง"})`}
-          accept="audio/*"
-          onChange={handleAudioChange(
-            side === "front" ? setAudioFront : setAudioBack
-          )}
-          variant="bordered"
-          fullWidth
-          className="mt-4"
-        />
-        {(side === "front" ? audioFrontURL : audioBackURL) && (
-          <div className="mt-2">
-            <audio controls>
-              <source src={side === "front" ? audioFrontURL : audioBackURL} type="audio/mpeg" />
-            </audio>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
   return (
     <div className="flex min-h-screen bg-gray-300">
       <div className="flex-1 p-4 bg-gray-200 flex items-center justify-center">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {isSelected
-            ? cards.back.map((card) => renderCard(card, "back") || layoutCard(card))
-            : cards.front.map((card) => renderCard(card, "front") || layoutCard(card))}
+            ? cards(imageFrontURL, handleFileChange, setImageFront, imageBackURL, setImageBack).back.map((card) =>
+              renderCard(card, "back"))
+            : cards(imageFrontURL, handleFileChange, setImageFront, imageBackURL, setImageBack).front.map((card) =>
+              renderCard(card, "front"))
+          }
         </div>
       </div>
       <div className="flex-1 bg-gray-300 flex flex-col items-center justify-center">
@@ -413,10 +179,24 @@ export default function LayoutCard({
               isSelected ? styles["flipped"] : ""
             }`}
           >
-            {renderSelectedCard(
-              isSelected ? selectedContentBack : selectedContentFront,
-              isSelected ? "back" : "front"
-            )}
+            <RenderSelectedCard
+            selectedContent = {isSelected ? selectedContentBack : selectedContentFront}
+            side = {isSelected ? "back" : "front"}
+            questionFront = {questionFront}
+            questionBack = {questionBack}
+            setQuestionFront = {setQuestionFront}
+            setQuestionBack = {setQuestionBack}
+            imageFrontURL = {imageFrontURL}
+            imageBackURL = {imageBackURL}
+            handleFileChange = {handleFileChange}
+            handleAudioChange = {handleAudioChange}
+            setImageFront = {setImageFront}
+            setImageBack = {setImageBack}
+            setAudioFront = {setAudioFront}
+            setAudioBack = {setAudioBack}
+            audioFrontURL = {audioFrontURL}
+            audioBackURL  = {audioBackURL}
+            />
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import useAuth from "../../lip/hooks/useAuth";
 import DeleteCard from "./DeleteCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRepeat, faCirclePlus } from "@fortawesome/free-solid-svg-icons";
+import { updateDoc, doc } from "firebase/firestore";
 
 const CardList = ({ deckId }) => {
   const [cards, setCards] = useState([]);
@@ -38,16 +39,51 @@ const CardList = ({ deckId }) => {
     return () => unsubscribeCards();
   }, [auth, deckId]);
 
-  const handleFlip = (id) => {
+  // const handleFlip = (id) => {
+  //   setCards((prevCards) =>
+  //     prevCards.map((card) => {
+  //       if (card.id === id) {
+  //         const newFlipped = !card.flipped;
+  //         localStorage.setItem(
+  //           `card-${id}-flipped`,
+  //           JSON.stringify(newFlipped)
+  //         ); // บันทึกสถานะลง localStorage
+  //         return { ...card, flipped: newFlipped };
+  //       }
+  //       return card;
+  //     })
+  //   );
+  // };
+
+  const handleFlip = async (id) => {
+    const cardRef = doc(db, "Deck", auth.uid, "title", deckId, "cards", id);
+  
     setCards((prevCards) =>
       prevCards.map((card) => {
         if (card.id === id) {
           const newFlipped = !card.flipped;
-          localStorage.setItem(
-            `card-${id}-flipped`,
-            JSON.stringify(newFlipped)
-          ); // บันทึกสถานะลง localStorage
-          return { ...card, flipped: newFlipped };
+  
+          // สลับข้อมูลใน Firestore
+          updateDoc(cardRef, {
+            questionFront: card.questionBack,
+            questionBack: card.questionFront,
+            imageUrlFront: card.imageUrlBack,
+            imageUrlBack: card.imageUrlFront,
+            audioUrlFront: card.audioUrlBack,
+            audioUrlBack: card.audioUrlFront,
+          });
+  
+          // สลับข้อมูลในแอป
+          return {
+            ...card,
+            flipped: newFlipped,
+            questionFront: card.questionBack,
+            questionBack: card.questionFront,
+            imageUrlFront: card.imageUrlBack,
+            imageUrlBack: card.imageUrlFront,
+            audioUrlFront: card.audioUrlBack,
+            audioUrlBack: card.audioUrlFront,
+          };
         }
         return card;
       })

@@ -26,10 +26,12 @@ const CardPage = () => {
   const router = useRouter();
 
   const handleFileUpload = async (file, path) => {
-    const storageRef = ref(storage, path);
+    const timestamp = new Date().getTime(); // เพิ่ม timestamp
+    const storageRef = ref(storage, `${path}_${timestamp}`);
     await uploadBytes(storageRef, file);
     return await getDownloadURL(storageRef);
   };
+  
 
   const handleUploadFiles = async () => {
     let imageUrlFront = "";
@@ -40,28 +42,28 @@ const CardPage = () => {
     if (imageFront) {
       imageUrlFront = await handleFileUpload(
         imageFront,
-        `images/${auth.uid}/${deckId}/ImageFront/${imageFront.name}`
+        `images/${auth.uid}/ImageFront/${imageFront.name}`
       );
     }
 
     if (audioFront) {
       audioUrlFront = await handleFileUpload(
         audioFront,
-        `audio/${auth.uid}/${deckId}/AudioFront/${audioFront.name}`
+        `audio/${auth.uid}/AudioFront/${audioFront.name}`
       );
     }
 
     if (imageBack) {
       imageUrlBack = await handleFileUpload(
         imageBack,
-        `images/${auth.uid}/${deckId}/ImageBack/${imageBack.name}`
+        `images/${auth.uid}/ImageBack/${imageBack.name}`
       );
     }
 
     if (audioBack) {
       audioUrlBack = await handleFileUpload(
         audioBack,
-        `audio/${auth.uid}/${deckId}/AudioBack/${audioBack.name}`
+        `audio/${auth.uid}/AudioBack/${audioBack.name}`
       );
     }
 
@@ -144,8 +146,7 @@ const CardPage = () => {
           audioBack={audioBack}
           setLayoutBack={setLayoutBack}
           setLayoutFront={setLayoutFront}
-          layoutBack={layoutBack}
-          layoutFront={layoutFront}
+          loading = {loading}
         />
 
         <div className="flex justify-end space-x-4">
