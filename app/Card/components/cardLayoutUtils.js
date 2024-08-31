@@ -1,5 +1,5 @@
 // app/Card/components/cardLayoutUtils.js
-export const cards = (imageFrontURL, handleFileChange, setImageFront, imageBackURL, setImageBack) => ({
+export const cards = (imageUrlFront, handleFileChange, setImageFront, imageUrlBack, setImageBack) => ({
     front: [
       { id: 1, type: "text" },
       { id: 2, type: "image" },
@@ -18,10 +18,10 @@ export const cards = (imageFrontURL, handleFileChange, setImageFront, imageBackU
               fullWidth
               className="mt-4"
             />
-            {imageFrontURL && (
+            {imageUrlFront && (
               <div className="mt-2">
                 <img
-                  src={imageFrontURL}
+                  src={imageUrlFront}
                   alt="Image Front"
                   className="max-h-40"
                 />
@@ -44,10 +44,10 @@ export const cards = (imageFrontURL, handleFileChange, setImageFront, imageBackU
               fullWidth
               className="mt-4"
             />
-            {imageFrontURL && (
+            {imageUrlFront && (
               <div className="mt-2">
                 <img
-                  src={imageFrontURL}
+                  src={imageUrlFront}
                   alt="Image Front"
                   className="max-h-40"
                 />
@@ -76,9 +76,9 @@ export const cards = (imageFrontURL, handleFileChange, setImageFront, imageBackU
               fullWidth
               className="mt-4"
             />
-            {imageBackURL && (
+            {imageUrlBack && (
               <div className="mt-2">
-                <img src={imageBackURL} alt="Image Back" className="max-h-40" />
+                <img src={imageUrlBack} alt="Image Back" className="max-h-40" />
               </div>
             )}
           </>
@@ -98,9 +98,9 @@ export const cards = (imageFrontURL, handleFileChange, setImageFront, imageBackU
               fullWidth
               className="mt-4"
             />
-            {imageBackURL && (
+            {imageUrlBack && (
               <div className="mt-2">
-                <img src={imageBackURL} alt="Image Back" className="max-h-40" />
+                <img src={imageUrlBack} alt="Image Back" className="max-h-40" />
               </div>
             )}
           </>

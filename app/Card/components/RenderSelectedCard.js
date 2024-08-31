@@ -9,16 +9,16 @@ export default function RenderSelectedCard({
   questionBack,
   setQuestionFront,
   setQuestionBack,
-  imageFrontURL,
-  imageBackURL,
+  imageUrlFront,
+  imageUrlBack,
   handleFileChange,
   setImageFront,
   setImageBack,
   handleAudioChange,
   setAudioFront,
   setAudioBack,
-  audioFrontURL,
-  audioBackURL,
+  audioUrlFront,
+  audioUrlBack,
 }) {
   return (
         <div
@@ -123,10 +123,10 @@ export default function RenderSelectedCard({
                     fullWidth
                     className="mt-4"
                   />
-                  {(side === "front" ? imageFrontURL : imageBackURL) && (
+                  {(side === "front" ? imageUrlFront : imageUrlBack) && (
                     <div className="mt-2">
                       <img
-                        src={side === "front" ? imageFrontURL : imageBackURL}
+                        src={side === "front" ? imageUrlFront : imageUrlBack}
                         alt={`Image ${
                           side.charAt(0).toUpperCase() + side.slice(1)
                         }`}
@@ -140,10 +140,9 @@ export default function RenderSelectedCard({
           ) : (
             <p className={`${styles.title}`}>{`${side.toUpperCase()} SIDE`}</p>
           )}
-          <div className="flex items-center justify-center">
+          <div className="flex items-end justify-end">
             <input
               type="file"
-              label={`อัปโหลดไฟล์เสียง (ด้าน${side === "front" ? "หน้า" : "หลัง"})`}
               accept="audio/*"
               onChange={handleAudioChange(
                 side === "front" ? setAudioFront : setAudioBack
@@ -152,10 +151,10 @@ export default function RenderSelectedCard({
               fullWidth
               className="mt-4"
             />
-            {(side === "front" ? audioFrontURL : audioBackURL) && (
+            {(side === "front" ? audioUrlFront : audioUrlBack) && (
               <div className="mt-2">
                 <audio controls>
-                  <source src={side === "front" ? audioFrontURL : audioBackURL} type="audio/mpeg" />
+                  <source src={side === "front" ? audioUrlFront : audioUrlBack} type="audio/mpeg" />
                 </audio>
               </div>
             )}

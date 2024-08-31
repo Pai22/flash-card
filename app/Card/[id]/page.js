@@ -20,8 +20,8 @@ const CardPage = () => {
   const [questionBack, setQuestionBack] = useState("");
   const [imageBack, setImageBack] = useState(null);
   const [audioBack, setAudioBack] = useState(null);
-  let [layoutFront, setLayoutFront] = useState("");
-  let [layoutBack, setLayoutBack] = useState("");
+  const [layoutFront, setLayoutFront] = useState("");
+  const [layoutBack, setLayoutBack] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   let [imageUrlFront,setImageUrlFront] = useState(null);
@@ -143,6 +143,14 @@ const CardPage = () => {
           questionBack={questionBack}
           imageBack={imageBack}
           audioBack={audioBack}
+          imageUrlFront={imageUrlFront}
+          imageUrlBack={imageUrlBack}
+          audioUrlFront={audioUrlFront}
+          audioUrlBack={audioUrlBack}
+          setImageUrlFront={setImageUrlFront}
+          setImageUrlBack={setImageUrlBack}
+          setAudioUrlFront={setAudioUrlFront}
+          setAudioUrlBack={setAudioUrlBack}
           setLayoutBack={setLayoutBack}
           setLayoutFront={setLayoutFront}
           loading = {loading}

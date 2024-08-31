@@ -21,18 +21,21 @@ export default function LayoutCard({
   questionFront,
   imageFront,
   audioFront,
+  imageUrlFront,
+  imageUrlBack,
+  audioUrlFront,
+  audioUrlBack,
   setLayoutBack,
   setLayoutFront,
-  resetState,
   loading,
+  setImageUrlFront,
+  setImageUrlBack,
+  setAudioUrlFront,
+  setAudioUrlBack,
 }) {
   const [selectedContentFront, setSelectedContentFront] = useState(null);
   const [selectedContentBack, setSelectedContentBack] = useState(null);
   const [isSelected, setIsSelected] = useState(false);
-  const [imageFrontURL, setImageFrontURL] = useState(null);
-  const [imageBackURL, setImageBackURL] = useState(null);
-  const [audioFrontURL, setAudioFrontURL] = useState(null);
-  const [audioBackURL, setAudioBackURL] = useState(null);
   const use = useAuth();
 
   const handleFileChange = (setter) => (e) => {
@@ -56,7 +59,7 @@ export default function LayoutCard({
   useEffect(() => {
     if (imageFront) {
       const url = URL.createObjectURL(imageFront);
-      setImageFrontURL(url);
+      setImageUrlFront(url);
       return () => URL.revokeObjectURL(url);
     }
   }, [imageFront]);
@@ -64,7 +67,7 @@ export default function LayoutCard({
   useEffect(() => {
     if (imageBack) {
       const url = URL.createObjectURL(imageBack);
-      setImageBackURL(url);
+      setImageUrlBack(url);
       return () => URL.revokeObjectURL(url);
     }
   }, [imageBack]);
@@ -72,7 +75,7 @@ export default function LayoutCard({
   useEffect(() => {
     if (audioFront) {
       const url = URL.createObjectURL(audioFront);
-      setAudioFrontURL(url);
+      setAudioUrlFront(url);
       return () => URL.revokeObjectURL(url);
     }
   }, [audioFront]);
@@ -80,7 +83,7 @@ export default function LayoutCard({
   useEffect(() => {
     if (audioBack) {
       const url = URL.createObjectURL(audioBack);
-      setAudioBackURL(url);
+      setAudioUrlBack(url);
       return () => URL.revokeObjectURL(url);
     }
   }, [audioBack]);
@@ -92,10 +95,10 @@ export default function LayoutCard({
     setSelectedContentFront(null);
     setSelectedContentBack(null);
     setIsSelected(false);
-    setImageFrontURL(null);
-    setImageBackURL(null);
-    setAudioFrontURL(null);
-    setAudioBackURL(null);
+    setImageUrlFront(null);
+    setImageUrlBack(null);
+    setAudioUrlFront(null);
+    setAudioUrlBack(null);
     setImageFront(null);
     setAudioFront(null);
     setImageBack(null);
@@ -157,9 +160,9 @@ export default function LayoutCard({
       <div className="flex-1 p-4 bg-gray-200 flex items-center justify-center">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {isSelected
-            ? cards(imageFrontURL, handleFileChange, setImageFront, imageBackURL, setImageBack).back.map((card) =>
+            ? cards(imageUrlFront, handleFileChange, setImageFront, imageUrlBack, setImageBack).back.map((card) =>
               renderCard(card, "back"))
-            : cards(imageFrontURL, handleFileChange, setImageFront, imageBackURL, setImageBack).front.map((card) =>
+            : cards(imageUrlFront, handleFileChange, setImageFront, imageUrlBack, setImageBack).front.map((card) =>
               renderCard(card, "front"))
           }
         </div>
@@ -186,16 +189,16 @@ export default function LayoutCard({
             questionBack = {questionBack}
             setQuestionFront = {setQuestionFront}
             setQuestionBack = {setQuestionBack}
-            imageFrontURL = {imageFrontURL}
-            imageBackURL = {imageBackURL}
+            imageFrontURL = {imageUrlFront}
+            imageBackURL = {imageUrlBack}
             handleFileChange = {handleFileChange}
             handleAudioChange = {handleAudioChange}
             setImageFront = {setImageFront}
             setImageBack = {setImageBack}
             setAudioFront = {setAudioFront}
             setAudioBack = {setAudioBack}
-            audioFrontURL = {audioFrontURL}
-            audioBackURL  = {audioBackURL}
+            audioFrontURL = {audioUrlFront}
+            audioBackURL  = {audioUrlBack}
             />
           </div>
         </div>
