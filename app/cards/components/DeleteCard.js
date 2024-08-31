@@ -10,12 +10,21 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/react";
+import { useState } from 'react';
+import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsis, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
-const DeleteCard = ({ deckId, cardId, imageFront, imageBack, audioFront, audioBack }) => {
+const DeleteCard = ({ deckId, cardId, imageFront, imageBack, audioFront, audioBack,layoutFront,layoutBack }) => {
   const auth = useAuth();
   const storage = getStorage();
+  const [isNavigating, setIsNavigating] = useState(false); // เพิ่ม state สำหรับการโหลดหน้า dashboard
+  const router = useRouter();
+
+  const handleNavigate = () => {
+    setIsNavigating(true); // ตั้งสถานะการโหลดเมื่อเริ่มเปลี่ยนเส้นทาง
+    router.push(`/EditCard/${cardId}?deckId=${deckId}`); // เปลี่ยนเส้นทางไปยังหน้า dashboard
+  };
 
   const handleDelete = async () => {
     if (!auth) return;
@@ -63,6 +72,9 @@ const DeleteCard = ({ deckId, cardId, imageFront, imageBack, audioFront, audioBa
       <DropdownMenu  className="" color="danger" variant="flat">
         <DropdownItem size="sm" onClick={handleDelete}>
           <FontAwesomeIcon style={{ fontSize: "20px" }} icon={faTrashAlt}></FontAwesomeIcon> Remove 
+        </DropdownItem>
+        <DropdownItem size="sm" onClick={handleNavigate}>
+           EditCard
         </DropdownItem>
       </DropdownMenu>
     </Dropdown>

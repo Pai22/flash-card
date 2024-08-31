@@ -9,9 +9,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRepeat, faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { updateDoc, doc } from "firebase/firestore";
 
+
 const CardList = ({ deckId }) => {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
+  
   const auth = useAuth();
 
   useEffect(() => {
@@ -24,9 +26,6 @@ const CardList = ({ deckId }) => {
           .map((doc) => ({
             ...doc.data(),
             id: doc.id,
-            flipped:
-              JSON.parse(localStorage.getItem(`card-${doc.id}-flipped`)) ||
-              false, // อ่านสถานะจาก localStorage
           }))
           .sort((a, b) => a.timestamp - b.timestamp);
         setCards(cardData);
@@ -39,30 +38,11 @@ const CardList = ({ deckId }) => {
     return () => unsubscribeCards();
   }, [auth, deckId]);
 
-  // const handleFlip = (id) => {
-  //   setCards((prevCards) =>
-  //     prevCards.map((card) => {
-  //       if (card.id === id) {
-  //         const newFlipped = !card.flipped;
-  //         localStorage.setItem(
-  //           `card-${id}-flipped`,
-  //           JSON.stringify(newFlipped)
-  //         ); // บันทึกสถานะลง localStorage
-  //         return { ...card, flipped: newFlipped };
-  //       }
-  //       return card;
-  //     })
-  //   );
-  // };
-
   const handleFlip = async (id) => {
     const cardRef = doc(db, "Deck", auth.uid, "title", deckId, "cards", id);
-  
     setCards((prevCards) =>
       prevCards.map((card) => {
         if (card.id === id) {
-          const newFlipped = !card.flipped;
-  
           // สลับข้อมูลใน Firestore
           updateDoc(cardRef, {
             questionFront: card.questionBack,
@@ -72,11 +52,10 @@ const CardList = ({ deckId }) => {
             audioUrlFront: card.audioUrlBack,
             audioUrlBack: card.audioUrlFront,
           });
-  
+
           // สลับข้อมูลในแอป
           return {
             ...card,
-            flipped: newFlipped,
             questionFront: card.questionBack,
             questionBack: card.questionFront,
             imageUrlFront: card.imageUrlBack,
@@ -89,6 +68,8 @@ const CardList = ({ deckId }) => {
       })
     );
   };
+
+  
 
   if (loading) {
     return <LoadingCard />;
@@ -121,89 +102,44 @@ const CardList = ({ deckId }) => {
             />
           </div>
           <Card shadow hoverable className="bg-gray-100 rounded-lg h-full">
-            {card.flipped ? (
-              <>
-                <CardBody className="bg-white text-center h-64 flex items-center justify-center">
-                  <div>
-                    <h4 className="font-semibold text-center">
-                      {card.questionBack}
-                    </h4>
-                    {card.imageUrlBack && (
-                      <img
-                        src={card.imageUrlBack}
-                        alt="Back"
-                        className="w-full h-20 object-cover"
-                      />
-                    )}
-                    {card.audioUrlBack && (
-                      <audio controls className="w-5 absolute bottom-0 right-0">
-                        <source src={card.audioUrlBack} type="audio/mpeg" />
-                      </audio>
-                    )}
-                  </div>
-                </CardBody>
-                <CardBody className="bg-gray-100  h-64 flex items-center justify-center">
-                  <div>
-                    <h4 className="font-semibold text-center">
-                      {card.questionFront}
-                    </h4>
-                    {card.imageUrlFront && (
-                      <img
-                        src={card.imageUrlFront}
-                        alt="Front"
-                        className="w-full h-20 object-cover"
-                      />
-                    )}
-                    {card.audioUrlFront && (
-                      <audio controls className="w-5 absolute bottom-0 right-0">
-                        <source src={card.audioUrlFront} type="audio/mpeg" />
-                      </audio>
-                    )}
-                  </div>
-                </CardBody>
-              </>
-            ) : (
-              <>
-                <CardBody className=" h-64 flex items-center justify-center">
-                  <div>
-                    <h4 className="font-semibold text-center">
-                      {card.questionFront}
-                    </h4>
-                    {card.imageUrlFront && (
-                      <img
-                        src={card.imageUrlFront}
-                        alt="Front"
-                        className="w-full h-20 object-cover"
-                      />
-                    )}
-                    {card.audioUrlFront && (
-                      <audio controls className="w-5 absolute bottom-0 right-0">
-                        <source src={card.audioUrlFront} type="audio/mpeg" />
-                      </audio>
-                    )}
-                  </div>
-                </CardBody>
-                <CardBody className="bg-white text-center  h-64 flex items-center justify-center">
-                  <div>
-                    <h4 className="font-semibold text-center">
-                      {card.questionBack}
-                    </h4>
-                    {card.imageUrlBack && (
-                      <img
-                        src={card.imageUrlBack}
-                        alt="Back"
-                        className="w-full h-20 object-cover"
-                      />
-                    )}
-                    {card.audioUrlBack && (
-                      <audio controls className="w-5 absolute bottom-0 right-0">
-                        <source src={card.audioUrlBack} type="audio/mpeg" />
-                      </audio>
-                    )}
-                  </div>
-                </CardBody>
-              </>
-            )}
+            <CardBody  className=" h-64 flex items-center justify-center">
+              <div>
+                <h4 className="font-semibold text-center">
+                  {card.questionFront}
+                </h4>
+                {card.imageUrlFront && (
+                  <img
+                    src={card.imageUrlFront}
+                    alt="Front"
+                    className="w-full h-20 object-cover"
+                  />
+                )}
+                {card.audioUrlFront && (
+                  <audio controls className="w-5 absolute bottom-0 right-0">
+                    <source src={card.audioUrlFront} type="audio/mpeg" />
+                  </audio>
+                )}
+              </div>
+            </CardBody>
+            <CardBody className="bg-white text-center  h-64 flex items-center justify-center">
+              <div>
+                <h4 className="font-semibold text-center">
+                  {card.questionBack}
+                </h4>
+                {card.imageUrlBack && (
+                  <img
+                    src={card.imageUrlBack}
+                    alt="Back"
+                    className="w-full h-20 object-cover"
+                  />
+                )}
+                {card.audioUrlBack && (
+                  <audio controls className="w-5 absolute bottom-0 right-0">
+                    <source src={card.audioUrlBack} type="audio/mpeg" />
+                  </audio>
+                )}
+              </div>
+            </CardBody>
           </Card>
           <div class="flex flex-row ">
             <div class=" flex justify-end basis-1/2 pt-1 text-l font-semibold">
@@ -217,6 +153,9 @@ const CardList = ({ deckId }) => {
                 imageBack={card.imageUrlBack}
                 audioFront={card.audioUrlFront}
                 audioBack={card.audioUrlBack}
+                layoutFront={card.layoutFront}
+                layoutBack={card.layoutBack}
+
               />
             </div>
           </div>
