@@ -127,7 +127,7 @@ const CardPage = () => {
           </Button>
         </div>
       </div>
-      <form onSubmit={addCardToDeck} className="bg-green-400 space-y-6">
+      <form onSubmit={addCardToDeck} >
         <LayoutCard
           title="เพิ่มการ์ดใหม่"
           deckId={deckId}
