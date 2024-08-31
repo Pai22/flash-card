@@ -24,7 +24,7 @@ export default function RenderSelectedCard({
         <div
           className={`${
             styles[`flip-card-${side}`]
-          } flex flex-col items-center justify-center`}
+          } flex flex-col `}
         >
           {selectedContent ? (
             selectedContent.type === "TextImage" ||
@@ -140,7 +140,7 @@ export default function RenderSelectedCard({
           ) : (
             <p className={`${styles.title}`}>{`${side.toUpperCase()} SIDE`}</p>
           )}
-          <div className="flex items-end justify-end">
+          <div className="bg-purple-500 flex items-center justify-center">
             <input
               type="file"
               accept="audio/*"
