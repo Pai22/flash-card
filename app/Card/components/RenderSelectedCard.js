@@ -111,7 +111,6 @@ export default function RenderSelectedCard({
               fullWidth
             />
           </div>
-<<<<<<< HEAD
         ) : (
           <div className="p-20 flex items-center justify-center overflow-hidden">
             <div>
@@ -175,9 +174,5 @@ export default function RenderSelectedCard({
         )}
       </div>
     </div>
-=======
-          </div>
-      
->>>>>>> d6f7fcc85ed02aa30363c2be0cbbd401b702b8be
   );
 }
