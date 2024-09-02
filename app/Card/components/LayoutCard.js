@@ -237,16 +237,16 @@ export default function LayoutCard({
                   questionBack={questionBack}
                   setQuestionFront={setQuestionFront}
                   setQuestionBack={setQuestionBack}
-                  imageFrontURL={imageUrlFront}
-                  imageBackURL={imageUrlBack}
+                  imageUrlFront={imageUrlFront}
+                  imageUrlBack={imageUrlBack}
                   handleFileChange={handleFileChange}
                   handleAudioChange={handleAudioChange}
                   setImageFront={setImageFront}
                   setImageBack={setImageBack}
                   setAudioFront={setAudioFront}
                   setAudioBack={setAudioBack}
-                  audioFrontURL={audioUrlFront}
-                  audioBackURL={audioUrlBack}
+                  audioUrlFront={audioUrlFront}
+                  audioUrlBack={audioUrlBack}
 
                 />
                 
