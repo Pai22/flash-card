@@ -159,7 +159,7 @@ export default function RenderSelectedCard({
               </div>
             )}
           </div>
-        </div>
+          </div>
       
   );
 }
