@@ -11,8 +11,9 @@ import {
   faCircleUser,
   faShareAlt,
   faMagnifyingGlass,
+  faPlus
 } from "@fortawesome/free-solid-svg-icons";
-import { Input } from "@nextui-org/react";
+import { Input,Button } from "@nextui-org/react";
 
 export default function Dashboard() {
   const user = useAuth();
@@ -47,21 +48,7 @@ export default function Dashboard() {
           <FontAwesomeIcon style={{ fontSize: "28px" }} icon={faLayerGroup} />
           <span className="ml-2 text-2xl font-semibold">Dashboard</span>
         </div>
-        <div className="mb-10">
-          <Input
-            type="text"
-            color="secondary"
-            label="Search"
-            placeholder="Find your friend decks"
-            className="max-w-[220px]"
-            startContent={
-              <FontAwesomeIcon
-                style={{ fontSize: "17px" }}
-                icon={faMagnifyingGlass}
-              />
-            }
-          />
-        </div>
+       
       </div>
       {user ? (
         <div>
@@ -76,10 +63,19 @@ export default function Dashboard() {
       </div>
       <AddToDeckComponent />
       <DeckListComponent />
-      <div className="flex items-center ml-2 m-10">
+      <div className="flex items-center ml-2 mt-10 mb-5">
         <FontAwesomeIcon style={{ fontSize: "23px" }} icon={faShareAlt} />
         <span className="ml-2 text-md font-semibold">Your Friend Deck</span>
       </div>
+      <Button
+        radius="full"
+        className="font-semibold bg-lime-500 hover:bg-lime-500 focus:outline-none focus:ring focus:ring-lime-400 text-white text-[15px] shadow-lg ml-2">
+         <FontAwesomeIcon
+          style={{ fontSize: "20px"}}
+          icon={faPlus}
+        /><span>Add Your Friend Deck</span>
+       
+      </Button>
     </div>
   );
 }

@@ -40,7 +40,7 @@ const AddToDeckComponent = () => {
   return (
     <>
       <Button
-        radius="sm"
+        radius="full"
         className="font-semibold bg-sky-400 hover:bg-sky-400 focus:outline-none focus:ring focus:ring-sky-300 text-white text-[15px] shadow-lg my-5 ml-2" onPress={onOpen}>
          <FontAwesomeIcon
           style={{ fontSize: "20px"}}

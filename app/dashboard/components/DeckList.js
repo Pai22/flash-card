@@ -11,12 +11,12 @@ import {
   Button,
   CardFooter,
   Link,
+  Snippet,
 } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faShare,
-  faPlay,
-  faClipboard,
+  faGamepad,
 } from "@fortawesome/free-solid-svg-icons";
 import DeckDelete from "./DeckDelete";
 
@@ -51,17 +51,8 @@ const DeckListComponent = () => {
   const handleShareClick = () => {
     setIsPopupVisible(!isPopupVisible);
   };
-
-  const handleCopyClick = () => {
-    navigator.clipboard
-      .writeText(codeToCopy)
-      .then(() => {
-        alert("คัดลอกโค้ดเรียบร้อยแล้ว!");
-        setIsPopupVisible(false); // ปิด popup หลังจากคัดลอกสำเร็จ
-      })
-      .catch((err) => {
-        console.error("ไม่สามารถคัดลอกโค้ดได้:", err);
-      });
+  const handleCloseClick = () => {
+    setIsPopupVisible(false);
   };
 
   return (
@@ -81,8 +72,8 @@ const DeckListComponent = () => {
                 <div className="cursor-pointer  ml-2 mr-3">
                   <Link href={"/Play/" + deck.id} underline="none">
                     <FontAwesomeIcon
-                      style={{ fontSize: "30px", color: "#be123c" }}
-                      icon={faPlay}
+                      style={{ fontSize: "30px", color: "#dc2626" }}
+                      icon={faGamepad}
                     ></FontAwesomeIcon>
                   </Link>
                 </div>
@@ -102,25 +93,20 @@ const DeckListComponent = () => {
                   />
                 </div>
                 {isPopupVisible && (
-                  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="bg-white shadow-lg p-6 rounded">
-                      <p className="mb-4">คัดลอกโค้ดนี้:</p>
-                      <div className="flex items-center">
-                        <span className="border p-2 rounded bg-gray-100">
-                          {codeToCopy}
-                        </span>
-                        <Button
-                          color="primary"
-                          variant="light"
-                          className="ml-2"
-                          onClick={handleCopyClick}
-                        >
-                          <FontAwesomeIcon icon={faClipboard} />
-                          <span className="ml-1">คัดลอก</span>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                   <div className="bg-white shadow-lg p-6 rounded relative">
+                     <button
+                       className="absolute top-2 right-2 border-2  rounded-md px-2 bg-red-600 text-white hover:bg-red-500 "
+                       onClick={handleCloseClick}
+                     >
+                       &times;
+                     </button>
+                     <p className="mt-4 mb-2">คัดลอกโค้ดนี้:</p>
+                     <div className="flex items-center">
+                       <Snippet>{codeToCopy}</Snippet>
+                     </div>
+                   </div>
+                 </div>
                 )}
               </div>
             </CardFooter>

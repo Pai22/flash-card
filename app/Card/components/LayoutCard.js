@@ -1,7 +1,8 @@
 // app/Card/components/LayoutCard.js
 "use client";
 import { useState, useEffect } from "react";
-import { Switch } from "@nextui-org/react";
+import { useRouter, useParams } from "next/navigation";
+import { Switch, Button } from "@nextui-org/react";
 import RenderSelectedCard from "./RenderSelectedCard";
 import styles from "../CreateCard.module.css";
 import useAuth from "@/app/lip/hooks/useAuth";
@@ -37,7 +38,8 @@ export default function LayoutCard({
   const [selectedContentBack, setSelectedContentBack] = useState(null);
   const [isSelected, setIsSelected] = useState(false);
   const use = useAuth();
-
+  const router = useRouter();
+  
   const handleFileChange = (setter) => (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("image/")) {
@@ -209,6 +211,12 @@ export default function LayoutCard({
               onValueChange={() => setIsSelected(!isSelected)}
               color="secondary"
             />
+            <Button
+            color="warning"
+            onClick={() => router.push(`/cards/${deckId}`)}
+          >
+            Back to deck
+          </Button>
             <p className="text-small text-default-500 text-center">
               Selected: {isSelected ? "Back" : "Front"}
             </p>
