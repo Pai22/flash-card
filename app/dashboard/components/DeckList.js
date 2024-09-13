@@ -8,7 +8,6 @@ import {
   Card,
   CardHeader,
   CardBody,
-  Button,
   CardFooter,
   Link,
   Snippet,
@@ -70,7 +69,7 @@ const DeckListComponent = () => {
                   {deck.title}
                 </h2>
                 <div className="cursor-pointer  ml-2 mr-3">
-                  <Link href={"/Play/" + deck.id} underline="none">
+                  <Link href={`/Play/${deck.id}?Title=${deck.title}`} underline="none">
                     <FontAwesomeIcon
                       style={{ fontSize: "30px", color: "#dc2626" }}
                       icon={faGamepad}

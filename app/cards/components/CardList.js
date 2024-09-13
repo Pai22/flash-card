@@ -9,11 +9,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRepeat, faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { updateDoc, doc } from "firebase/firestore";
 
-
-const CardList = ({ deckId }) => {
+const CardList = ({ deckId, deckTitle, cardsLength }) => {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const auth = useAuth();
 
   useEffect(() => {
@@ -69,15 +68,16 @@ const CardList = ({ deckId }) => {
     );
   };
 
-  
-
   if (loading) {
     return <LoadingCard />;
   }
 
   return (
     <div className="flex flex-wrap mt-10 rounded-lg">
-      <Link href={"/Card/" + deckId}>
+      {/* <Link href={"/Card/" + deckId}> */}
+      <Link href={`/Card/${deckId}?deckTitle=${deckTitle}&cardsLength=${cardsLength}`}>
+
+
         <div className="flex-shrink-0 w-56 h-72 mx-10 mb-16 mt-9">
           <Card shadow hoverable className="bg-gray-100 rounded-3xl h-full">
             <CardBody className="flex-grow flex items-center justify-center text-2xl font-bold bg-gray-200 hover:bg-gradient-to-r from-red-400 to-red-700 hover:scale-105 transition-transform duration-300 ease-in-out shadow-lg rounded-lg cursor-pointer">
@@ -102,7 +102,7 @@ const CardList = ({ deckId }) => {
             />
           </div>
           <Card shadow hoverable className="bg-gray-100 rounded-lg h-full">
-            <CardBody  className=" h-64 flex items-center justify-center">
+            <CardBody className=" h-64 flex items-center justify-center">
               <div>
                 <h4 className="font-semibold text-center">
                   {card.questionFront}
@@ -155,7 +155,6 @@ const CardList = ({ deckId }) => {
                 audioBack={card.audioUrlBack}
                 layoutFront={card.layoutFront}
                 layoutBack={card.layoutBack}
-
               />
             </div>
           </div>

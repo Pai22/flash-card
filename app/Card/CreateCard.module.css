@@ -1,8 +1,8 @@
 /* CreateCard.module.css */
 .flip-card {
     background-color: transparent;
-    width: 550px;
-    height: 600px;
+    width: 500px;
+    height: 550px;
     perspective: 1000px;
     font-family: 'Helvetica Neue', sans-serif;
     margin: 10px auto;

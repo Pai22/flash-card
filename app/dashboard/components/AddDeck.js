@@ -5,6 +5,8 @@ import useAuth from '@/app/lip/hooks/useAuth';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input } from '@nextui-org/react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { toast, ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 
 const AddToDeckComponent = () => {
@@ -16,6 +18,8 @@ const AddToDeckComponent = () => {
 
   const addToDeck = async (e) => {
     e.preventDefault();
+    if(!auth) return; 
+    setLoading(true);
     // Save Title to firebase
     const deckRef = collection(db, 'Deck', auth.uid, 'title');
     setLoading(true);
@@ -30,6 +34,7 @@ const AddToDeckComponent = () => {
       setTitle(''); // Reset the input value
       setDescription('');
       onOpenChange(false); // Close the modal after adding the document
+      toast.success("Successfully added a deck!", { autoClose: 1500 });
     } catch (error) {
       console.error('Error adding document:', error);
     } finally {
@@ -39,6 +44,7 @@ const AddToDeckComponent = () => {
 
   return (
     <>
+      <ToastContainer />
       <Button
         radius="full"
         className="font-semibold bg-sky-400 hover:bg-sky-400 focus:outline-none focus:ring focus:ring-sky-300 text-white text-[15px] shadow-lg my-5 ml-2" onPress={onOpen}>
@@ -52,7 +58,7 @@ const AddToDeckComponent = () => {
         <ModalContent>
           {(onClose) => (
             <>
-            <form onSubmit={addToDeck}>
+            <form onSubmit={addToDeck} disabled={loading}>
               <ModalHeader className="flex flex-col gap-1">Add to deck</ModalHeader>
               <ModalBody>
                 <Input

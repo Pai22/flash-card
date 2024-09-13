@@ -33,6 +33,7 @@ export default function LayoutCard({
   setImageUrlBack,
   setAudioUrlFront,
   setAudioUrlBack,
+  addCardToDeck,
 }) {
   const [selectedContentFront, setSelectedContentFront] = useState(null);
   const [selectedContentBack, setSelectedContentBack] = useState(null);
@@ -181,8 +182,8 @@ export default function LayoutCard({
 
   return (
     <>
-      <div className="grid grid-flow-col justify-stretch">
-        <div className=" bg-gray-200 p-5">
+      {/* <div className="grid grid-flow-col justify-stretch"> */}
+        <div className=" bg-gray-200 ">
           <div className="flex flex-col items-center justify-center text-center overflow-hidden p-10 ">
             Choose the templete of the card
             <div class="grid grid-cols-2 items-center justify-center gap-4 mt-10">
@@ -205,18 +206,16 @@ export default function LayoutCard({
           </div>
         </div>
         <div className=" bg-gray-300 flex justify-center p-5">
+          <Button color="primary" onClick={addCardToDeck} disabled={loading}>
+            {loading ? "กำลังเพิ่ม..." : "เพิ่มการ์ด"}
+          </Button>
           <div className="grid grid-flow-row  justify-items-center">
             <Switch
               isSelected={isSelected}
               onValueChange={() => setIsSelected(!isSelected)}
               color="secondary"
             />
-            <Button
-            color="warning"
-            onClick={() => router.push(`/cards/${deckId}`)}
-          >
-            Back to deck
-          </Button>
+      
             <p className="text-small text-default-500 text-center">
               Selected: {isSelected ? "Back" : "Front"}
             </p>
@@ -254,7 +253,7 @@ export default function LayoutCard({
             </div>
           </div>
         </div>
-      </div>
+      {/* </div> */}
 
     </>
   );

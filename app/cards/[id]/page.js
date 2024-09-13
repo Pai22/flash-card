@@ -66,7 +66,7 @@ const DeckDetailComponent = () => {
           <Button color="warning" onClick={handleNavigate} className="col-start-10">Dashboard</Button>
         </div>
         <h3 className="text-xl mb-4">Cards ({cards.length})</h3>
-        <CardList deckId={deckId} />
+        <CardList deckId={deckId} deckTitle={deck.title} cardsLength={cards.length} />
       </div>
     </>
   );
