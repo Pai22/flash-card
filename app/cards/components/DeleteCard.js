@@ -77,6 +77,7 @@ const DeleteCard = ({
         await deleteObject(audioBackRef);
       }
       console.log('Deleted card ')
+      
      
     } catch (error) {
       console.error("Error deleting card and files:", error);
