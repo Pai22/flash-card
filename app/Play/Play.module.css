@@ -77,4 +77,76 @@
     font-size: 24px;
     color: #555;
   }
+
+  .textContent {
+      font-size: 20px; /* ขนาดตัวอักษร */
+      text-align: center;
+      margin: 5px 0;
+    }
+    
+    .imageContent, .imageTextContent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .imageContent img, .imageTextContent img {
+        max-width: 100%; /* ปรับขนาดรูปภาพให้เต็มพื้นที่ */
+        max-height: 300px; /* จำกัดความสูงของรูปภาพ */
+        object-fit: contain; /* คงอัตราส่วนของรูปภาพ */
+    }
+    
+    .imageTextContent p {
+        font-size: 18px; /* ขนาดตัวอักษร */
+        text-align: center;
+        margin: 5px 0;
+    }
+    
+    .container{
+      display: flex;
+      width: 100%;
+      padding: 64PX;
+      height: 90%;
+  }
+    .multiple-mode-container {
+        width: 100%;
+        max-width: 90%;
+        margin: 0 auto;
+    }
+    
+    .question-box {
+        background-color: #f7f7f7;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        max-width: 600px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .choices-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .choice-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  
+  .choice-box:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .audioButton {
+    margin-top: 10px;
+  }
   

@@ -1,3 +1,4 @@
+// app/Card/components/RenderSelectedCard.js
 import styles from "../CreateCard.module.css";
 import { Input } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

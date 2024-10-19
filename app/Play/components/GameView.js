@@ -1,15 +1,27 @@
 // app/Play/components/GameView.js
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleArrowLeft,
   faCircleArrowRight,
   faSquareXmark,
+  faPlay,
+  faPause,
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
+import { db } from "../../lip/firebase/clientApp";
+import useAuth from "../../lip/hooks/useAuth";
 import { renderCardContent } from "./CardRendering";
-import { AudioControl } from "./AudioControl";
 import styles from "../Play.module.css";
 
 const GameView = ({
@@ -24,99 +36,273 @@ const GameView = ({
   isMultipleMode,
   cards,
   startSide,
-  setCardsQueue,
-  cardsQueue,
-  setCurrentCard,
-  setCurrentCardIndex,
   Title,
+  deckId,
+  friendCards,
 }) => {
   const [choices, setChoices] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(null);
-  const [answeredCards, setAnsweredCards] = useState({}); // สถานะการตอบถูกของการ์ดแต่ละใบ
+  const [answeredCards, setAnsweredCards] = useState({});
+  const [generatedChoices, setGeneratedChoices] = useState({});
+  const [showScorePopup, setShowScorePopup] = useState(false);
+  const [startTime, setStartTime] = useState(Date.now());
+  const [audioRefs, setAudioRefs] = useState({});
+  const [isPlaying, setIsPlaying] = useState({});
+  const [isPlayingFront, setIsPlayingFront] = useState(false);
+  const [isPlayingBack, setIsPlayingBack] = useState(false);
+  const audioRefFront = useRef(null);
+  const audioRefBack = useRef(null);
+  const user = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (isMultipleMode) {
-      generateChoices();
+      if (generatedChoices[currentCard.id]) {
+        setChoices(generatedChoices[currentCard.id]);
+      } else {
+        generateChoices();
+      }
     }
   }, [currentCard, cards]);
 
+  useEffect(() => {
+    // หยุดเสียงเมื่อเปลี่ยนการ์ด
+    if (audioRefFront.current) {
+      audioRefFront.current.pause();
+      audioRefFront.current.currentTime = 0;
+    }
+    if (audioRefBack.current) {
+      audioRefBack.current.pause();
+      audioRefBack.current.currentTime = 0;
+    }
+
+    // รีเซ็ตสถานะการเล่นเมื่อมีการเปลี่ยนการ์ด
+    setIsPlayingFront(false);
+    setIsPlayingBack(false);
+  }, [currentCard]);
+
+  useEffect(() => {
+    // สร้าง audioRefs ใหม่ทุกครั้งเมื่อช้อยส์เปลี่ยน
+    const newAudioRefs = choices.reduce((acc, choice, index) => {
+      acc[index] = React.createRef();
+      return acc;
+    }, {});
+    setAudioRefs(newAudioRefs);
+    setIsPlaying({}); // รีเซ็ตสถานะการเล่น
+  }, [choices]);
+
+  const handleAudioPlayPause = (e, index) => {
+    e.stopPropagation(); // หยุดการกระจายเหตุการณ์คลิกไปยังพาเรนต์
+    if (!audioRefs[index]?.current) return;
+
+    const isPlayingNow = isPlaying[index] ?? false;
+
+    if (isPlayingNow) {
+      audioRefs[index].current.pause();
+      audioRefs[index].current.currentTime = 0;
+    } else {
+      // หยุดเสียงอื่นๆ
+      Object.values(audioRefs).forEach((audio, i) => {
+        if (audio.current) {
+          audio.current.pause();
+          audio.current.currentTime = 0;
+        }
+        setIsPlaying((prevState) => ({ ...prevState, [i]: false }));
+      });
+      audioRefs[index].current.play();
+    }
+
+    setIsPlaying((prevState) => ({ ...prevState, [index]: !isPlayingNow }));
+  };
+
+  const handleAudioPlayPauseFront = () => {
+    if (isPlayingFront) {
+      audioRefFront.current.pause();
+    } else {
+      audioRefFront.current.play();
+    }
+    setIsPlayingFront(!isPlayingFront);
+  };
+
+  const handleAudioPlayPauseBack = () => {
+    if (isPlayingBack) {
+      audioRefBack.current.pause();
+    } else {
+      audioRefBack.current.play();
+    }
+    setIsPlayingBack(!isPlayingBack);
+  };
+
   const generateChoices = () => {
-    const correctAnswer =
-      startSide === "Front"
-        ? currentCard.questionBack
-        : currentCard.questionFront;
+    const correctAnswer = {
+      layoutFront: currentCard.layoutFront,
+      layoutBack: currentCard.layoutBack,
+      questionFront: currentCard.questionFront,
+      questionBack: currentCard.questionBack,
+      audioUrlFront: currentCard.audioUrlFront,
+      audioUrlBack: currentCard.audioUrlBack,
+      imageUrlFront: currentCard.imageUrlFront,
+      imageUrlBack: currentCard.imageUrlBack,
+    };
+
     let wrongChoices = cards
       .filter((card) => card.id !== currentCard.id)
-      .map((card) =>
-        startSide === "Front" ? card.questionBack : card.questionFront
-      );
+      .map((card) => ({
+        layoutFront: card.layoutFront,
+        layoutBack: card.layoutBack,
+        questionFront: card.questionFront,
+        questionBack: card.questionBack,
+        audioUrlFront: card.audioUrlFront,
+        audioUrlBack: card.audioUrlBack,
+        imageUrlFront: card.imageUrlFront,
+        imageUrlBack: card.imageUrlBack,
+      }));
 
-    // สุ่มเลือกคำตอบผิด 3 ข้อ
     wrongChoices = wrongChoices.sort(() => 0.5 - Math.random()).slice(0, 3);
-
-    // รวมคำตอบที่ถูกต้องและผิดแล้วทำการสุ่มลำดับ
     const allChoices = [...wrongChoices, correctAnswer].sort(
       () => 0.5 - Math.random()
     );
+
+    setGeneratedChoices((prevChoices) => ({
+      ...prevChoices,
+      [currentCard.id]: allChoices,
+    }));
+
     setChoices(allChoices);
     setSelectedChoice(null);
     setIsAnswerCorrect(null);
   };
 
-  const handleChoiceSelection = (choice) => {
+  const handleChoiceSelection = (choice, index) => {
+    if (answeredCards[currentCardIndex]) return;
+
+    // คำตอบที่ถูกต้อง
     const correctAnswer =
       startSide === "Front"
-        ? currentCard.questionBack
-        : currentCard.questionFront;
+        ? currentCard.questionBack ||
+          currentCard.audioUrlBack ||
+          currentCard.imageUrlBack
+        : currentCard.questionFront ||
+          currentCard.audioUrlFront ||
+          currentCard.imageUrlFront;
+
+    // เปรียบเทียบตัวเลือก
+    const isCorrect =
+      choice.questionBack === correctAnswer ||
+      choice.audioUrlBack === correctAnswer ||
+      choice.imageUrlBack === correctAnswer ||
+      choice.questionFront === correctAnswer ||
+      choice.audioUrlFront === correctAnswer ||
+      choice.imageUrlFront === correctAnswer;
+
     setSelectedChoice(choice);
-    const isCorrect = choice === correctAnswer;
     setIsAnswerCorrect(isCorrect);
 
-    // อัปเดตสถานะว่าการ์ดนี้ถูกตอบถูกแล้ว
-    if (isCorrect) {
-      setAnsweredCards((prevAnsweredCards) => ({
-        ...prevAnsweredCards,
-        [currentCardIndex]: true, // เก็บการ์ดที่ตอบถูกไว้
-      }));
-    }
+    setAnsweredCards((prevAnsweredCards) => ({
+      ...prevAnsweredCards,
+      [currentCardIndex]: {
+        isCorrect,
+        selectedChoice: choice,
+      },
+    }));
 
-    // หน่วงเวลา 1 วินาทีก่อนเปลี่ยนไปข้อถัดไป
     setTimeout(() => {
-      if (isCorrect) {
-        moveToNextCard(); // เด้งไปข้อถัดไปถ้าตอบถูก
-      } else {
-        // ถ้าตอบผิดจะเพิ่มการ์ดนี้ใน queue เพื่อวนมาถามใหม่
-        setCardsQueue((prevQueue) => {
-          // เพิ่มการ์ดที่ตอบผิดไปยัง queue
-          const newQueue = [...prevQueue];
-          if (!newQueue.find((card) => card.id === currentCard.id)) {
-            newQueue.push(currentCard);
-          }
-          return newQueue;
-        });
-        moveToNextCard(); // เด้งไปข้อถัดไปทันทีแม้ตอบผิด
-      }
-
-      // รีเซ็ตตัวเลือกและการตอบ
-      setSelectedChoice(null);
-      setIsAnswerCorrect(null);
-    }, 1000); // หน่วงเวลา 1 วินาทีเพื่อให้ผู้ใช้เห็นการเปลี่ยนสี
+      moveToNextCard();
+    }, 1000);
   };
 
   const moveToNextCard = () => {
-    if (cardsQueue.length > 0) {
-      const nextCard = cardsQueue[0]; // ดึงการ์ดแรกจาก queue
-      setCardsQueue((prevQueue) => prevQueue.slice(1)); // ลบการ์ดที่แสดงออกจาก queue
-      setCurrentCard(nextCard); // อัปเดตการ์ดปัจจุบัน
-      setCurrentCardIndex(cards.findIndex((card) => card.id === nextCard.id)); // อัปเดต index
-    } else if (currentCardIndex < cardCount - 1) {
-      handleNextCard(); // เด้งไปข้อถัดไปถ้าไม่มีการ์ดใน queue
+    if (currentCardIndex < cardCount - 1) {
+      handleNextCard();
     } else {
-      // เมื่อครบทุกข้อและตอบถูกหมดแล้ว ให้แสดงข้อความ success
-      alert("Success!");
-      router.push("/dashboard");
+      setShowScorePopup(true);
+    }
+  };
+
+  const handleNavigate = () => {
+    router.push("/dashboard");
+    handleGameEnd();
+  };
+
+  const handleGameEnd = async () => {
+    const endTime = Date.now();
+    const totalTime = Math.floor((endTime - startTime) / 1000);
+    const correctAnswersCount = Object.values(answeredCards).filter(
+      (card) => card.isCorrect
+    ).length;
+
+    if (user && friendCards == null) {
+      await saveResultToFirestore(correctAnswersCount, totalTime, cardCount);
+    }else{
+      await saveResultToFirestoreF(correctAnswersCount, totalTime, cardCount);
+    }
+  };
+
+  const saveResultToFirestore = async (score, time, cardCount) => {
+    try {
+      const gameResultsRef = collection(
+        db,
+        "Deck",
+        user.uid,
+        "title",
+        deckId,
+        "gameResults"
+      );
+
+      await addDoc(gameResultsRef, {
+        score,
+        cardCount,
+        time,
+        timestamp: new Date(),
+      });
+
+      const resultsQuery = query(
+        gameResultsRef,
+        orderBy("timestamp", "desc"),
+        limit(5)
+      );
+      const querySnapshot = await getDocs(resultsQuery);
+
+      const docsToDelete = querySnapshot.docs.slice(5);
+      for (const docToDelete of docsToDelete) {
+        await deleteDoc(doc(gameResultsRef, docToDelete.id));
+      }
+    } catch (error) {
+      console.error("Error saving game result: ", error);
+    }
+  };
+  const saveResultToFirestoreF = async (score, time, cardCount) => {
+    try {
+      const gameResultsRef = collection(
+        db,
+        "Deck",
+        user.uid,
+        "deckFriend",
+        deckId,
+        "gameResults"
+      );
+
+      await addDoc(gameResultsRef, {
+        score,
+        cardCount,
+        time,
+        timestamp: new Date(),
+      });
+
+      const resultsQuery = query(
+        gameResultsRef,
+        orderBy("timestamp", "desc"),
+        limit(5)
+      );
+      const querySnapshot = await getDocs(resultsQuery);
+
+      const docsToDelete = querySnapshot.docs.slice(5);
+      for (const docToDelete of docsToDelete) {
+        await deleteDoc(doc(gameResultsRef, docToDelete.id));
+      }
+    } catch (error) {
+      console.error("Error saving game result: ", error);
     }
   };
 
@@ -124,9 +310,8 @@ const GameView = ({
     <>
       <div className="grid grid-cols-2 w-full h-0 ">
         <div className="text-wrap p-7">
-          {Title}  {currentCardIndex + 1} / {cardCount}
+          {Title} {currentCardIndex + 1} / {cardCount}
         </div>
-
         <div className="flex items-center justify-end pr-10">
           <FontAwesomeIcon
             style={{ fontSize: "40px", cursor: "pointer" }}
@@ -137,7 +322,7 @@ const GameView = ({
       </div>
 
       {!isMultipleMode ? (
-        // Single Mode
+        <>
         <div
           className={`${styles["flip-card"]} cursor-pointer`}
           onClick={handleClick}
@@ -147,62 +332,238 @@ const GameView = ({
               isFlipped ? styles["flipped"] : ""
             }`}
           >
+            {/* Front side of the card */}
             <div className={`${styles["flip-card-front"]} my-2 space-y-0`}>
               <div className={`p-4 ${currentCard.layoutFront || ""}`}>
-                {startSide === "Front"
-                  ? currentCard.questionFront
-                  : currentCard.questionBack}
+                {renderCardContent(currentCard, "front")}
+                {currentCard.audioUrlFront && (
+                  <div className={styles.audioButton}>
+                    <audio
+                      ref={audioRefFront}
+                      className="hidden"
+                      onEnded={() => setIsPlayingFront(false)}
+                      key={currentCard.audioUrlFront} // ใช้ key เพื่อรีเฟรชเสียงเมื่อการ์ดเปลี่ยน
+                    >
+                      <source
+                        src={currentCard.audioUrlFront}
+                        type="audio/mp3"
+                      />
+                      Your browser does not support the audio element.
+                    </audio>
+
+                    <FontAwesomeIcon
+                      icon={isPlayingFront ? faPause : faPlay}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent flip when clicking play
+                        handleAudioPlayPauseFront();
+                      }}
+                      className="cursor-pointer"
+                    />
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Back side of the card */}
             <div className={styles["flip-card-back"]}>
               <div className={`p-4 ${currentCard.layoutBack || ""}`}>
-                {startSide === "Front"
-                  ? currentCard.questionBack
-                  : currentCard.questionFront}
+                {renderCardContent(currentCard, "back")}
+                {currentCard.audioUrlBack && (
+                  <div className={styles.audioButton}>
+                    <audio
+                      ref={audioRefBack}
+                      className="hidden"
+                      onEnded={() => setIsPlayingBack(false)}
+                      key={currentCard.audioUrlBack} // ใช้ key เพื่อรีเฟรชเสียงเมื่อการ์ดเปลี่ยน
+                    >
+                      <source src={currentCard.audioUrlBack} type="audio/mp3" />
+                      Your browser does not support the audio element.
+                    </audio>
+
+                    <FontAwesomeIcon
+                      icon={isPlayingBack ? faPause : faPlay}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent flip when clicking play
+                        handleAudioPlayPauseBack();
+                      }}
+                      className="cursor-pointer"
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
+        </>
+
       ) : (
-        // Multiple Mode
-        <div className="my-4 p-16">
-          <div className="text-xl mb-4 p-4 bg-white rounded-lg shadow-md">
-            {startSide === "Front"
-              ? currentCard.questionFront
-              : currentCard.questionBack}
+        // โค้ดสำหรับโหมด Multiple
+        <>
+        <div className={styles["container"]}>
+          <div className="w-1/2 flex items-center justify-center">
+            <div className="bg-white text-center p-10 m-10 shadow-lg w-4/5 h-full">
+              {/* คำถาม */}
+                {startSide === "Front"
+                  ? renderCardContent(currentCard, "front")
+                  : renderCardContent(currentCard, "back")}
+              {startSide === "Front" && currentCard.audioUrlFront && (
+                <div className={styles.audioButton}>
+                  <audio
+                    ref={audioRefFront}
+                    className="hidden"
+                    onEnded={() => setIsPlayingFront(false)}
+                    key={currentCard.audioUrlFront}
+                  >
+                    <source
+                      src={currentCard.audioUrlFront}
+                      type="audio/mp3"
+                    />
+                    Your browser does not support the audio element.
+                  </audio>
+
+                  <FontAwesomeIcon
+                    icon={isPlayingFront ? faPause : faPlay}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAudioPlayPauseFront();
+                    }}
+                    className="cursor-pointer"
+                  />
+                </div>
+              )}
+              {startSide === "Back" && currentCard.audioUrlBack && (
+                <div className={styles.audioButton}>
+                  <audio
+                    ref={audioRefBack}
+                    className="hidden"
+                    onEnded={() => setIsPlayingBack(false)}
+                    key={currentCard.audioUrlBack}
+                  >
+                    <source src={currentCard.audioUrlBack} type="audio/mp3" />
+                    Your browser does not support the audio element.
+                  </audio>
+
+                  <FontAwesomeIcon
+                    icon={isPlayingBack ? faPause : faPlay}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAudioPlayPauseBack();
+                    }}
+                    className="cursor-pointer"
+                  />
+                </div>
+              )}
+            </div>
           </div>
-          <div className="space-y-4">
+
+          <div className="w-1/2 grid grid-cols-2 gap-4">
             {choices.map((choice, index) => {
-              const isCorrectChoice =
-                startSide === "Front"
-                  ? currentCard.questionBack
-                  : currentCard.questionFront;
-              const isAnsweredCorrectly =
-                answeredCards[currentCardIndex] && choice === isCorrectChoice;
+              const isSelectedChoice =
+                answeredCards[currentCardIndex] &&
+                answeredCards[currentCardIndex].selectedChoice === choice;
+              const choiceStyle = isSelectedChoice
+                ? "bg-blue-400"
+                : "bg-gray-200";
 
               return (
                 <div
                   key={index}
-                  className={`p-4 bg-gray-200 rounded-md shadow-md cursor-pointer ${
-                    selectedChoice === choice
-                      ? isAnswerCorrect === true
-                        ? "bg-green-400" // ถ้าตอบถูก เปลี่ยนเป็นสีเขียว
-                        : "bg-red-400" // ถ้าตอบผิด เปลี่ยนเป็นสีแดง
-                      : isAnsweredCorrectly
-                      ? "bg-green-400" // คงสีเขียวไว้ถ้าข้อนี้เคยถูกตอบถูกแล้ว
-                      : ""
-                  }`}
-                  onClick={() => handleChoiceSelection(choice)}
+                  className={`p-6 text-center rounded-lg shadow-md cursor-pointer ${choiceStyle}`}
+                  onClick={() => handleChoiceSelection(choice, index)}
                 >
-                  {choice}
+                  {/* Render choice content */}
+                  {startSide === "Front"
+                    ? renderCardContent(choice, "back")
+                    : renderCardContent(choice, "front")}
+
+                  {/* Add audio for each choice */}
+                  {startSide === "Front"
+                    ? choice.audioUrlBack && (
+                        <div className={styles.audioButton}>
+                          <audio
+                            ref={audioRefs[index]}
+                            className="hidden"
+                            onEnded={() =>
+                              setIsPlaying((prevState) => ({
+                                ...prevState,
+                                [index]: false,
+                              }))
+                            }
+                            key={choice.audioUrlBack}
+                          >
+                            <source
+                              src={choice.audioUrlBack}
+                              type="audio/mp3"
+                            />
+                            Your browser does not support the audio element.
+                          </audio>
+
+                          <FontAwesomeIcon
+                            icon={isPlaying[index] ? faPause : faPlay}
+                            onClick={(e) => handleAudioPlayPause(e, index)}
+                            className="cursor-pointer"
+                          />
+                        </div>
+                      )
+                    : choice.audioUrlFront && (
+                        <div className={styles.audioButton}>
+                          <audio
+                            ref={audioRefs[index]}
+                            className="hidden"
+                            onEnded={() =>
+                              setIsPlaying((prevState) => ({
+                                ...prevState,
+                                [index]: false,
+                              }))
+                            }
+                            key={choice.audioUrlFront}
+                          >
+                            <source
+                              src={choice.audioUrlFront}
+                              type="audio/mp3"
+                            />
+                            Your browser does not support the audio element.
+                          </audio>
+
+                          <FontAwesomeIcon
+                            icon={isPlaying[index] ? faPause : faPlay}
+                            onClick={(e) => handleAudioPlayPause(e, index)}
+                            className="cursor-pointer"
+                          />
+                        </div>
+                      )}
                 </div>
               );
             })}
           </div>
         </div>
+       
+      </>
       )}
 
-      <div className="m-5">
+      {showScorePopup && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h2 className="text-lg font-semibold mb-4">สรุปผลคะแนน</h2>
+            <p>
+              คุณตอบถูก{" "}
+              {
+                Object.values(answeredCards).filter((card) => card.isCorrect)
+                  .length
+              }{" "}
+              ข้อจากทั้งหมด {cardCount} ข้อ
+            </p>
+            <button
+              onClick={handleNavigate}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4"
+            >
+              ตกลง
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div>
         <span className="flex justify-center space-x-5">
           <FontAwesomeIcon
             style={{ fontSize: "40px", cursor: "pointer" }}

@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRepeat, faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { updateDoc, doc } from "firebase/firestore";
 
-const CardList = ({ deckId, deckTitle, cardsLength }) => {
+const CardList = ({ deckId, deckTitle, cardsLength, friendCards }) => {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,27 +18,100 @@ const CardList = ({ deckId, deckTitle, cardsLength }) => {
   useEffect(() => {
     if (!auth || !deckId) return;
 
-    const cardsRef = collection(db, "Deck", auth.uid, "title", deckId, "cards");
-    const unsubscribeCards = onSnapshot(cardsRef, (snapshot) => {
-      if (!snapshot.empty) {
-        const cardData = snapshot.docs
-          .map((doc) => ({
-            ...doc.data(),
-            id: doc.id,
-          }))
-          .sort((a, b) => a.timestamp - b.timestamp);
-        setCards(cardData);
-      } else {
-        setCards([]);
-      }
-      setLoading(false);
-    });
+    if (friendCards == null) {
+      const cardsRef = collection(
+        db,
+        "Deck",
+        auth.uid,
+        "title",
+        deckId,
+        "cards"
+      );
+      const unsubscribeCards = onSnapshot(cardsRef, (snapshot) => {
+        if (!snapshot.empty) {
+          const cardData = snapshot.docs
+            .map((doc) => ({
+              ...doc.data(),
+              id: doc.id,
+            }))
+            .sort((a, b) => a.timestamp - b.timestamp);
+          setCards(cardData);
+        } else {
+          setCards([]);
+        }
+        setLoading(false);
+      });
 
-    return () => unsubscribeCards();
+      return () => unsubscribeCards();
+    } else {
+      const cardsRef = collection(
+        db,
+        "Deck",
+        auth.uid,
+        "deckFriend",
+        deckId,
+        "cards"
+      );
+      const unsubscribeCards = onSnapshot(cardsRef, (snapshot) => {
+        if (!snapshot.empty) {
+          const cardData = snapshot.docs
+            .map((doc) => ({
+              ...doc.data(),
+              id: doc.id,
+            }))
+            .sort((a, b) => a.timestamp - b.timestamp);
+          setCards(cardData);
+        } else {
+          setCards([]);
+        }
+        setLoading(false);
+      });
+
+      return () => unsubscribeCards();
+    }
   }, [auth, deckId]);
 
   const handleFlip = async (id) => {
     const cardRef = doc(db, "Deck", auth.uid, "title", deckId, "cards", id);
+    setCards((prevCards) =>
+      prevCards.map((card) => {
+        if (card.id === id) {
+          // สลับข้อมูลใน Firestore
+          updateDoc(cardRef, {
+            questionFront: card.questionBack,
+            questionBack: card.questionFront,
+            imageUrlFront: card.imageUrlBack,
+            imageUrlBack: card.imageUrlFront,
+            audioUrlFront: card.audioUrlBack,
+            audioUrlBack: card.audioUrlFront,
+          });
+
+          // สลับข้อมูลในแอป
+          return {
+            ...card,
+            questionFront: card.questionBack,
+            questionBack: card.questionFront,
+            imageUrlFront: card.imageUrlBack,
+            imageUrlBack: card.imageUrlFront,
+            audioUrlFront: card.audioUrlBack,
+            audioUrlBack: card.audioUrlFront,
+          };
+        }
+        return card;
+      })
+    );
+  };
+
+  const handleFlipFriend = async (id) => {
+    const cardRef = doc(
+      db,
+      "Deck",
+      auth.uid,
+      "deckFriend",
+      deckId,
+      "cards",
+      id
+    );
     setCards((prevCards) =>
       prevCards.map((card) => {
         if (card.id === id) {
@@ -75,22 +148,27 @@ const CardList = ({ deckId, deckTitle, cardsLength }) => {
   return (
     <div className="flex flex-wrap mt-10 rounded-lg">
       {/* <Link href={"/Card/" + deckId}> */}
-      <Link href={`/Card/${deckId}?deckTitle=${deckTitle}&cardsLength=${cardsLength}`}>
+      {friendCards == null ? (
+        <Link
+          href={`/Card/${deckId}?deckTitle=${deckTitle}&cardsLength=${cardsLength}`}
+        >
+          <div className="flex-shrink-0 w-56 h-72 mx-10 mb-16 mt-9">
+            <Card shadow hoverable className="bg-gray-100 rounded-3xl h-full">
+              <CardBody className="flex-grow flex items-center justify-center text-2xl font-bold bg-gray-200 hover:bg-gradient-to-r from-red-400 to-red-700 hover:scale-105 transition-transform duration-300 ease-in-out shadow-lg rounded-lg cursor-pointer">
+                <FontAwesomeIcon
+                  className="p-2 text-white"
+                  style={{ fontSize: "48px" }}
+                  icon={faCirclePlus}
+                />
+                <span className="ml-2 text-white">New Card</span>
+              </CardBody>
+            </Card>
+          </div>
+        </Link>
+      ) : (
+        ""
+      )}
 
-
-        <div className="flex-shrink-0 w-56 h-72 mx-10 mb-16 mt-9">
-          <Card shadow hoverable className="bg-gray-100 rounded-3xl h-full">
-            <CardBody className="flex-grow flex items-center justify-center text-2xl font-bold bg-gray-200 hover:bg-gradient-to-r from-red-400 to-red-700 hover:scale-105 transition-transform duration-300 ease-in-out shadow-lg rounded-lg cursor-pointer">
-              <FontAwesomeIcon
-                className="p-2 text-white"
-                style={{ fontSize: "48px" }}
-                icon={faCirclePlus}
-              />
-              <span className="ml-2 text-white">New Card</span>
-            </CardBody>
-          </Card>
-        </div>
-      </Link>
       {cards.map((card, index) => (
         <div key={card.id} className="flex-shrink-0 w-56 h-72 mx-10 mb-16">
           <div className="flex justify-center p-2">
@@ -98,7 +176,11 @@ const CardList = ({ deckId, deckTitle, cardsLength }) => {
               className="text-black hover:text-green-500 active:text-green-400 cursor-pointer"
               style={{ fontSize: "20px" }}
               icon={faRepeat}
-              onClick={() => handleFlip(card.id)}
+              onClick={() => {
+                friendCards == null
+                  ? handleFlip(card.id)
+                  : handleFlipFriend(card.id);
+              }}
             />
           </div>
           <Card shadow hoverable className="bg-gray-100 rounded-lg h-full">
@@ -145,18 +227,23 @@ const CardList = ({ deckId, deckTitle, cardsLength }) => {
             <div class=" flex justify-end basis-1/2 pt-1 text-l font-semibold">
               {index + 1}
             </div>
-            <div class="flex justify-start basis-1/2 pl-2 ">
-              <DeleteCard
-                deckId={deckId}
-                cardId={card.id}
-                imageFront={card.imageUrlFront}
-                imageBack={card.imageUrlBack}
-                audioFront={card.audioUrlFront}
-                audioBack={card.audioUrlBack}
-                layoutFront={card.layoutFront}
-                layoutBack={card.layoutBack}
-              />
-            </div>
+            {friendCards == null ? (
+              <div class="flex justify-start basis-1/2 pl-2 ">
+                <DeleteCard
+                  deckId={deckId}
+                  cardId={card.id}
+                  imageFront={card.imageUrlFront}
+                  imageBack={card.imageUrlBack}
+                  audioFront={card.audioUrlFront}
+                  audioBack={card.audioUrlBack}
+                  layoutFront={card.layoutFront}
+                  layoutBack={card.layoutBack}
+                  numberCard={index + 1}
+                />
+              </div>
+            ) : (
+              ""
+            )}
           </div>
         </div>
       ))}

@@ -1,5 +1,5 @@
 // app/Play/[id]/page.js
-"use client";
+"use client"
 import React, { useState, useEffect } from "react";
 import useAuth from "../../lip/hooks/useAuth";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -7,56 +7,39 @@ import { fetchCards } from "../components/useFirebase";
 import Popup from "../components/Popup";
 import GameView from "../components/GameView";
 
+
+// ฟังก์ชันเพื่อสุ่มลำดับของการ์ด
+const shuffleArray = (array) => {
+    return array.sort(() => Math.random() - 0.5);
+};
+
 export default function Play() {
     const { id: deckId } = useParams();
     const searchParams = useSearchParams();
     const Title = searchParams.get('Title');
+    const friendCards = searchParams.get('friendCards');
     const [cards, setCards] = useState([]);
     const auth = useAuth();
     const [isFlipped, setIsFlipped] = useState(false);
-    const [currentCardIndex, setCurrentCardIndex] = useState(0); // จัดการ index ของการ์ดปัจจุบัน
+    const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const [showPopup, setShowPopup] = useState(true);
     const [mode, setMode] = useState("Single");
     const [startSide, setStartSide] = useState("Front");
     const [cardCount, setCardCount] = useState(0);
-
     const router = useRouter();
     const [loading, setLoading] = useState(true);
-    const [cardsQueue, setCardsQueue] = useState([]);
 
     useEffect(() => {
         if (auth && deckId) {
-            return fetchCards(deckId, auth, setCards, setCardCount, setLoading);
+            return fetchCards(deckId,friendCards,auth, (fetchedCards) => {
+                // สุ่มลำดับการ์ดก่อนบันทึกใน state
+                const shuffledCards = shuffleArray(fetchedCards);
+                setCards(shuffledCards);
+                setCardCount(shuffledCards.length);
+            }, setCardCount, setLoading);
         }
     }, [auth, deckId]);
-
-    useEffect(() => {
-        console.log("Title from searchParams:", Title);
-    }, [Title]);
     
-    
-
-    // useEffect(() => {
-        // ถ้าตอบผิดจะเพิ่มการ์ดลงใน queue
-    //     if (cardsQueue.length > 0) {
-    //         setCurrentCardIndex(cards.indexOf(cardsQueue[0]));
-    //         setCardsQueue(cardsQueue.slice(1));
-    //     }
-    // }, [cardsQueue]);
-
-    useEffect(() => {
-        if (cardsQueue.length > 0) {
-            const nextCard = cardsQueue[0];
-            setCurrentCardIndex(cards.findIndex(card => card.id === nextCard.id));
-            setCardsQueue(cardsQueue.slice(1)); // ลบการ์ดแรกออกจาก queue หลังแสดง
-        }
-    }, [cardsQueue]);
-    
-    // console.log(cardsQueue); // ตรวจสอบคิวการ์ด
-    // console.log(currentCardIndex); // ตรวจสอบดัชนีของการ์ดปัจจุบัน
-
-    
-
     if (loading) {
         return <div>กำลังโหลด...</div>;
     }
@@ -67,33 +50,53 @@ export default function Play() {
         setIsFlipped(!isFlipped);
     };
 
+    // const handleNextCard = () => {
+    //     if (currentCardIndex < cardCount - 1 && currentCardIndex < cards.length - 1) {
+    //         setCurrentCardIndex(currentCardIndex + 1);
+    //         setIsFlipped(startSide === "Back");
+    //     }
+    // };
+
     const handleNextCard = () => {
         if (currentCardIndex < cardCount - 1 && currentCardIndex < cards.length - 1) {
-            setCurrentCardIndex(currentCardIndex + 1);
-            setIsFlipped(startSide === "Back");
+          setCurrentCardIndex(currentCardIndex + 1);
+        //   รักษาสถานะการพลิกการ์ดตาม startSide
+          if (startSide === "Back") {
+            setIsFlipped(true); // เปลี่ยนไปที่ด้านหลัง
+          } else {
+            setIsFlipped(false); // เปลี่ยนไปที่ด้านหน้า
+          }
         }
-    };
+      };
+
+    // const handlePreviousCard = () => {
+    //     if (currentCardIndex > 0) {
+    //         setCurrentCardIndex(currentCardIndex - 1);
+    //         setIsFlipped(startSide === "Back");
+    //     }
+    // };
 
     const handlePreviousCard = () => {
         if (currentCardIndex > 0) {
-            setCurrentCardIndex(currentCardIndex - 1);
-            setIsFlipped(startSide === "Back");
+          setCurrentCardIndex(currentCardIndex - 1);
+        //   รักษาสถานะการพลิกการ์ดตาม startSide
+          if (startSide === "Back") {
+            setIsFlipped(true); // เปลี่ยนไปที่ด้านหลัง
+          } else {
+            setIsFlipped(false); // เปลี่ยนไปที่ด้านหน้า
+          }
         }
-    };
+      };
 
     const handleExit = () => {
+      alert("Exit");
         router.push("/dashboard");
     };
 
     const handleStart = () => {
         setShowPopup(false);
         setIsFlipped(startSide === "Back");
-        console.log("Starting game..."); // เพิ่มการตรวจสอบว่าฟังก์ชันถูกเรียกหรือไม่
     };
-
-    
-    
-    
 
     const isMultipleMode = mode === "Multiple";
 
@@ -109,6 +112,7 @@ export default function Play() {
                     setCardCount={setCardCount} 
                     handleStart={handleStart} 
                     cards={cards}
+                    setLoading={setLoading}
                 />
                 
             ) : (
@@ -124,10 +128,10 @@ export default function Play() {
                     isMultipleMode={isMultipleMode} 
                     cards={cards} 
                     startSide={startSide}
-                    cardsQueue={cardsQueue}
-                    setCardsQueue={setCardsQueue}
                     setCurrentCardIndex={setCurrentCardIndex}
                     Title={Title}
+                    deckId={deckId}
+                    friendCards={friendCards}
                 />
             )}
         </div>

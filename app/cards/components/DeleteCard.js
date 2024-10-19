@@ -27,6 +27,8 @@ const DeleteCard = ({
   audioBack,
   layoutFront,
   layoutBack,
+  numberCard,
+  
 }) => {
   const auth = useAuth();
   const storage = getStorage();
@@ -36,7 +38,7 @@ const DeleteCard = ({
 
   const handleNavigate = () => {
     setIsNavigating(true); // ตั้งสถานะการโหลดเมื่อเริ่มเปลี่ยนเส้นทาง
-    router.push(`/EditCard/${cardId}?deckId=${deckId}`); // เปลี่ยนเส้นทางไปยังหน้า EditCard
+    router.push(`/EditCard/${cardId}?deckId=${deckId}&numberCard=${numberCard}`); // เปลี่ยนเส้นทางไปยังหน้า EditCard
   };
 
   const handleDelete = async () => {

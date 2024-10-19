@@ -1,7 +1,10 @@
+// app/dashboard/page.js
 "use client";
 import React, { useState, useEffect } from "react";
-import { getDoc, doc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import { getDoc, doc, setDoc,getDocs } from "firebase/firestore";
 import { auth, db } from "../lip/firebase/clientApp";
+import AddFriendDeck from "./components/AddFriendDeck";
 import useAuth from "../lip/hooks/useAuth";
 import AddToDeckComponent from "./components/AddDeck";
 import DeckListComponent from "./components/DeckList";
@@ -11,13 +14,17 @@ import {
   faCircleUser,
   faShareAlt,
   faMagnifyingGlass,
-  faPlus
+  faPlus,
 } from "@fortawesome/free-solid-svg-icons";
-import { Input,Button } from "@nextui-org/react";
+import { Input, Button } from "@nextui-org/react";
 
 export default function Dashboard() {
   const user = useAuth();
   const [userName, setUserName] = useState("");
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [friendName, setFriendName] = useState("");
+  const router = useRouter();
+  const [code, setCode] = useState("");
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -41,6 +48,63 @@ export default function Dashboard() {
     fetchUserName();
   }, [user]);
 
+  const onClickButton = () => {
+    // router.push("/dashboard/components/AddFriendDeck");
+    setIsPopupVisible(!isPopupVisible);
+  }
+
+  // ส่วนอื่น ๆ ของโค้ดยังคงเดิม
+
+const handlerAddDeck = async () => {
+  const shortCode = code; // รับรหัสที่เพื่อนแชร์มา
+  try {
+    // ดึงข้อมูลจาก Firestore โดยใช้รหัสสั้น
+    const docRef = doc(db, "sharedDecks", shortCode);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const parsedData = docSnap.data();
+      const deckData = parsedData.deckData; // ข้อมูล Deck ที่แชร์มา
+      const cards = parsedData.cards; // การ์ดทั้งหมดที่แชร์มา
+      const deckId = parsedData.deckId; // ใช้ deckId เดิม
+      // const friendName = parsedData.friendName;
+      setFriendName(parsedData.friendName)
+      // เพิ่ม Deck ลงในบัญชีของผู้ใช้
+      const userDeckRef = doc(db, "Deck", user.uid, "deckFriend", deckId);
+      await setDoc(userDeckRef, { ...deckData, owner: parsedData.friendId });
+
+      // เพิ่มการ์ดทั้งหมดลงใน Deck ของผู้ใช้
+      for (const card of cards) {
+        const userCardRef = doc(
+          db,
+          "Deck",
+          user.uid,
+          "deckFriend",
+          deckId,
+          "cards",
+          card.id
+        );
+        await setDoc(userCardRef, card);
+      }
+
+      alert("เพิ่ม deck ของเพื่อนพร้อมการ์ดสำเร็จแล้ว!");
+      setIsPopupVisible(false);
+    } else {
+      alert("ไม่พบรหัสที่ระบุ");
+      return;
+    }
+  } catch (error) {
+    console.error("Error adding friend's deck:", error);
+    alert("เกิดข้อผิดพลาดในการเพิ่ม deck");
+    return;
+  }
+};
+
+
+  const handleCloseClick = () => {
+    setIsPopupVisible(false);
+  };
+  
   return (
     <div className="p-10">
       <div className="flex justify-between">
@@ -48,7 +112,6 @@ export default function Dashboard() {
           <FontAwesomeIcon style={{ fontSize: "28px" }} icon={faLayerGroup} />
           <span className="ml-2 text-2xl font-semibold">Dashboard</span>
         </div>
-       
       </div>
       {user ? (
         <div>
@@ -69,13 +132,48 @@ export default function Dashboard() {
       </div>
       <Button
         radius="full"
-        className="font-semibold bg-lime-500 hover:bg-lime-500 focus:outline-none focus:ring focus:ring-lime-400 text-white text-[15px] shadow-lg ml-2">
-         <FontAwesomeIcon
-          style={{ fontSize: "20px"}}
-          icon={faPlus}
-        /><span>Add Your Friend Deck</span>
-       
+        onClick={onClickButton}
+        className="font-semibold bg-lime-500 hover:bg-lime-500 focus:outline-none focus:ring focus:ring-lime-400 text-white text-[15px] shadow-lg ml-2"
+      >
+        <FontAwesomeIcon style={{ fontSize: "20px" }} icon={faPlus} />
+        <span>Add Your Friend Deck</span>
       </Button>
+      
+
+      <AddFriendDeck
+      friendName={friendName}
+      />
+      
+
+      {isPopupVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white shadow-lg p-6 rounded relative">
+            <button
+              className="absolute top-2 right-2 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+              onClick={handleCloseClick}
+            >
+              &times;
+            </button>
+            <p className="mt-4 mb-2">วางโค้ด:</p>
+            <div className="flex items-center">
+              <Input
+                type="code"
+                placeholder="Paste code"
+                onClear={() => console.log("input cleared")}
+                onChange={(e) => setCode(e.target.value)}
+              />
+              <Button
+                color="primary"
+                variant="light"
+                radius="none"
+                onClick={handlerAddDeck}
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

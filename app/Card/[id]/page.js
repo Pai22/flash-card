@@ -107,8 +107,10 @@ const CardPage = () => {
       // เพิ่มจำนวนการ์ดในท้องถิ่น
       setCardsLength((prev) => prev + 1);
 
+      router.push(`/cards/${deckId}`);
       // แสดงการแจ้งเตือนเมื่อเพิ่มการ์ดสำเร็จ
-      toast.success("Successfully added a card!", { autoClose: 1500 });
+      toast.success("Successfully save a card!", { autoClose: 1500 });
+
 
       // รีเซ็ตฟอร์ม
       setQuestionFront("");
