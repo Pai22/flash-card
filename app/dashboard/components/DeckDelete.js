@@ -40,6 +40,14 @@ const DeckDelete = ({ deck, friendCards }) => {
         deck.id,
         "cards"
       );
+      const gameResultsRef = collection(
+        db,
+        "Deck",
+        auth.uid,
+        "title",
+        deck.id,
+        "gameResults"
+      );
 
       try {
         const cardDocs = await getDocs(cardsRef);
@@ -68,6 +76,11 @@ const DeckDelete = ({ deck, friendCards }) => {
         });
 
         await Promise.all(deletePromises);
+        const gameResultsDocs = await getDocs(gameResultsRef);
+        gameResultsDocs.forEach((resultDoc) => {
+          const resultDocRef = doc(gameResultsRef, resultDoc.id);
+          deletePromises.push(deleteDoc(resultDocRef));
+        });
         await deleteDoc(deckDocRef);
         console.log(`Deleted deck and all associated cards: ${deck.id}`);
       } catch (error) {
@@ -95,6 +108,15 @@ const DeckDelete = ({ deck, friendCards }) => {
         "cards"
       );
 
+      const gameResultsRef = collection(
+        db,
+        "Deck",
+        auth.uid,
+        "deckFriend",
+        deck.id,
+        "gameResults"
+      );
+
       try {
         const cardDocs = await getDocs(cardsRef);
         const deletePromises = [];
@@ -105,6 +127,11 @@ const DeckDelete = ({ deck, friendCards }) => {
         });
 
         await Promise.all(deletePromises);
+        const gameResultsDocs = await getDocs(gameResultsRef);
+        gameResultsDocs.forEach((resultDoc) => {
+          const resultDocRef = doc(gameResultsRef, resultDoc.id);
+          deletePromises.push(deleteDoc(resultDocRef));
+        });
         await deleteDoc(deckDocRef);
         console.log(`Deleted deck and all associated cards: ${deck.id}`);
       } catch (error) {

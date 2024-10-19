@@ -55,50 +55,60 @@ export default function Dashboard() {
 
   // ส่วนอื่น ๆ ของโค้ดยังคงเดิม
 
-const handlerAddDeck = async () => {
-  const shortCode = code; // รับรหัสที่เพื่อนแชร์มา
-  try {
-    // ดึงข้อมูลจาก Firestore โดยใช้รหัสสั้น
-    const docRef = doc(db, "sharedDecks", shortCode);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      const parsedData = docSnap.data();
-      const deckData = parsedData.deckData; // ข้อมูล Deck ที่แชร์มา
-      const cards = parsedData.cards; // การ์ดทั้งหมดที่แชร์มา
-      const deckId = parsedData.deckId; // ใช้ deckId เดิม
-      // const friendName = parsedData.friendName;
-      setFriendName(parsedData.friendName)
-      // เพิ่ม Deck ลงในบัญชีของผู้ใช้
-      const userDeckRef = doc(db, "Deck", user.uid, "deckFriend", deckId);
-      await setDoc(userDeckRef, { ...deckData, owner: parsedData.friendId });
-
-      // เพิ่มการ์ดทั้งหมดลงใน Deck ของผู้ใช้
-      for (const card of cards) {
-        const userCardRef = doc(
-          db,
-          "Deck",
-          user.uid,
-          "deckFriend",
-          deckId,
-          "cards",
-          card.id
-        );
-        await setDoc(userCardRef, card);
+  const handlerAddDeck = async () => {
+    const shortCode = code; // รับรหัสที่เพื่อนแชร์มา
+    try {
+      // ดึงข้อมูลจาก Firestore โดยใช้รหัสสั้น
+      const docRef = doc(db, "sharedDecks", shortCode);
+      const docSnap = await getDoc(docRef);
+  
+      if (docSnap.exists()) {
+        const parsedData = docSnap.data();
+        const deckData = parsedData.deckData; // ข้อมูล Deck ที่แชร์มา
+        const cards = parsedData.cards; // การ์ดทั้งหมดที่แชร์มา
+        const deckId = parsedData.deckId; // ใช้ deckId เดิม
+        setFriendName(parsedData.friendName);
+  
+        // ตรวจสอบว่ามี deck.id อยู่ใน collection "Deck" ของผู้ใช้หรือไม่
+        const existingDeckRef = doc(db, "Deck", user.uid, "title", deckId);
+        const existingDeckSnap = await getDoc(existingDeckRef);
+  
+        if (existingDeckSnap.exists()) {
+          alert("Deck นี้มีอยู่แล้วในบัญชีของคุณ!");
+          return; // ถ้า deck มีอยู่แล้ว ให้หยุดการทำงาน
+        }
+  
+        // เพิ่ม Deck ลงในบัญชีของผู้ใช้
+        const userDeckRef = doc(db, "Deck", user.uid, "deckFriend", deckId);
+        await setDoc(userDeckRef, { ...deckData, owner: parsedData.friendId });
+  
+        // เพิ่มการ์ดทั้งหมดลงใน Deck ของผู้ใช้
+        for (const card of cards) {
+          const userCardRef = doc(
+            db,
+            "Deck",
+            user.uid,
+            "deckFriend",
+            deckId,
+            "cards",
+            card.id
+          );
+          await setDoc(userCardRef, card);
+        }
+  
+        alert("เพิ่ม deck ของเพื่อนพร้อมการ์ดสำเร็จแล้ว!");
+        setIsPopupVisible(false);
+      } else {
+        alert("ไม่พบรหัสที่ระบุ");
+        return;
       }
-
-      alert("เพิ่ม deck ของเพื่อนพร้อมการ์ดสำเร็จแล้ว!");
-      setIsPopupVisible(false);
-    } else {
-      alert("ไม่พบรหัสที่ระบุ");
+    } catch (error) {
+      console.error("Error adding friend's deck:", error);
+      alert("เกิดข้อผิดพลาดในการเพิ่ม deck");
       return;
     }
-  } catch (error) {
-    console.error("Error adding friend's deck:", error);
-    alert("เกิดข้อผิดพลาดในการเพิ่ม deck");
-    return;
-  }
-};
+  };
+  
 
 
   const handleCloseClick = () => {
