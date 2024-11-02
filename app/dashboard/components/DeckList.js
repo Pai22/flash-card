@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { db } from "../../lip/firebase/clientApp";
-import { doc, setDoc,getDocs, deleteDoc,getDoc } from "firebase/firestore";
+import { doc, setDoc,getDocs, deleteDoc,getDoc, query, orderBy  } from "firebase/firestore";
 import { collection, onSnapshot } from "firebase/firestore";
 import useAuth from "../../lip/hooks/useAuth";
 import {
@@ -27,19 +27,20 @@ const DeckListComponent = () => {
   const auth = useAuth();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [codeToCopy, setCodeToCopy] = useState(""); // ใช้ useState เพื่อเก็บโค้ด
+  
 
   useEffect(() => {
     if (!auth) return;
 
     const deckRef = collection(db, "Deck", auth.uid, "title");
-    const unsubscribe = onSnapshot(deckRef, (snapshot) => {
+    const deckQuery = query(deckRef, orderBy("timestamp", "asc")); // เรียงจากใหม่ไปเก่า and asc จากเก่าไปใหม่
+    const unsubscribe = onSnapshot(deckQuery, (snapshot) => {
       if (!snapshot.empty) {
-        const deckData = snapshot.docs
-          .map((doc) => ({
+        const deckData = snapshot.docs.map((doc) => ({
             ...doc.data(),
             id: doc.id,
           }))
-          .sort((a, b) => a.timestamp - b.timestamp);
+          // .sort((a, b) => a.timestamp - b.timestamp);
         setDecks(deckData);
       } else {
         setDecks([]);
@@ -49,75 +50,76 @@ const DeckListComponent = () => {
     return () => unsubscribe();
   }, [auth]);
 
-
   const handleShareClick = async (friendId, deckId) => {
     try {
-      // 1. ดึง deck ที่มีอยู่และการ์ดของมัน
+      // 1. ตั้งค่า onSnapshot เพื่อฟังการเปลี่ยนแปลงของ deck
       const deckRef = doc(db, "Deck", auth.uid, "title", deckId);
-      const deckSnapshot = await getDoc(deckRef);
-  
-      if (!deckSnapshot.exists()) {
-        throw new Error("Deck นี้ไม่มีอยู่!");
-      }
-  
-      const deckData = deckSnapshot.data();
-  
-      // ดึงข้อมูลชื่อเพื่อนที่แชร์
-      const friendRef = doc(db, "users", friendId);
-      const friendSnapshot = await getDoc(friendRef);
-  
-      if (!friendSnapshot.exists()) {
-        throw new Error("No name");
-      }
-  
-      const friendData = friendSnapshot.data();
-      const friendName = friendData.name; // เก็บชื่อเพื่อน
-  
-      // ดึงการ์ดทั้งหมดของ deck นั้น
-      const cardsCollectionRef = collection(db, "Deck", auth.uid, "title", deckId, "cards");
-      const cardsSnapshot = await getDocs(cardsCollectionRef);
-  
-      const cards = cardsSnapshot.docs.map((cardDoc) => ({
-        ...cardDoc.data(),
-        id: cardDoc.id,
-      }));
-  
-      // 2. ลบ deck ที่แชร์ไปแล้วที่มี friendId และ deckId เดียวกัน
-      const sharedDecksRef = collection(db, "sharedDecks");
-      const querySnapshot = await getDocs(sharedDecksRef);
-      let docIdToDelete = null;
-  
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.friendId === friendId && data.deckId === deckId) {
-          docIdToDelete = doc.id;
+      const unsubscribeDeck = onSnapshot(deckRef, (deckSnapshot) => {
+        if (!deckSnapshot.exists()) {
+          console.error("Deck นี้ไม่มีอยู่!");
+          return;
         }
+  
+        const deckData = deckSnapshot.data();
+        const { title, description } = deckData;
+  
+        // 2. ตั้งค่า onSnapshot เพื่อฟังการเปลี่ยนแปลงของการ์ด
+        const cardsCollectionRef = collection(db, "Deck", auth.uid, "title", deckId, "cards");
+        const unsubscribeCards = onSnapshot(cardsCollectionRef, (cardsSnapshot) => {
+          const totalCard = cardsSnapshot.size;
+          const cards = cardsSnapshot.docs.map((cardDoc) => ({
+            ...cardDoc.data(),
+            id: cardDoc.id,
+          }));
+  
+          // 3. ดึงข้อมูลชื่อเพื่อน
+          const friendRef = doc(db, "users", friendId);
+          getDoc(friendRef).then(friendSnapshot => {
+            if (!friendSnapshot.exists()) {
+              throw new Error("No name");
+            }
+            
+            const friendData = friendSnapshot.data();
+            const friendName = friendData.name;
+  
+            // 4. แสดงข้อมูลที่ดึงมา
+            console.log({
+              title,
+              description,
+              friendName,
+              cards,
+              totalCard
+            });
+  
+            // 5. บันทึกข้อมูล deck ที่แชร์ รวมถึงการ์ดและชื่อเพื่อน
+            setDoc(doc(db, "sharedDecks", deckId), {
+              friendId,
+              deckId,
+              friendName, 
+              description,
+              title,
+              deckData,
+              cards, 
+              totalCard
+            });
+  
+            // แสดง shortCode ให้คัดลอก
+            setCodeToCopy(deckId);
+            setIsPopupVisible(!isPopupVisible);
+          });
+        });
       });
   
-      if (docIdToDelete) {
-        await deleteDoc(doc(db, "sharedDecks", docIdToDelete));
-      }
-  
-      // 3. สร้าง shortCode ใหม่และแชร์ทั้ง deck แชร์การ์ด
-      const shortCode = deckId;
-  
-      // บันทึกข้อมูล deck ที่แชร์ รวมถึงการ์ดและชื่อเพื่อน
-      await setDoc(doc(db, "sharedDecks", shortCode), {
-        friendId,
-        deckId,
-        friendName, // เพิ่มชื่อเพื่อนที่แชร์
-        deckData,
-        cards, // รวมการ์ดทั้งหมดในข้อมูลที่แชร์
-      });
-  
-      // 4. แสดง shortCode ให้คัดลอก
-      setCodeToCopy(shortCode);
-      setIsPopupVisible(!isPopupVisible);
-  
+      // 6. คืนค่า unsubscribe เพื่อหยุดฟังเมื่อจำเป็น
+      return () => {
+        unsubscribeDeck();
+        unsubscribeCards();
+      };
     } catch (error) {
       console.error("Error sharing deck:", error);
     }
   };
+  
 
   const handleCloseClick = () => {
     setIsPopupVisible(false);

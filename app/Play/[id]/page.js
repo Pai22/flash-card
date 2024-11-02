@@ -28,17 +28,20 @@ export default function Play() {
     const [cardCount, setCardCount] = useState(0);
     const router = useRouter();
     const [loading, setLoading] = useState(true);
+    const [friendId,setFriendId] = useState("");
+    const [deck,setDeck] = useState("");
 
     useEffect(() => {
         if (auth && deckId) {
-            return fetchCards(deckId,friendCards,auth, (fetchedCards) => {
-                // สุ่มลำดับการ์ดก่อนบันทึกใน state
-                const shuffledCards = shuffleArray(fetchedCards);
-                setCards(shuffledCards);
-                setCardCount(shuffledCards.length);
-            }, setCardCount, setLoading);
-        }
-    }, [auth, deckId]);
+            // ใช้ fetchCards โดยรอ friendId ก่อนดึงการ์ดของเพื่อน
+            return fetchCards(deckId, friendCards, auth, (fetchedCards) => {
+              // สุ่มลำดับการ์ดก่อนบันทึกใน state
+              const shuffledCards = shuffleArray(fetchedCards);
+              setCards(shuffledCards);
+              setCardCount(shuffledCards.length);
+          }, setCardCount, setLoading, setFriendId,setDeck);
+      }
+  }, [auth, deckId, friendId]); // เพิ่ม friendId ใน dependency
     
     if (loading) {
         return <div>กำลังโหลด...</div>;
@@ -49,13 +52,6 @@ export default function Play() {
     const handleClick = () => {
         setIsFlipped(!isFlipped);
     };
-
-    // const handleNextCard = () => {
-    //     if (currentCardIndex < cardCount - 1 && currentCardIndex < cards.length - 1) {
-    //         setCurrentCardIndex(currentCardIndex + 1);
-    //         setIsFlipped(startSide === "Back");
-    //     }
-    // };
 
     const handleNextCard = () => {
         if (currentCardIndex < cardCount - 1 && currentCardIndex < cards.length - 1) {
@@ -68,13 +64,6 @@ export default function Play() {
           }
         }
       };
-
-    // const handlePreviousCard = () => {
-    //     if (currentCardIndex > 0) {
-    //         setCurrentCardIndex(currentCardIndex - 1);
-    //         setIsFlipped(startSide === "Back");
-    //     }
-    // };
 
     const handlePreviousCard = () => {
         if (currentCardIndex > 0) {

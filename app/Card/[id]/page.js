@@ -45,8 +45,7 @@ const CardPage = () => {
   const handleUploadFiles = async () => {
     if (imageFront) {
       imageUrlFront = await handleFileUpload(
-        imageFront,
-        `images/${auth.uid}/ImageFront/${imageFront.name}`
+        imageFront,`images/${auth.uid}/ImageFront/${imageFront.name}`
       );
     }
 

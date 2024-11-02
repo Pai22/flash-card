@@ -2,7 +2,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getDoc, doc, setDoc,getDocs } from "firebase/firestore";
+import { getDoc, doc,setDoc,getDocs } from "firebase/firestore";
 import { auth, db } from "../lip/firebase/clientApp";
 import AddFriendDeck from "./components/AddFriendDeck";
 import useAuth from "../lip/hooks/useAuth";
@@ -18,13 +18,17 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Input, Button } from "@nextui-org/react";
 
+
 export default function Dashboard() {
   const user = useAuth();
   const [userName, setUserName] = useState("");
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-  const [friendName, setFriendName] = useState("");
   const router = useRouter();
   const [code, setCode] = useState("");
+  const [deckInfo, setDeckInfo] = useState(null); // Store deck information here
+  const [isAddingDeck, setIsAddingDeck] = useState(false);
+  const [friendId, setFriendId] = useState(null);
+  const [cardId, setCardId] = useState(null); // Store friend's cards here
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -32,9 +36,7 @@ export default function Dashboard() {
         const userRef = doc(db, "users", user.uid);
         try {
           const userSnap = await getDoc(userRef);
-
           if (userSnap.exists()) {
-            console.log("User data:", userSnap.data());
             setUserName(userSnap.data().name);
           } else {
             console.log("No such document!");
@@ -44,146 +46,172 @@ export default function Dashboard() {
         }
       }
     };
-
     fetchUserName();
   }, [user]);
 
-  const onClickButton = () => {
-    // router.push("/dashboard/components/AddFriendDeck");
+  const handleClickButton = () => {
     setIsPopupVisible(!isPopupVisible);
-  }
+  };
 
-  // ส่วนอื่น ๆ ของโค้ดยังคงเดิม
-
-  const handlerAddDeck = async () => {
-    const shortCode = code; // รับรหัสที่เพื่อนแชร์มา
+  const fetchSharedDeck = async () => {
+    if (!code) return alert("กรุณาใส่โค้ดแชร์ก่อน");
+  
     try {
-      // ดึงข้อมูลจาก Firestore โดยใช้รหัสสั้น
-      const docRef = doc(db, "sharedDecks", shortCode);
+      const docRef = doc(db, "sharedDecks", code);
       const docSnap = await getDoc(docRef);
   
       if (docSnap.exists()) {
-        const parsedData = docSnap.data();
-        const deckData = parsedData.deckData; // ข้อมูล Deck ที่แชร์มา
-        const cards = parsedData.cards; // การ์ดทั้งหมดที่แชร์มา
-        const deckId = parsedData.deckId; // ใช้ deckId เดิม
-        setFriendName(parsedData.friendName);
-  
-        // ตรวจสอบว่ามี deck.id อยู่ใน collection "Deck" ของผู้ใช้หรือไม่
-        const existingDeckRef = doc(db, "Deck", user.uid, "title", deckId);
-        const existingDeckSnap = await getDoc(existingDeckRef);
-  
-        if (existingDeckSnap.exists()) {
-          alert("Deck นี้มีอยู่แล้วในบัญชีของคุณ!");
-          return; // ถ้า deck มีอยู่แล้ว ให้หยุดการทำงาน
-        }
-  
-        // เพิ่ม Deck ลงในบัญชีของผู้ใช้
-        const userDeckRef = doc(db, "Deck", user.uid, "deckFriend", deckId);
-        await setDoc(userDeckRef, { ...deckData, owner: parsedData.friendId });
-  
-        // เพิ่มการ์ดทั้งหมดลงใน Deck ของผู้ใช้
-        for (const card of cards) {
-          const userCardRef = doc(
-            db,
-            "Deck",
-            user.uid,
-            "deckFriend",
-            deckId,
-            "cards",
-            card.id
-          );
-          await setDoc(userCardRef, card);
-        }
-  
-        alert("เพิ่ม deck ของเพื่อนพร้อมการ์ดสำเร็จแล้ว!");
-        setIsPopupVisible(false);
+        const deckData = docSnap.data();
+        setDeckInfo(deckData);  // ตั้งค่าข้อมูล deck เพื่อแสดงใน UI
+        setFriendId(deckData.friendId);  // ตั้งค่า friendId เพื่อส่งไปยัง AddFriendDeck
+        setCardId(deckData.deckId);
       } else {
-        alert("ไม่พบรหัสที่ระบุ");
-        return;
+        alert("Deck ไม่พบ");
       }
     } catch (error) {
-      console.error("Error adding friend's deck:", error);
-      alert("เกิดข้อผิดพลาดในการเพิ่ม deck");
-      return;
+      console.error("Error fetching shared deck:", error);
+      alert("เกิดข้อผิดพลาดในการดึงข้อมูล Deck");
     }
   };
   
 
-
-  const handleCloseClick = () => {
+  const handleAddDeck = async () => {
+    if (!deckInfo) {
+      alert("ไม่พบข้อมูล Deck");
+      return;
+    } // ตรวจสอบว่า deckInfo มีค่า
+    
+    const { friendId, deckId, friendName, description, title } = deckInfo;
+    
+    console.log("Adding deck:", { friendId, deckId, friendName, description, title });
+    
+    try {
+      await setDoc(doc(db, "Deck", user.uid, "deckFriend", deckId), {
+        friendId,
+        deckId,
+        friendName,
+        description,
+        title,
+        createdAt: new Date().getTime(), // บันทึกเวลาที่สร้าง
+      });
+  
+      setIsAddingDeck(true);
+      setFriendId(friendId);
+      setTimeout(() => {
+        alert("Deck ได้ถูกเพิ่มเรียบร้อยแล้ว!");
+        setIsPopupVisible(false);
+        setIsAddingDeck(false);
+        setCode("");  // ทำให้ค่า code กลับเป็นค่าว่าง
+        setDeckInfo(null);  // ลบข้อมูล deckInfo
+      }, 1000); // Simulate adding delay
+  
+    } catch (error) {
+      console.error("Error adding deck:", error);
+      alert("เกิดข้อผิดพลาดในการเพิ่ม Deck");
+    }
+  };
+  
+  const handleCancelAddDeck = () => {
     setIsPopupVisible(false);
+    setDeckInfo(null);  // ลบข้อมูล deckInfo
+    setCode("");  // ทำให้ค่า code กลับเป็นค่าว่าง
   };
   
   return (
     <div className="p-10">
-      <div className="flex justify-between">
-        <div className="mb-10">
-          <FontAwesomeIcon style={{ fontSize: "28px" }} icon={faLayerGroup} />
-          <span className="ml-2 text-2xl font-semibold">Dashboard</span>
-        </div>
-      </div>
-      {user ? (
-        <div>
-          <p>ยินดีต้อนรับ, {userName ? userName : "กำลังโหลด..."}</p>
-        </div>
-      ) : (
-        <p>กรุณาเข้าสู่ระบบ.</p>
-      )}
-      <div className="flex items-center ml-2">
-        <FontAwesomeIcon style={{ fontSize: "23px" }} icon={faCircleUser} />
-        <span className="ml-2 text-md font-semibold">My Cards</span>
-      </div>
-      <AddToDeckComponent />
-      <DeckListComponent />
-      <div className="flex items-center ml-2 mt-10 mb-5">
-        <FontAwesomeIcon style={{ fontSize: "23px" }} icon={faShareAlt} />
-        <span className="ml-2 text-md font-semibold">Your Friend Deck</span>
-      </div>
-      <Button
-        radius="full"
-        onClick={onClickButton}
-        className="font-semibold bg-lime-500 hover:bg-lime-500 focus:outline-none focus:ring focus:ring-lime-400 text-white text-[15px] shadow-lg ml-2"
-      >
-        <FontAwesomeIcon style={{ fontSize: "20px" }} icon={faPlus} />
-        <span>Add Your Friend Deck</span>
-      </Button>
-      
-
-      <AddFriendDeck
-      friendName={friendName}
-      />
-      
-
-      {isPopupVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white shadow-lg p-6 rounded relative">
-            <button
-              className="absolute top-2 right-2 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
-              onClick={handleCloseClick}
-            >
-              &times;
-            </button>
-            <p className="mt-4 mb-2">วางโค้ด:</p>
-            <div className="flex items-center">
-              <Input
-                type="code"
-                placeholder="Paste code"
-                onClear={() => console.log("input cleared")}
-                onChange={(e) => setCode(e.target.value)}
-              />
-              <Button
-                color="primary"
-                variant="light"
-                radius="none"
-                onClick={handlerAddDeck}
-              >
-                Add
-              </Button>
-            </div>
+        <div className="flex justify-between">
+          <div className="mb-10">
+            <FontAwesomeIcon style={{ fontSize: "28px" }} icon={faLayerGroup} />
+            <span className="ml-2 text-2xl font-semibold">Dashboard</span>
           </div>
         </div>
-      )}
+
+        {user ? (
+          <div>
+            <p>ยินดีต้อนรับ, {userName ? userName : "กำลังโหลด..."}</p>
+          </div>
+        ) : (
+          <p>กรุณาเข้าสู่ระบบ.</p>
+        )}
+
+        <div className="flex items-center ml-2">
+          <FontAwesomeIcon style={{ fontSize: "23px" }} icon={faCircleUser} />
+          <span className="ml-2 text-md font-semibold">My Cards</span>
+        </div>
+
+        <AddToDeckComponent/>
+        {/* <AddToDeckComponent /> */}
+        <DeckListComponent />
+
+        <div className="flex items-center ml-2 mt-10 mb-5">
+          <FontAwesomeIcon style={{ fontSize: "23px" }} icon={faShareAlt} />
+          <span className="ml-2 text-md font-semibold">Your Friend Deck</span>
+        </div>
+
+        <Button
+          radius="full"
+          onClick={handleClickButton}
+          className="font-semibold bg-lime-500 hover:bg-lime-500 focus:outline-none focus:ring focus:ring-lime-400 text-white text-[15px] shadow-lg ml-2"
+        >
+          <FontAwesomeIcon style={{ fontSize: "20px" }} icon={faPlus} />
+          <span>Add Your Friend Deck</span>
+        </Button>
+
+        <AddFriendDeck />
+        {isPopupVisible && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white shadow-lg p-6 rounded relative">
+              <button
+                className="absolute top-2 right-2 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                onClick={handleCancelAddDeck}
+                // onClick={() => setIsPopupVisible(false)}
+                >
+                &times;
+              </button>
+              <p className="mt-4 mb-2">วางโค้ดแชร์:</p>
+              <div className="flex items-center mb-4">
+                <Input
+                  placeholder="Paste code here"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                />
+                <Button
+                  color="primary"
+                  onClick={fetchSharedDeck}
+                  disabled={!code}
+                >
+                  ค้นหา
+                </Button>
+              </div>
+
+              {deckInfo && (
+                <div className="mt-4">
+                  <h3 className="font-bold text-lg">{deckInfo.title}</h3>
+                  <p>รายละเอียด: {deckInfo.description}</p>
+                  <p>จำนวนการ์ด: {deckInfo.totalCard}</p>
+                  <p>สร้างโดย: {deckInfo.friendName}</p>
+
+                  <div className="mt-6">
+                    <Button
+                      color="success"
+                      onClick={handleAddDeck}
+                      disabled={isAddingDeck}
+                    >
+                      {isAddingDeck ? "กำลังเพิ่ม..." : "เพิ่ม Deck"}
+                    </Button>
+                    <Button
+                      color="error"
+                      onClick={handleCancelAddDeck}
+                      className="ml-4"
+                    >
+                      ยกเลิก
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
     </div>
   );
 }

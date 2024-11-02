@@ -8,8 +8,8 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../lip/firebase/clientApp";
 import { Input, Button } from "@nextui-org/react";
 import LayoutCardEdit from "../components/EditLayoutCard";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage"; // สำหรับจัดการไฟล์ใน Firebase Storage
-import { storage } from "../../lip/firebase/clientApp"; // Import Firebase storage
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "../../lip/firebase/clientApp";
 
 const EditCard = () => {
   const { id: cardId } = useParams();
@@ -18,7 +18,7 @@ const EditCard = () => {
   const router = useRouter();
   const deckId = searchParams.get("deckId");
   const numberCard = searchParams.get("numberCard");
-  
+
   const [cardData, setCardData] = useState(null);
   const [questionFront, setQuestionFront] = useState("");
   const [questionBack, setQuestionBack] = useState("");
@@ -34,9 +34,10 @@ const EditCard = () => {
   const [layoutBack, setLayoutBack] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Fetch card data from Firestore
   useEffect(() => {
     const fetchCardData = async () => {
-      if (!auth) return;
+      if (!auth?.uid || !deckId || !cardId) return;
 
       try {
         const cardRef = doc(
@@ -55,10 +56,10 @@ const EditCard = () => {
           setCardData(data);
           setQuestionFront(data.questionFront || "");
           setQuestionBack(data.questionBack || "");
-          setImageUrlFront(data.imageFrontURL || "");
-          setImageUrlBack(data.imageBackURL || "");
-          setAudioUrlFront(data.audioFrontURL || "");
-          setAudioUrlBack(data.audioBackURL || "");
+          setImageUrlFront(data.imageUrlFront || "");
+          setImageUrlBack(data.imageUrlBack || "");
+          setAudioUrlFront(data.audioUrlFront || "");
+          setAudioUrlBack(data.audioUrlBack || "");
           setLayoutFront(data.layoutFront || "");
           setLayoutBack(data.layoutBack || "");
         } else {
@@ -69,55 +70,60 @@ const EditCard = () => {
       }
     };
 
-    fetchCardData();
+    // ตรวจสอบว่า auth และค่าอื่นๆ ถูกต้องก่อนเรียก fetchCardData
+    if (auth?.uid && deckId && cardId) {
+      fetchCardData();
+    }
   }, [auth, deckId, cardId]);
 
+  // Function to upload files to Firebase Storage
   const uploadFile = async (file, path) => {
     const storageRef = ref(storage, path);
     await uploadBytes(storageRef, file);
     return getDownloadURL(storageRef);
   };
 
+  // Function to handle saving the edited card data
   const handleSave = async (e) => {
     e.preventDefault();
     if (!auth) return;
     setLoading(true);
-
+  
     try {
-      // ตรวจสอบว่ามีการอัปโหลดไฟล์ใหม่ไหม
       let updatedImageUrlFront = imageUrlFront;
       let updatedImageUrlBack = imageUrlBack;
       let updatedAudioUrlFront = audioUrlFront;
       let updatedAudioUrlBack = audioUrlBack;
-
+  
+      // อัปโหลดไฟล์หากมีการเลือกใหม่
       if (imageFront) {
         updatedImageUrlFront = await uploadFile(
           imageFront,
           `Deck/${auth.uid}/${deckId}/${cardId}/imageFront`
         );
       }
-
+  
       if (imageBack) {
         updatedImageUrlBack = await uploadFile(
           imageBack,
           `Deck/${auth.uid}/${deckId}/${cardId}/imageBack`
         );
       }
-
+  
       if (audioFront) {
         updatedAudioUrlFront = await uploadFile(
           audioFront,
           `Deck/${auth.uid}/${deckId}/${cardId}/audioFront`
         );
       }
-
+  
       if (audioBack) {
         updatedAudioUrlBack = await uploadFile(
           audioBack,
           `Deck/${auth.uid}/${deckId}/${cardId}/audioBack`
         );
       }
-
+  
       const cardRef = doc(
         db,
         "Deck",
@@ -127,18 +133,19 @@ const EditCard = () => {
         "cards",
         cardId
       );
-
+  
       const updateData = {
         questionFront,
         questionBack,
-        imageFrontURL: updatedImageUrlFront,
-        imageBackURL: updatedImageUrlBack,
-        audioFrontURL: updatedAudioUrlFront,
-        audioBackURL: updatedAudioUrlBack,
-        layoutFront,
-        layoutBack,
+        imageUrlFront: updatedImageUrlFront,
+        imageUrlBack: updatedImageUrlBack,
+        audioUrlFront: updatedAudioUrlFront,
+        audioUrlBack: updatedAudioUrlBack,
+        layoutFront, // บันทึก layoutFront
+        layoutBack,  // บันทึก layoutBack
       };
-
+  
+      // อัปเดตเอกสารใน Firestore
       await updateDoc(cardRef, updateData);
       router.push(`/cards/${deckId}`);
     } catch (error) {
@@ -147,6 +154,7 @@ const EditCard = () => {
       setLoading(false);
     }
   };
+  
 
   if (!auth) {
     return <p>กรุณาลงชื่อเข้าใช้เพื่อแก้ไขการ์ด.</p>;
@@ -189,10 +197,15 @@ const EditCard = () => {
             setAudioUrlFront={setAudioUrlFront}
             setAudioUrlBack={setAudioUrlBack}
             setLayoutBack={setLayoutBack}
+            layoutBack={layoutBack}
             setLayoutFront={setLayoutFront}
+            layoutFront={layoutFront}
             loading={loading}
-            addCardToDeck={handleSave}
+            saveEditedCard={handleSave}
             numberCard={numberCard}
+            cardId={cardId}
+            setLoading={setLoading}
+            
           />
         </div>
       </form>

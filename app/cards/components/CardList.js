@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRepeat, faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { updateDoc, doc } from "firebase/firestore";
 
-const CardList = ({ deckId, deckTitle, cardsLength, friendCards }) => {
+const CardList = ({ deckId, deckTitle, cardsLength, friendCards,friendId }) => {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,8 +47,8 @@ const CardList = ({ deckId, deckTitle, cardsLength, friendCards }) => {
       const cardsRef = collection(
         db,
         "Deck",
-        auth.uid,
-        "deckFriend",
+        friendId,
+        "title",
         deckId,
         "cards"
       );
@@ -106,8 +106,8 @@ const CardList = ({ deckId, deckTitle, cardsLength, friendCards }) => {
     const cardRef = doc(
       db,
       "Deck",
-      auth.uid,
-      "deckFriend",
+      friendId,
+      "title",
       deckId,
       "cards",
       id

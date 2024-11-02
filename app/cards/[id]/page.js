@@ -1,4 +1,3 @@
-// app/cards/[id]/page.js
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -18,11 +17,9 @@ const DeckDetailComponent = () => {
   const { id: deckId } = useParams(); // ใช้ useParams เพื่อดึง deckId จาก URL
   const searchParams = useSearchParams();
   const friendCards = searchParams.get("friendCards");
-  const cardId = searchParams.get("cardId");
-  const friendId = searchParams.get("friendId");
-  const [isNavigating, setIsNavigating] = useState(false); // เพิ่ม state สำหรับการโหลดหน้า dashboard
-  const router = useRouter(); // ใช้ useRouter เพื่อเปลี่ยนเส้นทาง
-  // const [code,setCode] = useState(null)
+  const [friendId, setFriendId] = useState(null);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!auth || !deckId) return;
@@ -37,15 +34,7 @@ const DeckDetailComponent = () => {
         }
       });
 
-      //ดึงข้อมูลในการ์ดที่อยู่ใน Deck
-      const cardsRef = collection(
-        db,
-        "Deck",
-        auth.uid,
-        "title",
-        deckId,
-        "cards"
-      );
+      const cardsRef = collection(db, "Deck", auth.uid, "title", deckId, "cards");
       const unsubscribeCards = onSnapshot(cardsRef, (snapshot) => {
         const cardList = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -55,11 +44,29 @@ const DeckDetailComponent = () => {
       });
 
       return () => {
-        unsubscribeCards();
         unsubscribeDeck();
+        unsubscribeCards();
       };
     } else {
       const deckRef = doc(db, "Deck", auth.uid, "deckFriend", deckId);
+      const unsubscribeDeck = onSnapshot(deckRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const deckData = snapshot.data();
+          setDeck({ ...deckData, id: snapshot.id });
+          setFriendId(deckData.friendId); // ตั้งค่า friendId จากข้อมูล Deck
+        } else {
+          setDeck(null);
+        }
+      });
+      return () => unsubscribeDeck(); // ทำการ unsubscribe เฉพาะ deck ก่อน
+    }
+  }, [auth, deckId, friendCards]);
+  console.log("Fid"+friendId);
+
+  useEffect(() => {
+    if (!friendId || !deckId) return;
+
+    const deckRef = doc(db, "Deck", friendId, "title", deckId);
       const unsubscribeDeck = onSnapshot(deckRef, (snapshot) => {
         if (snapshot.exists()) {
           setDeck({ ...snapshot.data(), id: snapshot.id });
@@ -68,15 +75,7 @@ const DeckDetailComponent = () => {
         }
       });
 
-      //ดึงข้อมูลในการ์ดที่อยู่ใน Deck
-      const cardsRef = collection(
-        db,
-        "Deck",
-        auth.uid,
-        "deckFriend",
-        deckId,
-        "cards"
-      );
+      const cardsRef = collection(db, "Deck", friendId, "title", deckId, "cards");
       const unsubscribeCards = onSnapshot(cardsRef, (snapshot) => {
         const cardList = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -86,11 +85,10 @@ const DeckDetailComponent = () => {
       });
 
       return () => {
-        unsubscribeCards();
         unsubscribeDeck();
+        unsubscribeCards();
       };
-    }
-  }, [auth, deckId]);
+  }, [friendId, deckId]);
 
   const handleNavigate = () => {
     setIsNavigating(true); // ตั้งสถานะการโหลดเมื่อเริ่มเปลี่ยนเส้นทาง
@@ -110,7 +108,9 @@ const DeckDetailComponent = () => {
     <>
       <div className="container mx-auto p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-10 gap-4">
-          <h2 className="text-lg font-bold col-span-2">{deck.title} {friendCards != null ? "(share)":""}</h2>
+          <h2 className="text-lg font-bold col-span-2">
+            {deck.title} {friendCards != null ? "(share)" : ""}
+          </h2>
           <Button
             color="warning"
             onClick={handleNavigate}
@@ -125,6 +125,7 @@ const DeckDetailComponent = () => {
           deckTitle={deck.title}
           cardsLength={cards.length}
           friendCards={friendCards}
+          friendId={friendId} 
         />
       </div>
     </>

@@ -1,8 +1,12 @@
+// app/EditCard/components/RenderSelectedCard.js
 import styles from "../../Card/CreateCard.module.css";
 import { Input } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileAudio } from "@fortawesome/free-solid-svg-icons";
 import { useRef } from "react";
+import { getStorage, ref, deleteObject } from "firebase/storage"; // Import Firebase Storage functions
+import { doc, updateDoc } from "firebase/firestore"; // Import Firestore functions
+import { firestore } from "../../lip/firebase/clientApp"; 
 
 export default function RenderSelectedCardEdit({
   selectedContent,
@@ -21,6 +25,11 @@ export default function RenderSelectedCardEdit({
   setAudioBack,
   audioUrlFront,
   audioUrlBack,
+  layoutFront,
+  layoutBack,
+  setLayoutBack,
+  setLayoutFront,
+  cardId, // เพิ่ม cardId เพื่ออ้างอิงไปยังเอกสารใน Firestore
 }) {
   const fileInputRef = useRef(null);
 
@@ -28,10 +37,28 @@ export default function RenderSelectedCardEdit({
     fileInputRef.current.click();
   };
 
+  // ฟังก์ชันสำหรับลบรูปภาพ
+  const handleDeleteImage = async () => {
+    try {
+      // ลบไฟล์จาก Firebase Storage
+      await deleteObject(storageRef);
+
+      // อัปเดต state เพื่อไม่ให้แสดงภาพหลังจากลบ
+      if (side === "front") {
+        setImageFront(null);
+      } else {
+        setImageBack(null);
+      }
+    } catch (error) {
+      console.error("Error removing image: ", error);
+    }
+  };
+
   return (
     <div className={`${styles[`flip-card-${side}`]} flex flex-col`}>
       {selectedContent ? (
-        (selectedContent.type === "TextImage" || selectedContent.type === "ImageText") ? (
+        selectedContent.type === "TextImage" ||
+        selectedContent.type === "ImageText" ? (
           <>
             {/* Top Content */}
             <div className="p-10 flex items-center justify-center overflow-hidden">
@@ -39,12 +66,18 @@ export default function RenderSelectedCardEdit({
                 <Input
                   autoFocus
                   label={`ข้อความ (ด้าน${side === "front" ? "หน้า" : "หลัง"})`}
-                  name={`question${side.charAt(0).toUpperCase() + side.slice(1)}`}
+                  name={`question${
+                    side.charAt(0).toUpperCase() + side.slice(1)
+                  }`}
                   value={side === "front" ? questionFront : questionBack}
                   onChange={(e) =>
-                    side === "front" ? setQuestionFront(e.target.value) : setQuestionBack(e.target.value)
+                    side === "front"
+                      ? setQuestionFront(e.target.value)
+                      : setQuestionBack(e.target.value)
                   }
-                  placeholder={`กรอกข้อความสำหรับด้าน${side === "front" ? "หน้า" : "หลัง"}`}
+                  placeholder={`กรอกข้อความสำหรับด้าน${
+                    side === "front" ? "หน้า" : "หลัง"
+                  }`}
                   variant="bordered"
                   fullWidth
                 />
@@ -60,12 +93,18 @@ export default function RenderSelectedCardEdit({
                 <Input
                   autoFocus
                   label={`ข้อความ (ด้าน${side === "front" ? "หน้า" : "หลัง"})`}
-                  name={`question${side.charAt(0).toUpperCase() + side.slice(1)}`}
+                  name={`question${
+                    side.charAt(0).toUpperCase() + side.slice(1)
+                  }`}
                   value={side === "front" ? questionFront : questionBack}
                   onChange={(e) =>
-                    side === "front" ? setQuestionFront(e.target.value) : setQuestionBack(e.target.value)
+                    side === "front"
+                      ? setQuestionFront(e.target.value)
+                      : setQuestionBack(e.target.value)
                   }
-                  placeholder={`กรอกข้อความสำหรับด้าน${side === "front" ? "หน้า" : "หลัง"}`}
+                  placeholder={`กรอกข้อความสำหรับด้าน${
+                    side === "front" ? "หน้า" : "หลัง"
+                  }`}
                   variant="bordered"
                   fullWidth
                 />
@@ -82,9 +121,13 @@ export default function RenderSelectedCardEdit({
               name={`question${side.charAt(0).toUpperCase() + side.slice(1)}`}
               value={side === "front" ? questionFront : questionBack}
               onChange={(e) =>
-                side === "front" ? setQuestionFront(e.target.value) : setQuestionBack(e.target.value)
+                side === "front"
+                  ? setQuestionFront(e.target.value)
+                  : setQuestionBack(e.target.value)
               }
-              placeholder={`กรอกข้อความสำหรับด้าน${side === "front" ? "หน้า" : "หลัง"}`}
+              placeholder={`กรอกข้อความสำหรับด้าน${
+                side === "front" ? "หน้า" : "หลัง"
+              }`}
               variant="bordered"
               fullWidth
             />
@@ -94,16 +137,32 @@ export default function RenderSelectedCardEdit({
             <div>
               <input
                 type="file"
-                label={`อัปโหลดรูปภาพ (ด้าน${side === "front" ? "หน้า" : "หลัง"})`}
+                label={`อัปโหลดรูปภาพ (ด้าน${
+                  side === "front" ? "หน้า" : "หลัง"
+                })`}
                 accept="image/*"
-                onChange={(e) => handleFileChange(e, side === "front" ? setImageFront : setImageBack)}
+                onChange={(e) =>
+                  handleFileChange(
+                    e,
+                    side === "front" ? setImageFront : setImageBack
+                  )
+                }
                 className="mt-4"
               />
+
               {(side === "front" ? imageUrlFront : imageUrlBack) && (
                 <div className="mt-2">
+                  <button
+                    className="absolute top-2 right-2 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                    onClick={handleDeleteImage} // เรียกใช้ฟังก์ชันลบเมื่อคลิก
+                  >
+                    &times;
+                  </button>
                   <img
                     src={side === "front" ? imageUrlFront : imageUrlBack}
-                    alt={`Image ${side.charAt(0).toUpperCase() + side.slice(1)}`}
+                    alt={`Image ${
+                      side.charAt(0).toUpperCase() + side.slice(1)
+                    }`}
                     className="max-h-40"
                   />
                 </div>
@@ -126,7 +185,12 @@ export default function RenderSelectedCardEdit({
         <input
           type="file"
           accept="audio/*"
-          onChange={(e) => handleAudioChange(e, side === "front" ? setAudioFront : setAudioBack)}
+          onChange={(e) =>
+            handleAudioChange(
+              e,
+              side === "front" ? setAudioFront : setAudioBack
+            )
+          }
           style={{ display: "none" }}
           ref={fileInputRef}
         />

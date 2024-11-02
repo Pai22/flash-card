@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import { db } from "../../lip/firebase/clientApp";
-import { doc, setDoc, getDocs, deleteDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDocs, deleteDoc, getDoc,query, orderBy } from "firebase/firestore";
 import { collection, onSnapshot } from "firebase/firestore";
 import useAuth from "../../lip/hooks/useAuth";
 import {
@@ -22,23 +22,24 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import DeckDelete from "./DeckDelete";
 
+
 const AddFriendDeck = () => {
   const [decks, setDecks] = useState([]);
   const auth = useAuth();
   const [friendCards, setFriendCards] = useState("t");
-
+  
   useEffect(() => {
     if (!auth) return;
 
     const deckRef = collection(db, "Deck", auth.uid, "deckFriend");
-    const unsubscribe = onSnapshot(deckRef, (snapshot) => {
+    const deckQuery = query(deckRef, orderBy("createdAt", "asc")); // desc เรียงจากใหม่ไปเก่า and asc จากเก่าไปใหม่
+    const unsubscribe = onSnapshot(deckQuery, (snapshot) => {
       if (!snapshot.empty) {
-        const deckData = snapshot.docs
-          .map((doc) => ({
+        const deckData = snapshot.docs.map((doc) => ({
             ...doc.data(),
             id: doc.id,
           }))
-          .sort((a, b) => a.timestamp - b.timestamp);
+          ;
         setDecks(deckData);
       } else {
         setDecks([]);
@@ -47,6 +48,7 @@ const AddFriendDeck = () => {
 
     return () => unsubscribe();
   }, [auth]);
+  
 
   return (
     <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
