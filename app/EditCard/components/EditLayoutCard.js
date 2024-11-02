@@ -1,14 +1,17 @@
-// app/Card/components/LayoutCard.js
+// app/EditCard/components/LayoutCardEdit.js
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Switch, Button } from "@nextui-org/react";
-import RenderSelectedCard from "./RenderSelectedCard";
-import styles from "../CreateCard.module.css";
+import RenderSelectedCardEdit from "./RenderSelectedCard";
+import styles from "../../Card/CreateCard.module.css";
 import useAuth from "@/app/lip/hooks/useAuth";
-import { cards, handleLayoutSelect } from "./cardLayoutUtils";
+import {
+  cards,
+  handleLayoutSelect,
+} from "../../Card/components/cardLayoutUtils";
 
-export default function LayoutCard({
+export default function LayoutCardEdit({
   deckId,
   setQuestionBack,
   setImageBack,
@@ -33,14 +36,15 @@ export default function LayoutCard({
   setImageUrlBack,
   setAudioUrlFront,
   setAudioUrlBack,
-  addCardToDeck,
+  saveEditedCard,
+  numberCard,
 }) {
   const [selectedContentFront, setSelectedContentFront] = useState(null);
   const [selectedContentBack, setSelectedContentBack] = useState(null);
   const [isSelected, setIsSelected] = useState(false);
   const use = useAuth();
   const router = useRouter();
-  
+
   const handleFileChange = (setter) => (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith("image/")) {
@@ -92,25 +96,24 @@ export default function LayoutCard({
   }, [audioBack]);
 
   useEffect(() => {
-  if (!loading) {
-    setSelectedContentFront(null);
-    setSelectedContentBack(null);
-    setIsSelected(false);
-    setImageUrlFront(null);
-    setImageUrlBack(null);
-    setAudioUrlFront(null);
-    setAudioUrlBack(null);
-    setImageFront(null);
-    setAudioFront(null);
-    setImageBack(null);
-    setAudioBack(null);
-    setQuestionFront("");
-    setQuestionBack("");
-    setLayoutFront("");
-    setLayoutBack("");
-    
-  }
-}, [loading]);
+    if (!loading) {
+      setSelectedContentFront(null);
+      setSelectedContentBack(null);
+      setIsSelected(false);
+      setImageUrlFront(null);
+      setImageUrlBack(null);
+      setAudioUrlFront(null);
+      setAudioUrlBack(null);
+      setImageFront(null);
+      setAudioFront(null);
+      setImageBack(null);
+      setAudioBack(null);
+      setQuestionFront("");
+      setQuestionBack("");
+      setLayoutFront("");
+      setLayoutBack("");
+    }
+  }, [loading]);
 
   const renderCard = (card, side) => (
     <div
@@ -182,79 +185,78 @@ export default function LayoutCard({
 
   return (
     <>
-      {/* <div className="grid grid-flow-col justify-stretch"> */}
-        <div className=" bg-gray-200 ">
-          <div className="flex flex-col items-center justify-center text-center overflow-hidden p-10 ">
-            Choose the templete of the card
-            <div class="grid grid-cols-2 items-center justify-center gap-4 mt-10">
-              {isSelected 
-                ? cards(
-                    imageUrlFront,
-                    handleFileChange,
-                    setImageFront,
-                    imageUrlBack,
-                    setImageBack
-                  ).back.map((card) => renderCard(card, "back"))
-                : cards(
-                    imageUrlFront,
-                    handleFileChange,
-                    setImageFront,
-                    imageUrlBack,
-                    setImageBack
-                  ).front.map((card) => renderCard(card, "front"))}
-            </div>
+      <div className="bg-gray-200">
+        <div className="flex flex-col items-center justify-center text-center overflow-hidden p-10">
+          แก้ไขการ์ดใบที่ {numberCard}
+          <div className="grid grid-cols-2 items-center justify-center gap-4 mt-10">
+            {isSelected
+              ? cards(
+                  imageUrlFront,
+                  handleFileChange,
+                  setImageFront,
+                  imageUrlBack,
+                  setImageBack
+                ).back.map((card) => renderCard(card, "back"))
+              : cards(
+                  imageUrlFront,
+                  handleFileChange,
+                  setImageFront,
+                  imageUrlBack,
+                  setImageBack
+                ).front.map((card) => renderCard(card, "front"))}
           </div>
         </div>
-        <div className=" bg-gray-300 flex justify-center p-5">
-          <Button color="primary" onClick={addCardToDeck} disabled={loading}>
-            {loading ? "กำลังบันทึก..." : "บันทึกการ์ด"}
-          </Button>
-          <div className="grid grid-flow-row  justify-items-center">
-            <Switch
-              isSelected={isSelected}
-              onValueChange={() => setIsSelected(!isSelected)}
-              color="secondary"
-            />
-      
-            <p className="text-small text-default-500 text-center">
-              Selected: {isSelected ? "Back" : "Front"}
-            </p>
+      </div>
+
+      <div className="bg-gray-300 flex justify-center p-5">
+        <div className="grid grid-flow-row justify-items-center">
+          <Switch
+            isSelected={isSelected}
+            onValueChange={() => setIsSelected(!isSelected)}
+            color="secondary"
+          />
+          <p className="text-small text-default-500 text-center">
+            {isSelected ? "Back" : "Front"}
+          </p>
+
+          <div
+            className={`container mx-auto max-w-full ${styles["flip-card"]}`}
+          >
             <div
-              className={`container mx-auto max-w-full ${styles["flip-card"]}`}
+              className={`${styles["flip-card-inner"]} ${
+                isSelected ? styles["flipped"] : ""
+              }`}
             >
-              <div
-                className={`${styles["flip-card-inner"]} ${
-                  isSelected ? styles["flipped"] : ""
-                }`}
-              >
-                <RenderSelectedCard
-                  selectedContent={
-                    isSelected ? selectedContentBack : selectedContentFront
-                  }
-                  side={isSelected ? "back" : "front"}
-                  questionFront={questionFront}
-                  questionBack={questionBack}
-                  setQuestionFront={setQuestionFront}
-                  setQuestionBack={setQuestionBack}
-                  imageUrlFront={imageUrlFront}
-                  imageUrlBack={imageUrlBack}
-                  handleFileChange={handleFileChange}
-                  handleAudioChange={handleAudioChange}
-                  setImageFront={setImageFront}
-                  setImageBack={setImageBack}
-                  setAudioFront={setAudioFront}
-                  setAudioBack={setAudioBack}
-                  audioUrlFront={audioUrlFront}
-                  audioUrlBack={audioUrlBack}
-
-                />
-                
-              </div>
+              <RenderSelectedCardEdit
+                selectedContent={
+                  isSelected ? selectedContentBack : selectedContentFront
+                }
+                side={isSelected ? "back" : "front"}
+                questionFront={questionFront}
+                questionBack={questionBack}
+                setQuestionFront={setQuestionFront}
+                setQuestionBack={setQuestionBack}
+                imageUrlFront={imageUrlFront}
+                imageUrlBack={imageUrlBack}
+                handleFileChange={handleFileChange}
+                handleAudioChange={handleAudioChange}
+                setImageFront={setImageFront}
+                setImageBack={setImageBack}
+                setAudioFront={setAudioFront}
+                setAudioBack={setAudioBack}
+                audioUrlFront={audioUrlFront}
+                audioUrlBack={audioUrlBack}
+              />
             </div>
           </div>
-        </div>
-      {/* </div> */}
 
+          <div className="mt-5">
+            <Button color="primary" onClick={saveEditedCard} disabled={loading}>
+              {loading ? "กำลังบันทึก..." : "บันทึกการแก้ไข"}
+            </Button>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
