@@ -86,9 +86,9 @@ export default function RenderSelectedCardEdit({
               )}
             </div>
             {/* Divider */}
-            <div className="border-t border-gray-300 mb-4"></div>
+            <div className="border-t border-gray-300 mt-20"></div>
             {/* Bottom Content */}
-            <div className="p-4 flex flex-col items-center justify-center overflow-hidden">
+            <div className="p-10 flex flex-col items-center justify-center overflow-hidden">
               {selectedContent.bottom === null ? (
                 <Input
                   autoFocus
@@ -114,7 +114,7 @@ export default function RenderSelectedCardEdit({
             </div>
           </>
         ) : selectedContent.type === "text" ? (
-          <div className="p-20 flex items-center justify-center overflow-hidden">
+          <div className="p-10 flex justify-center overflow-hidden">
             <Input
               autoFocus
               label={`ข้อความ (ด้าน${side === "front" ? "หน้า" : "หลัง"})`}
@@ -129,12 +129,12 @@ export default function RenderSelectedCardEdit({
                 side === "front" ? "หน้า" : "หลัง"
               }`}
               variant="bordered"
-              fullWidth
+              color="warning"
             />
           </div>
         ) : (
-          <div className="p-20 flex items-center justify-center overflow-hidden">
-            <div>
+          <div className="flex justify-center overflow-hidden">
+            <div className="border-2 rounded-xl pb-4 px-10 pt-4 mb-2">
               <input
                 type="file"
                 label={`อัปโหลดรูปภาพ (ด้าน${
@@ -147,23 +147,23 @@ export default function RenderSelectedCardEdit({
                     side === "front" ? setImageFront : setImageBack
                   )
                 }
-                className="mt-4"
+                className=""
               />
 
               {(side === "front" ? imageUrlFront : imageUrlBack) && (
                 <div className="mt-2">
-                  <button
+                  {/* <button
                     className="absolute top-2 right-2 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
                     onClick={handleDeleteImage} // เรียกใช้ฟังก์ชันลบเมื่อคลิก
                   >
                     &times;
-                  </button>
+                  </button> */}
                   <img
                     src={side === "front" ? imageUrlFront : imageUrlBack}
                     alt={`Image ${
                       side.charAt(0).toUpperCase() + side.slice(1)
                     }`}
-                    className="max-h-40"
+                    className="max-h-40 mt-2"
                   />
                 </div>
               )}
@@ -175,13 +175,14 @@ export default function RenderSelectedCardEdit({
       )}
 
       {/* Audio Upload Section */}
-      <div className="bg-purple-500 flex items-center justify-center mt-4">
+      <div className="justify-center">
         <FontAwesomeIcon
-          style={{ fontSize: "20px", cursor: "pointer" }}
+          style={{ fontSize: "20px"}}
+          className="text-gray-600 text-3xl p-1 rounded-full bg-gray-200 hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out transform hover:scale-110 cursor-pointer mb-2"
           icon={faFileAudio}
           onClick={handleIconClick}
         />
-        <span className="ml-2">Upload Your Audio</span>
+        <p className="text-center text-gray-700 font-medium">เลือกไฟล์เสียง</p>
         <input
           type="file"
           accept="audio/*"

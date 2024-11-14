@@ -12,6 +12,7 @@ import {
 } from "../../Card/components/cardLayoutUtils";
 
 export default function LayoutCardEdit({
+  selectedCardId, // รับ ID ของการ์ดที่เลือกมาจาก Props
   deckId,
   setQuestionBack,
   setImageBack,
@@ -45,9 +46,61 @@ export default function LayoutCardEdit({
 }) {
   const [selectedContentFront, setSelectedContentFront] = useState(null);
   const [selectedContentBack, setSelectedContentBack] = useState(null);
-  const [isSelected, setIsSelected] = useState(false);
+  const [selectedCardIdFront, setSelectedCardIdFront] = useState(null); // สถานะเก็บ ID ของการ์ดที่ถูกเลือกหน้า
+  const [selectedCardIdBack, setSelectedCardIdBack] = useState(null); // สถานะเก็บ ID ของการ์ดที่ถูกเลือกหลัง
+  const [isSelected, setIsSelected] = useState(false); // สถานะการเลือกหน้า
   const use = useAuth();
-  const router = useRouter();
+  // const [defaultLayout, setDefaultLayout] = useState(false);
+
+  useEffect(() => {
+    if (selectedCardId) {
+      // ถ้าเป็นหน้า
+      if (!isSelected) {
+        setSelectedCardIdFront(selectedCardId); // ตั้งค่าหน้า
+      } else {
+        setSelectedCardIdBack(selectedCardId); // ตั้งค่าหลังถ้า isSelected เป็น true
+      }
+    }
+  }, [selectedCardId, isSelected]); // เพิ่ม isSelected เพื่อให้สามารถตรวจสอบการเปลี่ยนแปลงได้
+
+  useEffect(() => {
+    setSelectedCardIdFront(layoutFront);
+    console.log('Selected card',selectedCardIdFront);
+    setSelectedCardIdBack(layoutBack);
+    cards(
+      imageUrlFront,
+      handleFileChange,
+      setImageFront,
+      imageUrlBack,
+      setImageBack
+    ).front.map((card) => {
+      // console.log(card.type)
+      // console.log(selectedCardIdFront)
+      if (layoutFront == card.type) {
+        // console.log('ok')
+      setSelectedContentFront(card)
+      // handleLayoutSelect('front', selectedCardIdFront, setLayoutFront, setLayoutBack)
+    }
+    })
+    cards(
+      imageUrlFront,
+      handleFileChange,
+      setImageFront,
+      imageUrlBack,
+      setImageBack
+    ).back.map((card) => {
+      if (layoutBack == card.type) {
+      setSelectedContentBack(card)
+      // handleLayoutSelect('back', selectedCardIdBack, setLayoutFront, setLayoutBack)
+    }
+    })
+  
+    // console.log(layoutFront);
+    // console.log(layoutBack);
+  
+    // handleLayoutSelect("front", layoutFront, setLayoutFront, setLayoutBack);
+    // handleLayoutSelect('back', layoutBack, setLayoutFront, setLayoutBack);
+   },[])
 
   const handleFileChange = (setter) => (e) => {
     const file = e.target.files[0];
@@ -114,25 +167,32 @@ export default function LayoutCardEdit({
     };
   }, [audioBack, setAudioUrlBack]);
 
-   
-
-
+  // layoutCard 
   const renderCard = (card, side) => (
     <div
       key={card.id}
-      className="bg-white shadow-lg rounded-lg cursor-pointer transform transition-transform hover:scale-105 hover:shadow-xl"
+      className={`shadow-lg rounded-lg bg-white cursor-pointer transform transition-transform hover:scale-105 hover:shadow-xl ${
+        side === "front" && selectedCardIdFront === card.type
+          ? "ring-4 ring-yellow-500 bg-yellow-300"
+          : side === "back" && selectedCardIdBack === card.type
+          ? "ring-4 ring-yellow-500 bg-yellow-300"
+          : ""
+      }`}
       onClick={() => {
         if (side === "front") {
           setSelectedContentFront(card);
+          setSelectedCardIdFront(card.type);  // เลือกการ์ดหน้า
           handleLayoutSelect(side, card.type, setLayoutFront, setLayoutBack);
         } else {
           setSelectedContentBack(card);
+          setSelectedCardIdBack(card.type);  // เลือกการ์ดหน้า
           handleLayoutSelect(side, card.type, setLayoutFront, setLayoutBack);
         }
       }}
+      // onLoad={renderCardLoad}
     >
       {card.type === "text" ? (
-        <div className="min-h-48 min-w-48 flex items-center justify-center bg-gray-100 p-4 rounded-lg">
+        <div className="min-h-48 min-w-48 flex items-center justify-center p-4 rounded-lg">
           <img
             src="/assets/TextIcon.png"
             alt="TextIcon"
@@ -140,7 +200,7 @@ export default function LayoutCardEdit({
           />
         </div>
       ) : card.type === "image" ? (
-        <div className="min-h-48 min-w-48 flex items-center justify-center bg-gray-100 p-4 rounded-lg">
+        <div className="min-h-48 min-w-48 flex items-center justify-center p-4 rounded-lg">
           <img
             src="/assets/ImageIcon.png"
             alt="ImageIcon"
@@ -148,7 +208,7 @@ export default function LayoutCardEdit({
           />
         </div>
       ) : card.type === "TextImage" ? (
-        <div className="min-h-48 min-w-48 flex flex-col items-center justify-center bg-gray-100 p-4 rounded-lg">
+        <div className="min-h-48 min-w-48 flex flex-col items-center justify-center  p-4 rounded-lg">
           <div className="mb-2">
             <img
               src="/assets/TextIcon.png"
@@ -165,7 +225,7 @@ export default function LayoutCardEdit({
           </div>
         </div>
       ) : (
-        <div className="min-h-48 min-w-48 flex flex-col items-center justify-center bg-gray-100 p-4 rounded-lg">
+        <div className="min-h-48 min-w-48 flex flex-col items-center justify-center  p-4 rounded-lg">
           <div className="mb-2">
             <img
               src="/assets/ImageIcon.png"
@@ -183,12 +243,13 @@ export default function LayoutCardEdit({
         </div>
       )}
     </div>
+    
   );
-  console.log("qqq"+questionFront)
+  // console.log("qqq" + questionFront);
   return (
     <>
       <div className="bg-gray-200">
-        <div className="flex flex-col items-center justify-center text-center overflow-hidden p-10">
+        <div className="flex flex-col items-center justify-center text-center overflow-hidden p-10 font-mono text-xl font-medium">
           แก้ไขการ์ดใบที่ {numberCard}
           <div className="grid grid-cols-2 items-center justify-center gap-4 mt-10">
             {isSelected
@@ -198,7 +259,21 @@ export default function LayoutCardEdit({
                   setImageFront,
                   imageUrlBack,
                   setImageBack
-                ).back.map((card) => renderCard(card, "back"))
+                ).back.map((card) => 
+                  // Check if selectedCardIdFront matches card.type
+                  // console.log("SDFGSDFGDSF")
+                  // console.log(card.type)
+                  // console.log("selectedCardIdBack",selectedCardIdBack)
+                  // if (selectedCardIdBack == card.type) {
+                  //   console.log("ok")
+                  //   handleLayoutSelect('back', card.type, setLayoutFront, setLayoutBack);
+                    // setSelectedContentBack(card);
+
+                  //   return renderCard(card, "back");
+
+                  // }
+                  renderCard(card, "back"))
+                // ).back.map((card) => renderCard(card, "back"))
               : cards(
                   imageUrlFront,
                   handleFileChange,
@@ -212,15 +287,29 @@ export default function LayoutCardEdit({
 
       <div className="bg-gray-300 flex justify-center p-5">
         <div className="grid grid-flow-row justify-items-center">
-          <Switch
-            isSelected={isSelected}
-            onValueChange={() => setIsSelected(!isSelected)}
-            color="secondary"
-          />
+          <div className="grid grid-cols-3 gap-4 items-center">
+            <div></div>
+            <div className="flex justify-center">
+              <Switch
+                isSelected={isSelected}
+                onValueChange={() => setIsSelected(!isSelected)}
+                color="secondary"
+              />
+            </div>
+            <div className="pl-16">
+              <Button
+                color="primary"
+                onClick={saveEditedCard}
+                disabled={loading}
+                className=" font-mono text-white font-semibold"
+              >
+                {loading ? "กำลังบันทึก..." : "Save Changes"}
+              </Button>
+            </div>
+          </div>
           <p className="text-small text-default-500 text-center">
             {isSelected ? "Back" : "Front"}
           </p>
-
           <div
             className={`container mx-auto max-w-full ${styles["flip-card"]}`}
           >
@@ -255,12 +344,6 @@ export default function LayoutCardEdit({
                 cardId={cardId}
               />
             </div>
-          </div>
-          
-          <div className="mt-5">
-            <Button color="primary" onClick={saveEditedCard} disabled={loading}>
-              {loading ? "กำลังบันทึก..." : "บันทึกการแก้ไข"}
-            </Button>
           </div>
         </div>
       </div>

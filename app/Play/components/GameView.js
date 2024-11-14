@@ -5,9 +5,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleArrowLeft,
   faCircleArrowRight,
-  faSquareXmark,
   faPlay,
   faPause,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   collection,
@@ -234,7 +234,7 @@ const GameView = ({
 
     if (user && friendCards == null) {
       await saveResultToFirestore(correctAnswersCount, totalTime, cardCount);
-    }else{
+    } else {
       await saveResultToFirestoreF(correctAnswersCount, totalTime, cardCount);
     }
   };
@@ -250,6 +250,7 @@ const GameView = ({
         "gameResults"
       );
 
+      // บันทึกผลลัพธ์ใหม่
       await addDoc(gameResultsRef, {
         score,
         cardCount,
@@ -257,21 +258,55 @@ const GameView = ({
         timestamp: new Date(),
       });
 
-      const resultsQuery = query(
-        gameResultsRef,
-        orderBy("timestamp", "desc"),
-        limit(5)
-      );
+      // ดึงผลลัพธ์ทั้งหมดเพื่อตรวจสอบและลบรายการที่เกิน
+      const resultsQuery = query(gameResultsRef, orderBy("timestamp", "desc"));
       const querySnapshot = await getDocs(resultsQuery);
 
-      const docsToDelete = querySnapshot.docs.slice(5);
-      for (const docToDelete of docsToDelete) {
-        await deleteDoc(doc(gameResultsRef, docToDelete.id));
+      // ตรวจสอบจำนวนผลลัพธ์
+      if (querySnapshot.docs.length > 5) {
+        const docsToDelete = querySnapshot.docs.slice(5);
+        for (const docToDelete of docsToDelete) {
+          await deleteDoc(doc(gameResultsRef, docToDelete.id));
+        }
       }
     } catch (error) {
       console.error("Error saving game result: ", error);
     }
   };
+
+  // const saveResultToFirestore = async (score, time, cardCount) => {
+  //   try {
+  //     const gameResultsRef = collection(
+  //       db,
+  //       "Deck",
+  //       user.uid,
+  //       "title",
+  //       deckId,
+  //       "gameResults"
+  //     );
+
+  //     await addDoc(gameResultsRef, {
+  //       score,
+  //       cardCount,
+  //       time,
+  //       timestamp: new Date(),
+  //     });
+
+  //     const resultsQuery = query(
+  //       gameResultsRef,
+  //       orderBy("timestamp", "desc"),
+  //       limit(5)
+  //     );
+  //     const querySnapshot = await getDocs(resultsQuery);
+
+  //     const docsToDelete = querySnapshot.docs.slice(5);
+  //     for (const docToDelete of docsToDelete) {
+  //       await deleteDoc(doc(gameResultsRef, docToDelete.id));
+  //     }
+  //   } catch (error) {
+  //     console.error("Error saving game result: ", error);
+  //   }
+  // };
   const saveResultToFirestoreF = async (score, time, cardCount) => {
     try {
       const gameResultsRef = collection(
@@ -290,16 +325,15 @@ const GameView = ({
         timestamp: new Date(),
       });
 
-      const resultsQuery = query(
-        gameResultsRef,
-        orderBy("timestamp", "desc"),
-        limit(5)
-      );
+      const resultsQuery = query(gameResultsRef, orderBy("timestamp", "desc"));
       const querySnapshot = await getDocs(resultsQuery);
 
-      const docsToDelete = querySnapshot.docs.slice(5);
-      for (const docToDelete of docsToDelete) {
-        await deleteDoc(doc(gameResultsRef, docToDelete.id));
+      // ตรวจสอบจำนวนผลลัพธ์
+      if (querySnapshot.docs.length > 5) {
+        const docsToDelete = querySnapshot.docs.slice(5);
+        for (const docToDelete of docsToDelete) {
+          await deleteDoc(doc(gameResultsRef, docToDelete.id));
+        }
       }
     } catch (error) {
       console.error("Error saving game result: ", error);
@@ -312,37 +346,112 @@ const GameView = ({
         <div className="text-wrap p-7">
           {Title} {currentCardIndex + 1} / {cardCount}
         </div>
-        <div className="flex items-center justify-end pr-10">
+
+        <div
+          className="col-start-12 border-2 rounded-lg w-10 h-10 bg-red-600 text-white flex justify-center items-center cursor-pointer active:bg-red-700 active:scale-95 transition-transform duration-150 mt-1"
+          onClick={handleExit}
+        >
           <FontAwesomeIcon
-            style={{ fontSize: "40px", cursor: "pointer" }}
-            icon={faSquareXmark}
-            onClick={handleExit}
+            className="text-white text-md"
+            icon={faTimes}
           />
         </div>
       </div>
 
       {!isMultipleMode ? (
         <>
-        <div
-          className={`${styles["flip-card"]} cursor-pointer`}
-          onClick={handleClick}
-        >
           <div
-            className={`${styles["flip-card-inner"]} ${
-              isFlipped ? styles["flipped"] : ""
-            }`}
+            className={`${styles["flip-card"]} cursor-pointer`}
+            onClick={handleClick}
           >
-            {/* Front side of the card */}
-            <div className={`${styles["flip-card-front"]} my-2 space-y-0`}>
-              <div className={`p-4 ${currentCard.layoutFront || ""}`}>
-                {renderCardContent(currentCard, "front")}
-                {currentCard.audioUrlFront && (
+            <div
+              className={`${styles["flip-card-inner"]} ${
+                isFlipped ? styles["flipped"] : ""
+              }`}
+            >
+              {/* Front side of the card */}
+              <div className={`${styles["flip-card-front"]} my-2 space-y-0`}>
+                <div className={`p-4 ${currentCard.layoutFront || ""}`}>
+                  {renderCardContent(currentCard, "front")}
+                  {currentCard.audioUrlFront && (
+                    <div className={styles.audioButton}>
+                      <audio
+                        ref={audioRefFront}
+                        className="hidden"
+                        onEnded={() => setIsPlayingFront(false)}
+                        key={currentCard.audioUrlFront} // ใช้ key เพื่อรีเฟรชเสียงเมื่อการ์ดเปลี่ยน
+                      >
+                        <source
+                          src={currentCard.audioUrlFront}
+                          type="audio/mp3"
+                        />
+                        Your browser does not support the audio element.
+                      </audio>
+
+                      <FontAwesomeIcon
+                        icon={isPlayingFront ? faPause : faPlay}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent flip when clicking play
+                          handleAudioPlayPauseFront();
+                        }}
+                        className="cursor-pointer"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Back side of the card */}
+              <div className={styles["flip-card-back"]}>
+                <div className={`p-4 ${currentCard.layoutBack || ""}`}>
+                  {renderCardContent(currentCard, "back")}
+                  {currentCard.audioUrlBack && (
+                    <div className={styles.audioButton}>
+                      <audio
+                        ref={audioRefBack}
+                        className="hidden"
+                        onEnded={() => setIsPlayingBack(false)}
+                        key={currentCard.audioUrlBack} // ใช้ key เพื่อรีเฟรชเสียงเมื่อการ์ดเปลี่ยน
+                      >
+                        <source
+                          src={currentCard.audioUrlBack}
+                          type="audio/mp3"
+                        />
+                        Your browser does not support the audio element.
+                      </audio>
+
+                      <FontAwesomeIcon
+                        icon={isPlayingBack ? faPause : faPlay}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent flip when clicking play
+                          handleAudioPlayPauseBack();
+                        }}
+                        className="cursor-pointer"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        // โค้ดสำหรับโหมด Multiple
+        <>
+          <div className={styles["container"]}>
+            <div className="w-1/2 flex items-center justify-center">
+              <div className="bg-white text-center p-10 m-10 shadow-lg w-4/5 h-full">
+                {/* คำถาม */}
+                {startSide === "Front"
+                  ? renderCardContent(currentCard, "front")
+                  : renderCardContent(currentCard, "back")}
+                {startSide === "Front" && currentCard.audioUrlFront && (
                   <div className={styles.audioButton}>
                     <audio
                       ref={audioRefFront}
                       className="hidden"
                       onEnded={() => setIsPlayingFront(false)}
-                      key={currentCard.audioUrlFront} // ใช้ key เพื่อรีเฟรชเสียงเมื่อการ์ดเปลี่ยน
+                      key={currentCard.audioUrlFront}
                     >
                       <source
                         src={currentCard.audioUrlFront}
@@ -354,27 +463,20 @@ const GameView = ({
                     <FontAwesomeIcon
                       icon={isPlayingFront ? faPause : faPlay}
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent flip when clicking play
+                        e.stopPropagation();
                         handleAudioPlayPauseFront();
                       }}
                       className="cursor-pointer"
                     />
                   </div>
                 )}
-              </div>
-            </div>
-
-            {/* Back side of the card */}
-            <div className={styles["flip-card-back"]}>
-              <div className={`p-4 ${currentCard.layoutBack || ""}`}>
-                {renderCardContent(currentCard, "back")}
-                {currentCard.audioUrlBack && (
+                {startSide === "Back" && currentCard.audioUrlBack && (
                   <div className={styles.audioButton}>
                     <audio
                       ref={audioRefBack}
                       className="hidden"
                       onEnded={() => setIsPlayingBack(false)}
-                      key={currentCard.audioUrlBack} // ใช้ key เพื่อรีเฟรชเสียงเมื่อการ์ดเปลี่ยน
+                      key={currentCard.audioUrlBack}
                     >
                       <source src={currentCard.audioUrlBack} type="audio/mp3" />
                       Your browser does not support the audio element.
@@ -383,7 +485,7 @@ const GameView = ({
                     <FontAwesomeIcon
                       icon={isPlayingBack ? faPause : faPlay}
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent flip when clicking play
+                        e.stopPropagation();
                         handleAudioPlayPauseBack();
                       }}
                       className="cursor-pointer"
@@ -392,153 +494,89 @@ const GameView = ({
                 )}
               </div>
             </div>
-          </div>
-        </div>
-        </>
 
-      ) : (
-        // โค้ดสำหรับโหมด Multiple
-        <>
-        <div className={styles["container"]}>
-          <div className="w-1/2 flex items-center justify-center">
-            <div className="bg-white text-center p-10 m-10 shadow-lg w-4/5 h-full">
-              {/* คำถาม */}
-                {startSide === "Front"
-                  ? renderCardContent(currentCard, "front")
-                  : renderCardContent(currentCard, "back")}
-              {startSide === "Front" && currentCard.audioUrlFront && (
-                <div className={styles.audioButton}>
-                  <audio
-                    ref={audioRefFront}
-                    className="hidden"
-                    onEnded={() => setIsPlayingFront(false)}
-                    key={currentCard.audioUrlFront}
+            <div className="w-1/2 grid grid-cols-2 gap-4">
+              {choices.map((choice, index) => {
+                const isSelectedChoice =
+                  answeredCards[currentCardIndex] &&
+                  answeredCards[currentCardIndex].selectedChoice === choice;
+                const choiceStyle = isSelectedChoice
+                  ? "bg-blue-400"
+                  : "bg-gray-200";
+
+                return (
+                  <div
+                    key={index}
+                    className={`p-6 text-center rounded-lg shadow-md cursor-pointer ${choiceStyle}`}
+                    onClick={() => handleChoiceSelection(choice, index)}
                   >
-                    <source
-                      src={currentCard.audioUrlFront}
-                      type="audio/mp3"
-                    />
-                    Your browser does not support the audio element.
-                  </audio>
+                    {/* Render choice content */}
+                    {startSide === "Front"
+                      ? renderCardContent(choice, "back")
+                      : renderCardContent(choice, "front")}
 
-                  <FontAwesomeIcon
-                    icon={isPlayingFront ? faPause : faPlay}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAudioPlayPauseFront();
-                    }}
-                    className="cursor-pointer"
-                  />
-                </div>
-              )}
-              {startSide === "Back" && currentCard.audioUrlBack && (
-                <div className={styles.audioButton}>
-                  <audio
-                    ref={audioRefBack}
-                    className="hidden"
-                    onEnded={() => setIsPlayingBack(false)}
-                    key={currentCard.audioUrlBack}
-                  >
-                    <source src={currentCard.audioUrlBack} type="audio/mp3" />
-                    Your browser does not support the audio element.
-                  </audio>
+                    {/* Add audio for each choice */}
+                    {startSide === "Front"
+                      ? choice.audioUrlBack && (
+                          <div className={styles.audioButton}>
+                            <audio
+                              ref={audioRefs[index]}
+                              className="hidden"
+                              onEnded={() =>
+                                setIsPlaying((prevState) => ({
+                                  ...prevState,
+                                  [index]: false,
+                                }))
+                              }
+                              key={choice.audioUrlBack}
+                            >
+                              <source
+                                src={choice.audioUrlBack}
+                                type="audio/mp3"
+                              />
+                              Your browser does not support the audio element.
+                            </audio>
 
-                  <FontAwesomeIcon
-                    icon={isPlayingBack ? faPause : faPlay}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAudioPlayPauseBack();
-                    }}
-                    className="cursor-pointer"
-                  />
-                </div>
-              )}
+                            <FontAwesomeIcon
+                              icon={isPlaying[index] ? faPause : faPlay}
+                              onClick={(e) => handleAudioPlayPause(e, index)}
+                              className="cursor-pointer"
+                            />
+                          </div>
+                        )
+                      : choice.audioUrlFront && (
+                          <div className={styles.audioButton}>
+                            <audio
+                              ref={audioRefs[index]}
+                              className="hidden"
+                              onEnded={() =>
+                                setIsPlaying((prevState) => ({
+                                  ...prevState,
+                                  [index]: false,
+                                }))
+                              }
+                              key={choice.audioUrlFront}
+                            >
+                              <source
+                                src={choice.audioUrlFront}
+                                type="audio/mp3"
+                              />
+                              Your browser does not support the audio element.
+                            </audio>
+
+                            <FontAwesomeIcon
+                              icon={isPlaying[index] ? faPause : faPlay}
+                              onClick={(e) => handleAudioPlayPause(e, index)}
+                              className="cursor-pointer"
+                            />
+                          </div>
+                        )}
+                  </div>
+                );
+              })}
             </div>
           </div>
-
-          <div className="w-1/2 grid grid-cols-2 gap-4">
-            {choices.map((choice, index) => {
-              const isSelectedChoice =
-                answeredCards[currentCardIndex] &&
-                answeredCards[currentCardIndex].selectedChoice === choice;
-              const choiceStyle = isSelectedChoice
-                ? "bg-blue-400"
-                : "bg-gray-200";
-
-              return (
-                <div
-                  key={index}
-                  className={`p-6 text-center rounded-lg shadow-md cursor-pointer ${choiceStyle}`}
-                  onClick={() => handleChoiceSelection(choice, index)}
-                >
-                  {/* Render choice content */}
-                  {startSide === "Front"
-                    ? renderCardContent(choice, "back")
-                    : renderCardContent(choice, "front")}
-
-                  {/* Add audio for each choice */}
-                  {startSide === "Front"
-                    ? choice.audioUrlBack && (
-                        <div className={styles.audioButton}>
-                          <audio
-                            ref={audioRefs[index]}
-                            className="hidden"
-                            onEnded={() =>
-                              setIsPlaying((prevState) => ({
-                                ...prevState,
-                                [index]: false,
-                              }))
-                            }
-                            key={choice.audioUrlBack}
-                          >
-                            <source
-                              src={choice.audioUrlBack}
-                              type="audio/mp3"
-                            />
-                            Your browser does not support the audio element.
-                          </audio>
-
-                          <FontAwesomeIcon
-                            icon={isPlaying[index] ? faPause : faPlay}
-                            onClick={(e) => handleAudioPlayPause(e, index)}
-                            className="cursor-pointer"
-                          />
-                        </div>
-                      )
-                    : choice.audioUrlFront && (
-                        <div className={styles.audioButton}>
-                          <audio
-                            ref={audioRefs[index]}
-                            className="hidden"
-                            onEnded={() =>
-                              setIsPlaying((prevState) => ({
-                                ...prevState,
-                                [index]: false,
-                              }))
-                            }
-                            key={choice.audioUrlFront}
-                          >
-                            <source
-                              src={choice.audioUrlFront}
-                              type="audio/mp3"
-                            />
-                            Your browser does not support the audio element.
-                          </audio>
-
-                          <FontAwesomeIcon
-                            icon={isPlaying[index] ? faPause : faPlay}
-                            onClick={(e) => handleAudioPlayPause(e, index)}
-                            className="cursor-pointer"
-                          />
-                        </div>
-                      )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-       
-      </>
+        </>
       )}
 
       {showScorePopup && (

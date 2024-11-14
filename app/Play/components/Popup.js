@@ -1,6 +1,9 @@
 // app/Play/components/Popup.js
-import React from "react";
-
+import React ,{useState,useEffect}from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
+// Import useRouter from next/router
+import { useRouter } from "next/navigation";
 const Popup = ({
   mode,
   setMode,
@@ -11,10 +14,39 @@ const Popup = ({
   handleStart,
   cards,
 }) => {
+  const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
+
+  // Ensure the code only runs on the client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Define the handleNavigate function
+  const handleNavigate = () => {
+    if (isClient) {
+      router.push('/dashboard');  // Navigate to the dashboard page
+    }
+  };
+
+  if (!isClient) {
+    return null;  // Return null if rendered on the server side
+  }
+
+
   return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-md shadow-md">
-        <h2 className="text-lg font-bold mb-4">Option</h2>
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50 ">
+      <div className="bg-white p-4 rounded-md shadow-md w-96">
+        <div className="grid grid-flow-row flex justify-between">
+          <div></div>
+          <div
+            className="col-start-12 border-2 rounded-lg w-6 h-6 bg-red-600 text-white flex justify-center items-center cursor-pointer active:bg-red-700 active:scale-95 transition-transform duration-150 "
+            onClick={handleNavigate}
+          >
+            <FontAwesomeIcon className="text-white text-md" icon={faTimes} />
+          </div>
+          <h2 className="text-lg font-bold mb-4">Option Play</h2>
+        </div>
         <div className="mb-4">
           <label className="block font-medium mb-2">Select Mode</label>
           <select
@@ -63,9 +95,9 @@ const Popup = ({
             }}
           />
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-center">
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            className="bg-pink-500 font-mono text-white font-semibold  px-5 py-2 rounded-full shadow-md transition-all duration-300 ease-in-out transform hover:bg-pink-400 hover:scale-105 active:scale-95 focus:outline-none focus:ring-3 focus:ring-pink-500"
             onClick={handleStart}
           >
             Start

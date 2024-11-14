@@ -14,7 +14,7 @@ const PlayHistory = () => {
   const { id: deckId } = useParams();
   const searchParams = useSearchParams();
   const Title = searchParams.get("Title");
-  const friendCards = searchParams.get('friendCards');
+  const friendCards = searchParams.get("friendCards");
   const router = useRouter();
 
   useEffect(() => {
@@ -83,16 +83,22 @@ const PlayHistory = () => {
     <div className="p-6">
       <div className="grid justify-items-end">
         <Button
-          className="grid justify-items-end"
+          className="font-mono text-white"
           color="warning"
           onClick={() => router.push(`/dashboard`)}
         >
           Back to dashboard
         </Button>
       </div>
-      <h2 className="text-2xl font-semibold mb-4">
-        ประวัติการเล่นล่าสุดสำหรับเด็ค: {Title} 
-      </h2>
+      <div className="font-mono ">
+        <span className="text-xl font-semibold ">ประวัติการเล่นของ&nbsp;</span>
+
+        <span className="text-2xl font-semibold border-2 bg-white rounded-md p-2 mb-5">
+          {Title}
+        </span>
+
+        <span>&nbsp;( 5 ครั้งล่าสุด )</span>
+      </div>
       {gameResults.length > 0 ? (
         <table className="min-w-full bg-white shadow-md rounded-lg">
           <thead>
@@ -117,7 +123,9 @@ const PlayHistory = () => {
           </tbody>
         </table>
       ) : (
-        <p>ยังไม่มีประวัติการเล่นสำหรับเด็คนี้</p>
+        <div className="mt-10 text-red-700  flex justify-center">
+          ยังไม่มีประวัติการเล่น
+        </div>
       )}
     </div>
   );

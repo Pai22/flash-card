@@ -34,7 +34,14 @@ const DeckDetailComponent = () => {
         }
       });
 
-      const cardsRef = collection(db, "Deck", auth.uid, "title", deckId, "cards");
+      const cardsRef = collection(
+        db,
+        "Deck",
+        auth.uid,
+        "title",
+        deckId,
+        "cards"
+      );
       const unsubscribeCards = onSnapshot(cardsRef, (snapshot) => {
         const cardList = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -61,33 +68,33 @@ const DeckDetailComponent = () => {
       return () => unsubscribeDeck(); // ทำการ unsubscribe เฉพาะ deck ก่อน
     }
   }, [auth, deckId, friendCards]);
-  console.log("Fid"+friendId);
+  console.log("Fid" + friendId);
 
   useEffect(() => {
     if (!friendId || !deckId) return;
 
     const deckRef = doc(db, "Deck", friendId, "title", deckId);
-      const unsubscribeDeck = onSnapshot(deckRef, (snapshot) => {
-        if (snapshot.exists()) {
-          setDeck({ ...snapshot.data(), id: snapshot.id });
-        } else {
-          setDeck(null);
-        }
-      });
+    const unsubscribeDeck = onSnapshot(deckRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setDeck({ ...snapshot.data(), id: snapshot.id });
+      } else {
+        setDeck(null);
+      }
+    });
 
-      const cardsRef = collection(db, "Deck", friendId, "title", deckId, "cards");
-      const unsubscribeCards = onSnapshot(cardsRef, (snapshot) => {
-        const cardList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCards(cardList);
-      });
+    const cardsRef = collection(db, "Deck", friendId, "title", deckId, "cards");
+    const unsubscribeCards = onSnapshot(cardsRef, (snapshot) => {
+      const cardList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCards(cardList);
+    });
 
-      return () => {
-        unsubscribeDeck();
-        unsubscribeCards();
-      };
+    return () => {
+      unsubscribeDeck();
+      unsubscribeCards();
+    };
   }, [friendId, deckId]);
 
   const handleNavigate = () => {
@@ -106,26 +113,29 @@ const DeckDetailComponent = () => {
 
   return (
     <>
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto pt-10 pb-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-10 gap-4">
-          <h2 className="text-lg font-bold col-span-2">
+          <div className="col-span-3 font-mono text-2xl font-semibold text-gray-800">
             {deck.title} {friendCards != null ? "(share)" : ""}
-          </h2>
+            <p className="  mt-2  text-sm  text-gray-600">
+              Cards ({cards.length})
+            </p>
+          </div>
           <Button
             color="warning"
             onClick={handleNavigate}
-            className="col-start-10"
+            className="font-mono col-start-10 text-white bg-yellow-500 hover:bg-yellow-600 border-none rounded-lg py-2 px-6 transition duration-300 transform hover:scale-105"
           >
             Dashboard
           </Button>
         </div>
-        <h3 className="text-xl mb-4">Cards ({cards.length})</h3>
+
         <CardList
           deckId={deckId}
           deckTitle={deck.title}
           cardsLength={cards.length}
           friendCards={friendCards}
-          friendId={friendId} 
+          friendId={friendId}
         />
       </div>
     </>

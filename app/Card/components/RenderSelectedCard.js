@@ -1,6 +1,6 @@
 // app/Card/components/RenderSelectedCard.js
 import styles from "../CreateCard.module.css";
-import { Input } from "@nextui-org/react";
+import { Input, Textarea } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileAudio } from "@fortawesome/free-solid-svg-icons";
 import { useRef } from "react";
@@ -35,7 +35,7 @@ export default function RenderSelectedCard({
         selectedContent.type === "TextImage" ||
         selectedContent.type === "ImageText" ? (
           <>
-            <div className="p-10 flex items-center justify-center overflow-hidden">
+            <div className="p-10 justify-center overflow-hidden">
               <div>
                 {selectedContent.top === null ? (
                   <Input
@@ -43,6 +43,7 @@ export default function RenderSelectedCard({
                     label={`ข้อความ (ด้าน${
                       side === "front" ? "หน้า" : "หลัง"
                     })`}
+                    color="primary"
                     name={`question${
                       side.charAt(0).toUpperCase() + side.slice(1)
                     }`}
@@ -63,8 +64,8 @@ export default function RenderSelectedCard({
                 )}
               </div>
             </div>
-            <div className="border-t border-gray-300 mb-4"></div>
-            <div className="p-4 flex flex-col items-center justify-center overflow-hidden">
+            <div className="border-t border-gray-300 mt-20"></div>
+            <div className="p-10  overflow-hidden">
               <div>
                 {selectedContent.bottom === null ? (
                   <Input
@@ -85,6 +86,7 @@ export default function RenderSelectedCard({
                       side === "front" ? "หน้า" : "หลัง"
                     }`}
                     variant="bordered"
+                    color="secondary"
                     fullWidth
                   />
                 ) : (
@@ -94,10 +96,10 @@ export default function RenderSelectedCard({
             </div>
           </>
         ) : selectedContent.type === "text" ? (
-          <div className="p-20 flex items-center justify-center overflow-hidden">
+          <div className="p-10 flex justify-center overflow-hidden">
             <Input
               autoFocus
-              label={` (ด้าน${side === "front" ? "หน้า" : "หลัง"})`}
+              label={` ข้อความ (ด้าน${side === "front" ? "หน้า" : "หลัง"})`}
               name={`question${side.charAt(0).toUpperCase() + side.slice(1)}`}
               value={side === "front" ? questionFront : questionBack}
               onChange={(e) =>
@@ -109,33 +111,33 @@ export default function RenderSelectedCard({
                 side === "front" ? "หน้า" : "หลัง"
               }`}
               variant="bordered"
-              fullWidth
+              color="warning"
             />
           </div>
         ) : (
-          <div className="p-20 flex items-center justify-center overflow-hidden">
-            <div>
-              <input
-                type="file"
-                label={`อัปโหลดรูปภาพ (ด้าน${
-                  side === "front" ? "หน้า" : "หลัง"
-                })`}
-                accept="image/*"
-                onChange={handleFileChange(
-                  side === "front" ? setImageFront : setImageBack
-                )}
-                variant="bordered"
-                fullWidth
-                className="mt-4"
-              />
+          <div className="flex justify-center overflow-hidden">
+            <div className="border-2 rounded-xl pb-4 px-10 pt-4 mb-2">
+                <input
+                  type="file"
+                  label={`อัปโหลดรูปภาพ (ด้าน${
+                    side === "front" ? "หน้า" : "หลัง"
+                  })`}
+                  accept="image/*"
+                  onChange={handleFileChange(
+                    side === "front" ? setImageFront : setImageBack
+                  )}
+                  variant="bordered"
+                  fullWidth
+                  className=""
+                />
               {(side === "front" ? imageUrlFront : imageUrlBack) && (
-                <div className="mt-2">
+                <div className="flex justify-center mt-2">
                   <img
                     src={side === "front" ? imageUrlFront : imageUrlBack}
                     alt={`Image ${
                       side.charAt(0).toUpperCase() + side.slice(1)
                     }`}
-                    className="max-h-40"
+                    className="max-h-40 mt-2"
                   />
                 </div>
               )}
@@ -147,13 +149,14 @@ export default function RenderSelectedCard({
       )}
 
       {/* Audio Upload Section */}
-      <div className="bg-purple-500 flex items-center justify-center mt-4">
+      <div className="justify-center">
         <FontAwesomeIcon
-          style={{ fontSize: "20px", cursor: "pointer" }}
           icon={faFileAudio}
           onClick={handleIconClick}
+          className="text-gray-600 text-3xl p-1 rounded-full bg-gray-200 hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out transform hover:scale-110 cursor-pointer mb-2"
+          style={{ fontSize: "20px" }}
         />
-        <span className="ml-2">Upload Your Audio</span>
+        <p className="text-center text-gray-700 font-medium">เลือกไฟล์เสียง</p>
         <input
           type="file"
           accept="audio/*"

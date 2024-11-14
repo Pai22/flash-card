@@ -67,10 +67,10 @@ const DeckListComponent = () => {
         const cardsCollectionRef = collection(db, "Deck", auth.uid, "title", deckId, "cards");
         const unsubscribeCards = onSnapshot(cardsCollectionRef, (cardsSnapshot) => {
           const totalCard = cardsSnapshot.size;
-          const cards = cardsSnapshot.docs.map((cardDoc) => ({
-            ...cardDoc.data(),
-            id: cardDoc.id,
-          }));
+          // const cards = cardsSnapshot.docs.map((cardDoc) => ({
+          //   ...cardDoc.data(),
+          //   id: cardDoc.id,
+          // }));
   
           // 3. ดึงข้อมูลชื่อเพื่อน
           const friendRef = doc(db, "users", friendId);
@@ -87,7 +87,7 @@ const DeckListComponent = () => {
               title,
               description,
               friendName,
-              cards,
+              // cards,
               totalCard
             });
   
@@ -98,8 +98,8 @@ const DeckListComponent = () => {
               friendName, 
               description,
               title,
-              deckData,
-              cards, 
+              // deckData,
+              // cards, 
               totalCard
             });
   
@@ -181,7 +181,7 @@ const DeckListComponent = () => {
                   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white shadow-lg p-6 rounded relative">
                       <button
-                        className="absolute top-2 right-2 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                        className="absolute top-2 right-2 border-2 rounded-md px-3 py-1 bg-red-600 text-white hover:bg-red-500"
                         onClick={handleCloseClick}
                       >
                         &times;

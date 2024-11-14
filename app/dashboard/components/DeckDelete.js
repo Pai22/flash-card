@@ -15,21 +15,22 @@ import { faEllipsis, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 
 const DeckDelete = ({ deck, friendCards }) => {
   const auth = useAuth();
-  const [loading, setLoading] = useState();
+  // const [loading, setLoading] = useState();
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const handleDelete = async () => {
     if (!auth) return;
-    setLoading(true);
+    // setLoading(true);
 
     if (friendCards == null) {
-      const confirmed = window.confirm(
-        "คุณแน่ใจหรือไม่ว่าต้องการลบเด็คและการ์ดทั้งหมด?"
-      );
+      // const confirmed = window.confirm(
+      //   "คุณแน่ใจหรือไม่ว่าต้องการลบเด็คและการ์ดทั้งหมด?"
+      // );
 
-      if (!confirmed) {
-        setLoading(false);
-        return;
-      }
+      // if (!confirmed) {
+      //   setLoading(false);
+      //   return;
+      // }
 
       const deckDocRef = doc(db, "Deck", auth.uid, "title", deck.id);
       const cardsRef = collection(
@@ -85,18 +86,19 @@ const DeckDelete = ({ deck, friendCards }) => {
         console.log(`Deleted deck and all associated cards: ${deck.id}`);
       } catch (error) {
         console.log(error);
-      } finally {
-        setLoading(false);
-      }
+      } 
+      // finally {
+      //   setLoading(false);
+      // }
     } else {
-      const confirmed = window.confirm(
-        "คุณแน่ใจหรือไม่ว่าต้องการลบเด็คและการ์ดทั้งหมด?"
-      );
+      // const confirmed = window.confirm(
+      //   "คุณแน่ใจหรือไม่ว่าต้องการลบเด็คและการ์ดทั้งหมด?"
+      // );
 
-      if (!confirmed) {
-        setLoading(false);
-        return;
-      }
+      // if (!confirmed) {
+      //   setLoading(false);
+      //   return;
+      // }
 
       const deckDocRef = doc(db, "Deck", auth.uid, "deckFriend", deck.id);
       const cardsRef = collection(
@@ -136,10 +138,15 @@ const DeckDelete = ({ deck, friendCards }) => {
         console.log(`Deleted deck and all associated cards: ${deck.id}`);
       } catch (error) {
         console.log(error);
-      } finally {
-        setLoading(false);
-      }
+      } 
+      // finally {
+      //   setLoading(false);
+      // }
     }
+  };
+
+  const handleClick = () => {
+    setIsPopupVisible(!isPopupVisible);
   };
 
   return (
@@ -155,7 +162,9 @@ const DeckDelete = ({ deck, friendCards }) => {
         </DropdownTrigger> */}
       {/* <DropdownMenu color="danger" variant="flat">
           <DropdownItem size="sm" onClick={handleDelete} disabled={loading}> */}
-      <div onClick={handleDelete} disabled={loading}>
+      <div onClick={handleClick} 
+      // disabled={loading}
+      >
         <FontAwesomeIcon
           style={{ fontSize: "20px" }}
           icon={faTrashAlt}
@@ -165,6 +174,29 @@ const DeckDelete = ({ deck, friendCards }) => {
           </DropdownItem>
         </DropdownMenu>
       </Dropdown> */}
+      {isPopupVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white shadow-lg p-10 rounded relative">
+            <p className="ext-lg font-semibold text-gray-700">
+              Are you sure you want to delete the deck and all cards?
+            </p>
+            <div className="absolute bottom-2 right-2 flex space-x-2 ">
+              <button
+                className="px-3 py-1 text-xs font-medium rounded border border-blue-500 bg-blue-500 text-white hover:bg-blue-400"
+                onClick={handleDelete}
+              >
+                OK
+              </button>
+              <button
+                className="px-3 py-1 text-xs font-medium rounded border border-red-500 bg-red-500 text-white hover:bg-red-400"
+                onClick={() => setIsPopupVisible(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

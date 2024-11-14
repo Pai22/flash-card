@@ -118,25 +118,25 @@ export default function Dashboard() {
   };
   
   return (
-    <div className="p-10">
+    <div className="p-5">
         <div className="flex justify-between">
-          <div className="mb-10">
+          <div className="mb-5">
             <FontAwesomeIcon style={{ fontSize: "28px" }} icon={faLayerGroup} />
-            <span className="ml-2 text-2xl font-semibold">Dashboard</span>
+            <span className="font-mono ml-2 text-2xl font-semibold">Dashboard</span>
           </div>
         </div>
 
         {user ? (
-          <div>
-            <p>ยินดีต้อนรับ, {userName ? userName : "กำลังโหลด..."}</p>
+          <div >
+            <p className="font-mono ">Welcome,  {userName ? userName : "กำลังโหลด..."} ! </p>
           </div>
         ) : (
           <p>กรุณาเข้าสู่ระบบ.</p>
         )}
 
-        <div className="flex items-center ml-2">
+        <div className="flex items-center ml-2 mt-5">
           <FontAwesomeIcon style={{ fontSize: "23px" }} icon={faCircleUser} />
-          <span className="ml-2 text-md font-semibold">My Cards</span>
+          <span className="font-mono ml-2 text-md font-semibold">My Decks</span>
         </div>
 
         <AddToDeckComponent/>
@@ -145,16 +145,16 @@ export default function Dashboard() {
 
         <div className="flex items-center ml-2 mt-10 mb-5">
           <FontAwesomeIcon style={{ fontSize: "23px" }} icon={faShareAlt} />
-          <span className="ml-2 text-md font-semibold">Your Friend Deck</span>
+          <span className="font-mono ml-2 text-md font-semibold">Your Friend Deck</span>
         </div>
 
         <Button
           radius="full"
           onClick={handleClickButton}
-          className="font-semibold bg-lime-500 hover:bg-lime-500 focus:outline-none focus:ring focus:ring-lime-400 text-white text-[15px] shadow-lg ml-2"
+          className="font-semibold bg-lime-500 hover:bg-lime-500 focus:outline-none focus:ring focus:ring-lime-400 text-white text-[15px] shadow-lg ml-2 mb-5"
         >
-          <FontAwesomeIcon style={{ fontSize: "20px" }} icon={faPlus} />
-          <span>Add Your Friend Deck</span>
+          <FontAwesomeIcon style={{ fontSize: "15px" }} icon={faPlus} />
+          <span className="font-mono ">Add Your Friend Deck</span>
         </Button>
 
         <AddFriendDeck />
@@ -162,25 +162,27 @@ export default function Dashboard() {
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-white shadow-lg p-6 rounded relative">
               <button
-                className="absolute top-2 right-2 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                className="absolute top-2 right-2 border-2 rounded-md px-2  border-red-600 bg-red-600 text-white hover:bg-red-500"
                 onClick={handleCancelAddDeck}
                 // onClick={() => setIsPopupVisible(false)}
                 >
                 &times;
               </button>
-              <p className="mt-4 mb-2">วางโค้ดแชร์:</p>
-              <div className="flex items-center mb-4">
+              <p className="mt-2 mb-2 text-lg font-semibold text-gray-700">Paste code to search</p>
+              <div className="flex items-center mb-4 ">
                 <Input
+                  className="mr-2"
                   placeholder="Paste code here"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                 />
                 <Button
-                  color="primary"
+                className="px-6 py-2 text-sm font-medium rounded-lg transition-all duration-200 hover:bg-blue-500 disabled:bg-gray-400"
+                  color="secondary"
                   onClick={fetchSharedDeck}
                   disabled={!code}
                 >
-                  ค้นหา
+                  Search
                 </Button>
               </div>
 

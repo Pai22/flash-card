@@ -12,6 +12,8 @@ import "tailwindcss/tailwind.css"; // นำเข้า Tailwind CSS
 import LayoutCard from "../components/LayoutCard";
 import { toast, ToastContainer } from "react-toastify"; // นำเข้า react-toastify
 import "react-toastify/dist/ReactToastify.css"; // นำเข้า styles ของ react-toastify
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const CardPage = () => {
   const auth = useAuth();
@@ -45,7 +47,8 @@ const CardPage = () => {
   const handleUploadFiles = async () => {
     if (imageFront) {
       imageUrlFront = await handleFileUpload(
-        imageFront,`images/${auth.uid}/ImageFront/${imageFront.name}`
+        imageFront,
+        `images/${auth.uid}/ImageFront/${imageFront.name}`
       );
     }
 
@@ -110,7 +113,6 @@ const CardPage = () => {
       // แสดงการแจ้งเตือนเมื่อเพิ่มการ์ดสำเร็จ
       toast.success("Successfully save a card!", { autoClose: 1500 });
 
-
       // รีเซ็ตฟอร์ม
       setQuestionFront("");
       setImageFront(null);
@@ -131,59 +133,62 @@ const CardPage = () => {
     <>
       <ToastContainer /> {/* คอนเทนเนอร์สำหรับแสดงการแจ้งเตือน */}
       {/* <div className="container mx-auto mt-8 p-6 bg-white shadow-md rounded-lg"> */}
-        <div className="bg-blue-100 p-4 rounded-lg  flex justify-between items-center">
-          <p className="text-xl font-semibold text-gray-700">
-            Total Cards: {cardsLength}
-          </p>
-          <h1 className="text-3xl font-bold text-center text-blue-700">
-            Deck: {deckTitle}
-          </h1>
-          <Button
-            color="warning"
-            onClick={() => router.push(`/cards/${deckId}`)}
-          >
-            Back to deck
-          </Button>
+      <div className=" p-2 grid grid-cols-12">
+        <p className="col-start-1 flex justify-center items-center col-end-3 font-mono text-md py-2 font-semibold text-gray-700">
+          Total Cards {"  "}&nbsp;
+          <span className="border-2 bg-white text-gray-700 rounded-md px-3 py-1">
+            {cardsLength}
+          </span>
+        </p>
+        <h1 className="col-start-5 col-end-8 flex justify-center font-mono text-3xl font-bold text-center text-gray-700 mt-1">
+          {deckTitle}
+        </h1>
+        <div
+          className="col-start-12 border-2 rounded-lg w-10 h-10 bg-red-600 text-white flex justify-center items-center cursor-pointer active:bg-red-700 active:scale-95 transition-transform duration-150 mt-1"
+          onClick={() => router.push(`/cards/${deckId}`)}
+        >
+          <FontAwesomeIcon className="text-white text-md" icon={faTimes} />
         </div>
-
-        <form onSubmit={addCardToDeck} className="space-y-4">
-          <div className="grid grid-flow-col justify-stretch">
-            <LayoutCard
-              title="เพิ่มการ์ดใหม่"
-              deckId={deckId}
-              setQuestionFront={setQuestionFront}
-              setImageFront={setImageFront}
-              setAudioFront={setAudioFront}
-              questionFront={questionFront}
-              imageFront={imageFront}
-              audioFront={audioFront}
-              setQuestionBack={setQuestionBack}
-              setImageBack={setImageBack}
-              setAudioBack={setAudioBack}
-              questionBack={questionBack}
-              imageBack={imageBack}
-              audioBack={audioBack}
-              imageUrlFront={imageUrlFront}
-              imageUrlBack={imageUrlBack}
-              audioUrlFront={audioUrlFront}
-              audioUrlBack={audioUrlBack}
-              setImageUrlFront={setImageUrlFront}
-              setImageUrlBack={setImageUrlBack}
-              setAudioUrlFront={setAudioUrlFront}
-              setAudioUrlBack={setAudioUrlBack}
-              setLayoutBack={setLayoutBack}
-              setLayoutFront={setLayoutFront}
-              loading={loading}
-              addCardToDeck={addCardToDeck}
-            />
-            {/* 
+        
+      </div>
+      <form onSubmit={addCardToDeck} className="space-y-4">
+        <div className="grid grid-flow-col justify-stretch">
+          <LayoutCard
+            title="เพิ่มการ์ดใหม่"
+            deckId={deckId}
+            setQuestionFront={setQuestionFront}
+            setImageFront={setImageFront}
+            setAudioFront={setAudioFront}
+            questionFront={questionFront}
+            imageFront={imageFront}
+            audioFront={audioFront}
+            setQuestionBack={setQuestionBack}
+            setImageBack={setImageBack}
+            setAudioBack={setAudioBack}
+            questionBack={questionBack}
+            imageBack={imageBack}
+            audioBack={audioBack}
+            imageUrlFront={imageUrlFront}
+            imageUrlBack={imageUrlBack}
+            audioUrlFront={audioUrlFront}
+            audioUrlBack={audioUrlBack}
+            setImageUrlFront={setImageUrlFront}
+            setImageUrlBack={setImageUrlBack}
+            setAudioUrlFront={setAudioUrlFront}
+            setAudioUrlBack={setAudioUrlBack}
+            setLayoutBack={setLayoutBack}
+            setLayoutFront={setLayoutFront}
+            loading={loading}
+            addCardToDeck={addCardToDeck}
+          />
+          {/* 
             <div className="flex justify-end space-x-4">
               <Button color="primary" type="submit" disabled={loading}>
                 {loading ? "กำลังเพิ่ม..." : "เพิ่มการ์ด"}
               </Button>
             </div> */}
-          </div>
-        </form>
+        </div>
+      </form>
       {/* </div> */}
     </>
   );

@@ -10,6 +10,8 @@ import { Input, Button } from "@nextui-org/react";
 import LayoutCardEdit from "../components/EditLayoutCard";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "../../lip/firebase/clientApp";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const EditCard = () => {
   const { id: cardId } = useParams();
@@ -18,6 +20,7 @@ const EditCard = () => {
   const router = useRouter();
   const deckId = searchParams.get("deckId");
   const numberCard = searchParams.get("numberCard");
+  const title = searchParams.get("title");
 
   const [cardData, setCardData] = useState(null);
   const [questionFront, setQuestionFront] = useState("");
@@ -88,42 +91,42 @@ const EditCard = () => {
     e.preventDefault();
     if (!auth) return;
     setLoading(true);
-  
+
     try {
       let updatedImageUrlFront = imageUrlFront;
       let updatedImageUrlBack = imageUrlBack;
       let updatedAudioUrlFront = audioUrlFront;
       let updatedAudioUrlBack = audioUrlBack;
-  
+
       // อัปโหลดไฟล์หากมีการเลือกใหม่
       if (imageFront) {
         updatedImageUrlFront = await uploadFile(
           imageFront,
-          `Deck/${auth.uid}/${deckId}/${cardId}/imageFront`
+           `images/${auth.uid}/ImageFront/${imageFront.name}`
         );
       }
-  
+
       if (imageBack) {
         updatedImageUrlBack = await uploadFile(
           imageBack,
-          `Deck/${auth.uid}/${deckId}/${cardId}/imageBack`
+           `images/${auth.uid}/ImageBack/${imageBack.name}`
         );
       }
-  
+
       if (audioFront) {
         updatedAudioUrlFront = await uploadFile(
           audioFront,
-          `Deck/${auth.uid}/${deckId}/${cardId}/audioFront`
+          `audio/${auth.uid}/AudioFront/${audioFront.name}`
         );
       }
-  
+
       if (audioBack) {
         updatedAudioUrlBack = await uploadFile(
           audioBack,
-          `Deck/${auth.uid}/${deckId}/${cardId}/audioBack`
+          `audio/${auth.uid}/AudioBack/${audioBack.name}`
         );
       }
-  
+
       const cardRef = doc(
         db,
         "Deck",
@@ -133,7 +136,7 @@ const EditCard = () => {
         "cards",
         cardId
       );
-  
+
       const updateData = {
         questionFront,
         questionBack,
@@ -142,9 +145,9 @@ const EditCard = () => {
         audioUrlFront: updatedAudioUrlFront,
         audioUrlBack: updatedAudioUrlBack,
         layoutFront, // บันทึก layoutFront
-        layoutBack,  // บันทึก layoutBack
+        layoutBack, // บันทึก layoutBack
       };
-  
+
       // อัปเดตเอกสารใน Firestore
       await updateDoc(cardRef, updateData);
       router.push(`/cards/${deckId}`);
@@ -154,7 +157,6 @@ const EditCard = () => {
       setLoading(false);
     }
   };
-  
 
   if (!auth) {
     return <p>กรุณาลงชื่อเข้าใช้เพื่อแก้ไขการ์ด.</p>;
@@ -166,11 +168,22 @@ const EditCard = () => {
 
   return (
     <>
-      <div className="bg-blue-100 p-4 rounded-lg flex justify-between items-center">
-        <Button color="warning" onClick={() => router.push(`/cards/${deckId}`)}>
-          กลับไปยังเด็ค
-        </Button>
+      <div className="p-2 grid grid-cols-3">
+        <div></div>
+        <div>
+        <h1 className="col-start-5 col-end-8 flex justify-center font-mono text-3xl font-bold text-center text-gray-700 mt-1">
+          {title}
+        </h1>
+        </div>
+       <div className="flex justify-end">
+       <div
+          className="col-start-12 border-2 rounded-lg w-10 h-10 bg-red-600 text-white flex justify-center items-center cursor-pointer active:bg-red-700 active:scale-95 transition-transform duration-150 mt-1"
+          onClick={() => router.push(`/cards/${deckId}`)}>
+          <FontAwesomeIcon className="text-white text-md" icon={faTimes} />
+        </div>
+       </div>
       </div>
+
       <form onSubmit={handleSave} className="space-y-4">
         <div className="grid grid-flow-col justify-stretch">
           <LayoutCardEdit
@@ -205,7 +218,6 @@ const EditCard = () => {
             numberCard={numberCard}
             cardId={cardId}
             setLoading={setLoading}
-            
           />
         </div>
       </form>
