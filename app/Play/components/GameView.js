@@ -343,18 +343,19 @@ const GameView = ({
   return (
     <>
       <div className="grid grid-cols-2 w-full h-0 ">
-        <div className="text-wrap p-7">
-          {Title} {currentCardIndex + 1} / {cardCount}
+        <div className="font-mono text-wrap p-5">
+          <span className="text-2xl font-bold text-blue-600">{Title}</span>{" "}
+          <span className="px-4 py-2 border border-white rounded-lg bg-white text-gray-800">
+            {currentCardIndex + 1}
+          </span>{" "}
+          / {cardCount}
         </div>
 
         <div
-          className="col-start-12 border-2 rounded-lg w-10 h-10 bg-red-600 text-white flex justify-center items-center cursor-pointer active:bg-red-700 active:scale-95 transition-transform duration-150 mt-1"
+          className="col-start-12 border-2 rounded-lg w-10 h-10 bg-red-600 text-white flex justify-center items-center cursor-pointer active:bg-red-700 active:scale-95 transition-transform duration-150 mt-5 mr-5"
           onClick={handleExit}
         >
-          <FontAwesomeIcon
-            className="text-white text-md"
-            icon={faTimes}
-          />
+          <FontAwesomeIcon className="text-white text-md" icon={faTimes} />
         </div>
       </div>
 

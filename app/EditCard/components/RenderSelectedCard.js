@@ -4,9 +4,10 @@ import { Input } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileAudio } from "@fortawesome/free-solid-svg-icons";
 import { useRef } from "react";
+import { storage } from "../../lip/firebase/clientApp";
 import { getStorage, ref, deleteObject } from "firebase/storage"; // Import Firebase Storage functions
 import { doc, updateDoc } from "firebase/firestore"; // Import Firestore functions
-import { firestore } from "../../lip/firebase/clientApp"; 
+import { firestore } from "../../lip/firebase/clientApp";
 
 export default function RenderSelectedCardEdit({
   selectedContent,
@@ -28,29 +29,50 @@ export default function RenderSelectedCardEdit({
   layoutFront,
   layoutBack,
   setLayoutBack,
+  setAudioUrlBack,
+  setAudioUrlFront,
+  setImageUrlFront,
+  setImageUrlBack,
   setLayoutFront,
   cardId, // เพิ่ม cardId เพื่ออ้างอิงไปยังเอกสารใน Firestore
 }) {
   const fileInputRef = useRef(null);
+  const fileInputRefB = useRef(null);
 
-  const handleIconClick = () => {
-    fileInputRef.current.click();
+  const deleteFile = async (filePath, fileUrl) => {
+    fileUrl("");
+    if (!filePath) return; // หากไม่มี filePath ให้ return แทนที
+    const fileRef = ref(storage, filePath);
+    try {
+      await deleteObject(fileRef);
+      console.log(`ลบไฟล์สำเร็จ: ${filePath}`);
+    } catch (error) {
+      if (error.code === "storage/object-not-found") {
+        console.warn(`ไฟล์ไม่พบใน Storage: ${filePath}`);
+      } else {
+        console.error(`เกิดข้อผิดพลาดในการลบไฟล์: ${filePath}`, error);
+      }
+    }
   };
 
-  // ฟังก์ชันสำหรับลบรูปภาพ
-  const handleDeleteImage = async () => {
+  const handleDelete = async (file, fileUrl) => {
+    fileUrl("");
+    if (file === audioUrlBack) {
+      fileInputRefB.current.value = ""; // รีเซ็ตค่า Input File
+    } else {
+      fileInputRef.current.value = ""; // รีเซ็ตค่า Input File
+    }
+    if (!file) return;
+    const fileRef = ref(storage, file);
     try {
-      // ลบไฟล์จาก Firebase Storage
-      await deleteObject(storageRef);
-
-      // อัปเดต state เพื่อไม่ให้แสดงภาพหลังจากลบ
-      if (side === "front") {
-        setImageFront(null);
-      } else {
-        setImageBack(null);
-      }
+      await deleteObject(fileRef);
+      console.log(`ลบไฟล์สำเร็จ: ${file}`);
     } catch (error) {
-      console.error("Error removing image: ", error);
+      if (error.code === "storage/object-not-found") {
+        console.warn(`ไฟล์ไม่พบใน Storage: ${file}`);
+      } else {
+        console.error(`เกิดข้อผิดพลาดในการลบไฟล์: ${file}`, error);
+      }
     }
   };
 
@@ -82,13 +104,49 @@ export default function RenderSelectedCardEdit({
                   fullWidth
                 />
               ) : (
-                selectedContent.top
+                <div className="flex justify-center overflow-hidden">
+                  <div className="border-2  rounded-xl  px-10 pt-4 mb-2">
+                    <input
+                      type="file"
+                      label={`อัปโหลดรูปภาพ (ด้าน${
+                        side === "front" ? "หน้า" : "หลัง"
+                      })`}
+                      accept="image/*"
+                      onChange={handleFileChange(
+                        side === "front" ? "front" : "back"
+                      )}
+                      className=""
+                    />
+
+                    {(side === "front" ? imageUrlFront : imageUrlBack) && (
+                      <div className="mt-2">
+                        <button
+                          className="absolute top-10 right-16 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                          onClick={() =>
+                            deleteFile(
+                              side === "front" ? imageUrlFront : imageUrlBack,
+                              side === "front"
+                                ? setImageUrlFront
+                                : setImageUrlBack
+                            )
+                          } // เรียกใช้ฟังก์ชันลบเมื่อคลิก
+                        >
+                          &times;
+                        </button>
+                        <img
+                          src={side === "front" ? imageUrlFront : imageUrlBack}
+                          alt={`Image ${side}`}
+                          className="max-h-40 mt-2"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
             {/* Divider */}
             <div className="border-t border-gray-300 mt-20"></div>
-            {/* Bottom Content */}
-            <div className="p-10 flex flex-col items-center justify-center overflow-hidden">
+            <div className="p-5 flex flex-col items-center justify-center overflow-hidden">
               {selectedContent.bottom === null ? (
                 <Input
                   autoFocus
@@ -109,7 +167,44 @@ export default function RenderSelectedCardEdit({
                   fullWidth
                 />
               ) : (
-                selectedContent.bottom
+                <div className="flex justify-center overflow-hidden">
+                  <div className="border-2 rounded-xl pb-4 px-10  mb-2">
+                    <input
+                      type="file"
+                      label={`อัปโหลดรูปภาพ (ด้าน${
+                        side === "front" ? "หน้า" : "หลัง"
+                      })`}
+                      accept="image/*"
+                      onChange={handleFileChange(
+                        side === "front" ? "front" : "back"
+                      )}
+                      className=""
+                    />
+
+                    {(side === "front" ? imageUrlFront : imageUrlBack) && (
+                      <div className="mt-2">
+                        <button
+                          className="absolute right-16 bottom-64 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                          onClick={() =>
+                            deleteFile(
+                              side === "front" ? imageUrlFront : imageUrlBack,
+                              side === "front"
+                                ? setImageUrlFront
+                                : setImageUrlBack
+                            )
+                          } // เรียกใช้ฟังก์ชันลบเมื่อคลิก
+                        >
+                          &times;
+                        </button>
+                        <img
+                          src={side === "front" ? imageUrlFront : imageUrlBack}
+                          alt={`Image ${side}`}
+                          className="max-h-40 mt-2"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
           </>
@@ -141,28 +236,26 @@ export default function RenderSelectedCardEdit({
                   side === "front" ? "หน้า" : "หลัง"
                 })`}
                 accept="image/*"
-                onChange={(e) =>
-                  handleFileChange(
-                    e,
-                    side === "front" ? setImageFront : setImageBack
-                  )
-                }
+                onChange={handleFileChange(side === "front" ? "front" : "back")}
                 className=""
               />
 
               {(side === "front" ? imageUrlFront : imageUrlBack) && (
                 <div className="mt-2">
-                  {/* <button
-                    className="absolute top-2 right-2 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
-                    onClick={handleDeleteImage} // เรียกใช้ฟังก์ชันลบเมื่อคลิก
+                  <button
+                    className="absolute top-28 right-20 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                    onClick={() =>
+                      deleteFile(
+                        side === "front" ? imageUrlFront : imageUrlBack,
+                        side === "front" ? setImageUrlFront : setImageUrlBack
+                      )
+                    } // เรียกใช้ฟังก์ชันลบเมื่อคลิก
                   >
                     &times;
-                  </button> */}
+                  </button>
                   <img
                     src={side === "front" ? imageUrlFront : imageUrlBack}
-                    alt={`Image ${
-                      side.charAt(0).toUpperCase() + side.slice(1)
-                    }`}
+                    alt={`Image ${side}`}
                     className="max-h-40 mt-2"
                   />
                 </div>
@@ -175,38 +268,77 @@ export default function RenderSelectedCardEdit({
       )}
 
       {/* Audio Upload Section */}
-      <div className="justify-center">
-        <FontAwesomeIcon
-          style={{ fontSize: "20px"}}
-          className="text-gray-600 text-3xl p-1 rounded-full bg-gray-200 hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out transform hover:scale-110 cursor-pointer mb-2"
-          icon={faFileAudio}
-          onClick={handleIconClick}
-        />
-        <p className="text-center text-gray-700 font-medium">เลือกไฟล์เสียง</p>
-        <input
-          type="file"
-          accept="audio/*"
-          onChange={(e) =>
-            handleAudioChange(
-              e,
-              side === "front" ? setAudioFront : setAudioBack
-            )
-          }
-          style={{ display: "none" }}
-          ref={fileInputRef}
-        />
-        {(side === "front" ? audioUrlFront : audioUrlBack) && (
-          <div className="mt-2">
-            <audio controls>
-              <source
-                src={side === "front" ? audioUrlFront : audioUrlBack}
-                type="audio/mpeg"
-              />
-              Your browser does not support the audio tag.
-            </audio>
-          </div>
-        )}
-      </div>
+      {side === "front" ? (
+        <div className="justify-center">
+          <FontAwesomeIcon
+            style={{ fontSize: "20px" }}
+            className="text-gray-600 text-3xl p-1 rounded-full bg-gray-200 hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out transform hover:scale-110 cursor-pointer mb-2"
+            icon={faFileAudio}
+            onClick={() => fileInputRef.current.click()}
+          />
+          <p className="text-center text-gray-700 font-medium">
+            เลือกไฟล์เสียง
+          </p>
+          <input
+            type="file"
+            accept="audio/*"
+            onChange={handleAudioChange("front")}
+            style={{ display: "none" }}
+            ref={fileInputRef}
+          />
+          {audioUrlFront && (
+            <div className="mt-2">
+              <audio controls>
+                <source src={audioUrlFront} type="audio/mpeg" />
+                Your browser does not support the audio tag.
+              </audio>
+              <button
+                className="absolute border-2 bottom-20 right-36 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                onClick={() =>
+                  handleDelete(audioUrlFront, setAudioUrlFront, "front")
+                }
+              >
+                &times;
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="justify-center">
+          <FontAwesomeIcon
+            style={{ fontSize: "20px" }}
+            className="text-gray-600 text-3xl p-1 rounded-full bg-gray-200 hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out transform hover:scale-110 cursor-pointer mb-2"
+            icon={faFileAudio}
+            onClick={() => fileInputRefB.current.click()}
+          />
+          <p className="text-center text-gray-700 font-medium">
+            เลือกไฟล์เสียง
+          </p>
+          <input
+            type="file"
+            accept="audio/*"
+            onChange={handleAudioChange("back")}
+            style={{ display: "none" }}
+            ref={fileInputRefB}
+          />
+          {audioUrlBack && (
+            <div className="mt-2">
+              <audio controls>
+                <source src={audioUrlBack} type="audio/mpeg" />
+                Your browser does not support the audio tag.
+              </audio>
+              <button
+                className="absolute bottom-20 right-36 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                onClick={() =>
+                  handleDelete(audioUrlBack, setAudioUrlBack, "back")
+                }
+              >
+                &times;
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

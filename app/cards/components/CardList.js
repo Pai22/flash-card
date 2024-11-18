@@ -84,6 +84,8 @@ const CardList = ({ deckId, deckTitle, cardsLength, friendCards,friendId }) => {
             imageUrlBack: card.imageUrlFront,
             audioUrlFront: card.audioUrlBack,
             audioUrlBack: card.audioUrlFront,
+            layoutBack: card.layoutFront,
+            layoutFront: card.layoutBack,
           });
 
           // สลับข้อมูลในแอป
@@ -95,45 +97,8 @@ const CardList = ({ deckId, deckTitle, cardsLength, friendCards,friendId }) => {
             imageUrlBack: card.imageUrlFront,
             audioUrlFront: card.audioUrlBack,
             audioUrlBack: card.audioUrlFront,
-          };
-        }
-        return card;
-      })
-    );
-  };
-
-  const handleFlipFriend = async (id) => {
-    const cardRef = doc(
-      db,
-      "Deck",
-      friendId,
-      "title",
-      deckId,
-      "cards",
-      id
-    );
-    setCards((prevCards) =>
-      prevCards.map((card) => {
-        if (card.id === id) {
-          // สลับข้อมูลใน Firestore
-          updateDoc(cardRef, {
-            questionFront: card.questionBack,
-            questionBack: card.questionFront,
-            imageUrlFront: card.imageUrlBack,
-            imageUrlBack: card.imageUrlFront,
-            audioUrlFront: card.audioUrlBack,
-            audioUrlBack: card.audioUrlFront,
-          });
-
-          // สลับข้อมูลในแอป
-          return {
-            ...card,
-            questionFront: card.questionBack,
-            questionBack: card.questionFront,
-            imageUrlFront: card.imageUrlBack,
-            imageUrlBack: card.imageUrlFront,
-            audioUrlFront: card.audioUrlBack,
-            audioUrlBack: card.audioUrlFront,
+            layoutBack: card.layoutFront,
+            layoutFront: card.layoutBack,
           };
         }
         return card;
@@ -171,60 +136,22 @@ const CardList = ({ deckId, deckTitle, cardsLength, friendCards,friendId }) => {
 
       {cards.map((card, index) => (
         <div key={card.id} className="flex-shrink-0 w-56 h-72 mx-10 my-10">
-          <div className="flex justify-center p-2">
+          {friendCards == null ? (
+            <div className="flex justify-center p-2">
             <FontAwesomeIcon
               className="text-black hover:text-green-500 active:text-green-400 cursor-pointer"
               style={{ fontSize: "20px" }}
               icon={faRepeat}
-              onClick={() => {
-                friendCards == null
-                  ? handleFlip(card.id)
-                  : handleFlipFriend(card.id);
-              }}
+              onClick={() => handleFlip(card.id)}
             />
           </div>
+          ): ""}
           <Card shadow hoverable className="bg-gray-100 rounded-lg h-full">
             <CardBody className=" h-64 flex items-center justify-center">
               {layoutCard(card,'front')}
-              {/* <div>
-                {card.layoutFront}
-                <h4 className="font-semibold text-center">
-                  {card.questionFront}
-                </h4>
-                {card.imageUrlFront && (
-                  <img
-                    src={card.imageUrlFront}
-                    alt="Front"
-                    className="w-full h-20 object-cover"
-                  />
-                )}
-                {card.audioUrlFront && (
-                  <audio controls className="w-5 absolute bottom-0 right-0">
-                    <source src={card.audioUrlFront} type="audio/mpeg" />
-                  </audio>
-                )}
-              </div> */}
             </CardBody>
             <CardBody className="bg-white text-center  h-64 flex items-center justify-center">
               {layoutCard(card,'back')}
-              {/* <div>
-                {card.layoutBack}
-                <h4 className="font-semibold text-center">
-                  {card.questionBack}
-                </h4>
-                {card.imageUrlBack && (
-                  <img
-                    src={card.imageUrlBack}
-                    alt="Back"
-                    className="w-full h-20 object-cover"
-                  />
-                )}
-                {card.audioUrlBack && (
-                  <audio controls className="w-5 absolute bottom-0 right-0">
-                    <source src={card.audioUrlBack} type="audio/mpeg" />
-                  </audio>
-                )}
-              </div> */}
             </CardBody>
           </Card>
           <div class="flex flex-row ">

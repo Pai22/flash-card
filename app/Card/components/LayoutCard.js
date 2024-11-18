@@ -46,53 +46,71 @@ export default function LayoutCard({
   
   const handleFileChange = (setter) => (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      setter(file);
-    } else {
-      alert("กรุณาเลือกไฟล์ภาพเท่านั้น");
+    if(file){
+      if (file && file.type.startsWith("image/")) {
+        setter(file);
+      } else {
+        alert("กรุณาเลือกไฟล์ภาพเท่านั้น");
+      }
     }
   };
 
   const handleAudioChange = (setter) => (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith("audio/")) {
-      setter(file);
-    } else {
-      alert("กรุณาเลือกไฟล์เสียงเท่านั้น");
+    if(file){
+      if (file && file.type.startsWith("audio/")) {
+        setter(file);
+      } else {
+        alert("กรุณาเลือกไฟล์เสียงเท่านั้น");
+      }
     }
   };
 
-  useEffect(() => {
+   // ล้าง URL ของ image ที่ถูกสร้างขึ้นก่อนหน้า
+   useEffect(() => {
+    let url;
     if (imageFront) {
-      const url = URL.createObjectURL(imageFront);
+      url = URL.createObjectURL(imageFront);
       setImageUrlFront(url);
-      return () => URL.revokeObjectURL(url);
     }
+    return () => {
+      if (url) URL.revokeObjectURL(url); // ล้าง Object URL ที่ถูกสร้าง
+    };
   }, [imageFront]);
 
   useEffect(() => {
+    let url;
     if (imageBack) {
-      const url = URL.createObjectURL(imageBack);
+      url = URL.createObjectURL(imageBack);
       setImageUrlBack(url);
-      return () => URL.revokeObjectURL(url);
     }
+    return () => {
+      if (url) URL.revokeObjectURL(url);
+    };
   }, [imageBack]);
 
   useEffect(() => {
+    let url;
     if (audioFront) {
-      const url = URL.createObjectURL(audioFront);
+      url = URL.createObjectURL(audioFront);
       setAudioUrlFront(url);
-      return () => URL.revokeObjectURL(url);
     }
+    return () => {
+      if (url) URL.revokeObjectURL(url);
+    };
   }, [audioFront]);
 
   useEffect(() => {
+    let url;
     if (audioBack) {
-      const url = URL.createObjectURL(audioBack);
+      url = URL.createObjectURL(audioBack);
       setAudioUrlBack(url);
-      return () => URL.revokeObjectURL(url);
     }
+    return () => {
+      if (url) URL.revokeObjectURL(url);
+    };
   }, [audioBack]);
+
 
   useEffect(() => {
     if (!loading) {
@@ -215,20 +233,8 @@ export default function LayoutCard({
           Choose the template
           <div className="grid grid-cols-2 items-center justify-center gap-4 mt-10">
             {isSelected
-              ? cards(
-                  imageUrlFront,
-                  handleFileChange,
-                  setImageFront,
-                  imageUrlBack,
-                  setImageBack
-                ).back.map((card) => renderCard(card, "back"))
-              : cards(
-                  imageUrlFront,
-                  handleFileChange,
-                  setImageFront,
-                  imageUrlBack,
-                  setImageBack
-                ).front.map((card) => renderCard(card, "front"))}
+              ? cards().back.map((card) => renderCard(card, "back"))
+              : cards().front.map((card) => renderCard(card, "front"))}
                 
           </div>
         </div>

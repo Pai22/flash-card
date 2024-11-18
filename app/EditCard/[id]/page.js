@@ -6,9 +6,8 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import useAuth from "@/app/lip/hooks/useAuth";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../lip/firebase/clientApp";
-import { Input, Button } from "@nextui-org/react";
 import LayoutCardEdit from "../components/EditLayoutCard";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes, deleteObject } from "firebase/storage";
 import { storage } from "../../lip/firebase/clientApp";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -21,7 +20,6 @@ const EditCard = () => {
   const deckId = searchParams.get("deckId");
   const numberCard = searchParams.get("numberCard");
   const title = searchParams.get("title");
-
   const [cardData, setCardData] = useState(null);
   const [questionFront, setQuestionFront] = useState("");
   const [questionBack, setQuestionBack] = useState("");
@@ -86,77 +84,161 @@ const EditCard = () => {
     return getDownloadURL(storageRef);
   };
 
-  // Function to handle saving the edited card data
-  const handleSave = async (e) => {
-    e.preventDefault();
-    if (!auth) return;
-    setLoading(true);
-
+  const deleteFile = async (filePath) => {
+    if (!filePath) return; // หากไม่มี filePath ให้ return แทนที
+    const fileRef = ref(storage, filePath);
     try {
-      let updatedImageUrlFront = imageUrlFront;
-      let updatedImageUrlBack = imageUrlBack;
-      let updatedAudioUrlFront = audioUrlFront;
-      let updatedAudioUrlBack = audioUrlBack;
-
-      // อัปโหลดไฟล์หากมีการเลือกใหม่
-      if (imageFront) {
-        updatedImageUrlFront = await uploadFile(
-          imageFront,
-           `images/${auth.uid}/ImageFront/${imageFront.name}`
-        );
-      }
-
-      if (imageBack) {
-        updatedImageUrlBack = await uploadFile(
-          imageBack,
-           `images/${auth.uid}/ImageBack/${imageBack.name}`
-        );
-      }
-
-      if (audioFront) {
-        updatedAudioUrlFront = await uploadFile(
-          audioFront,
-          `audio/${auth.uid}/AudioFront/${audioFront.name}`
-        );
-      }
-
-      if (audioBack) {
-        updatedAudioUrlBack = await uploadFile(
-          audioBack,
-          `audio/${auth.uid}/AudioBack/${audioBack.name}`
-        );
-      }
-
-      const cardRef = doc(
-        db,
-        "Deck",
-        auth.uid,
-        "title",
-        deckId,
-        "cards",
-        cardId
-      );
-
-      const updateData = {
-        questionFront,
-        questionBack,
-        imageUrlFront: updatedImageUrlFront,
-        imageUrlBack: updatedImageUrlBack,
-        audioUrlFront: updatedAudioUrlFront,
-        audioUrlBack: updatedAudioUrlBack,
-        layoutFront, // บันทึก layoutFront
-        layoutBack, // บันทึก layoutBack
-      };
-
-      // อัปเดตเอกสารใน Firestore
-      await updateDoc(cardRef, updateData);
-      router.push(`/cards/${deckId}`);
+      await deleteObject(fileRef);
+      console.log(`ลบไฟล์สำเร็จ: ${filePath}`);
     } catch (error) {
-      console.error("เกิดข้อผิดพลาดในการอัปเดตการ์ด:", error);
-    } finally {
-      setLoading(false);
+      if (error.code === 'storage/object-not-found') {
+        console.warn(`ไฟล์ไม่พบใน Storage: ${filePath}`);
+      } else {
+        console.error(`เกิดข้อผิดพลาดในการลบไฟล์: ${filePath}`, error);
+      }
     }
   };
+  
+  
+
+  // Function to handle saving the edited card data
+  const handleSave = async (e) => {
+  e.preventDefault();
+  if (!auth) return;
+  setLoading(true);
+
+  try {
+    let updatedImageUrlFront = imageUrlFront;
+    let updatedImageUrlBack = imageUrlBack;
+    let updatedAudioUrlFront = audioUrlFront;
+    let updatedAudioUrlBack = audioUrlBack;
+
+    // อัปโหลดไฟล์หากมีการเลือกใหม่
+    if (imageFront) {
+      updatedImageUrlFront = await uploadFile(
+        imageFront,
+        `images/${auth.uid}/ImageFront/${imageFront.name}`
+      );
+    }
+
+    if (imageBack) {
+      updatedImageUrlBack = await uploadFile(
+        imageBack,
+        `images/${auth.uid}/ImageBack/${imageBack.name}`
+      );
+    }
+
+    if (audioFront) {
+      updatedAudioUrlFront = await uploadFile(
+        audioFront,
+        `audio/${auth.uid}/AudioFront/${audioFront.name}`
+      );
+    }
+
+    if (audioBack) {
+      updatedAudioUrlBack = await uploadFile(
+        audioBack,
+        `audio/${auth.uid}/AudioBack/${audioBack.name}`
+      );
+    }
+
+    let updateData = {
+      // audioUrlFront: updatedAudioUrlFront,
+      // audioUrlBack: updatedAudioUrlBack,
+      layoutFront,
+      layoutBack,
+    };
+
+    if(audioUrlBack === ''){
+      updateData = {
+        ...updateData,
+        audioUrlBack: '',
+      };
+    }else{
+      updateData = {
+        ...updateData,
+        audioUrlBack: updatedAudioUrlBack,
+      };
+    }
+
+    if(audioUrlFront === ''){
+      updateData = {
+       ...updateData,
+        audioUrlFront: '',
+      };
+    }else{
+      updateData = {
+       ...updateData,
+        audioUrlFront: updatedAudioUrlFront,
+      };
+    }
+
+    if (layoutBack === "image") {
+      updateData = {
+        ...updateData,
+        questionBack: "",
+        imageUrlBack: updatedImageUrlBack,
+      };
+    }else if (layoutBack === "text") {
+      if (imageUrlBack) {
+        await deleteFile(imageUrlBack); // ลบไฟล์จาก Storage
+      }
+      updateData = {
+        ...updateData,
+        questionBack,
+        imageUrlBack: "",
+      };
+    }else if (layoutBack === "TextImage" || layoutBack === "ImageText") {
+      updateData = {
+        ...updateData,
+        questionBack,
+        imageUrlBack:updatedImageUrlBack,
+      };
+    }
+
+    if (layoutFront === "image") {
+      updateData = {
+        ...updateData,
+        questionFront: "",
+        imageUrlFront: updatedImageUrlFront,
+      };
+    }else if (layoutFront === "text") {
+      if (imageUrlFront) {
+        await deleteFile(imageUrlFront); // ลบไฟล์จาก Storage
+      }
+      updateData = {
+        ...updateData,
+        questionFront,
+        imageUrlFront: "",
+      };
+    }else if (layoutFront === "TextImage" || layoutFront === "ImageText") {
+      updateData = {
+        ...updateData,
+        questionFront,
+        imageUrlFront:updatedImageUrlFront,
+      };
+    }
+
+    const cardRef = doc(
+      db,
+      "Deck",
+      auth.uid,
+      "title",
+      deckId,
+      "cards",
+      cardId
+    );
+
+    // อัปเดตเอกสารใน Firestore
+    await updateDoc(cardRef, updateData);
+    router.push(`/cards/${deckId}`);
+  } catch (error) {
+    console.error("เกิดข้อผิดพลาดในการอัปเดตการ์ด:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   if (!auth) {
     return <p>กรุณาลงชื่อเข้าใช้เพื่อแก้ไขการ์ด.</p>;
@@ -218,9 +300,11 @@ const EditCard = () => {
             numberCard={numberCard}
             cardId={cardId}
             setLoading={setLoading}
+            deleteFile={deleteFile}
           />
         </div>
       </form>
+      
     </>
   );
 };

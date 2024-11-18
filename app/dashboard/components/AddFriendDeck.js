@@ -3,7 +3,15 @@
 
 import React, { useEffect, useState } from "react";
 import { db } from "../../lip/firebase/clientApp";
-import { doc, setDoc, getDocs, deleteDoc, getDoc,query, orderBy } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getDocs,
+  deleteDoc,
+  getDoc,
+  query,
+  orderBy,
+} from "firebase/firestore";
 import { collection, onSnapshot } from "firebase/firestore";
 import useAuth from "../../lip/hooks/useAuth";
 import {
@@ -22,12 +30,11 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import DeckDelete from "./DeckDelete";
 
-
 const AddFriendDeck = () => {
   const [decks, setDecks] = useState([]);
   const auth = useAuth();
   const [friendCards, setFriendCards] = useState("t");
-  
+
   useEffect(() => {
     if (!auth) return;
 
@@ -36,10 +43,9 @@ const AddFriendDeck = () => {
     const unsubscribe = onSnapshot(deckQuery, (snapshot) => {
       if (!snapshot.empty) {
         const deckData = snapshot.docs.map((doc) => ({
-            ...doc.data(),
-            id: doc.id,
-          }))
-          ;
+          ...doc.data(),
+          id: doc.id,
+        }));
         setDecks(deckData);
       } else {
         setDecks([]);
@@ -48,7 +54,6 @@ const AddFriendDeck = () => {
 
     return () => unsubscribe();
   }, [auth]);
-  
 
   return (
     <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -71,12 +76,16 @@ const AddFriendDeck = () => {
                   >
                     {deck.title}
                   </h2>
-                  <h5
-                    className="text-lg text-neutral-500 font-semibold"
-                    style={{ display: "inline", marginLeft: "8px" }} // เว้นช่องระหว่าง title และ (share)
+                  <h6
+                    className="text-sm text-neutral-500 font-medium"
+                    style={{
+                      display: "inline",
+                      marginLeft: "8px", // เว้นช่องระหว่าง title และ (share)
+                      fontSize: "0.875rem", // ปรับขนาดเล็กกว่า text-lg
+                    }}
                   >
-                    (share)
-                  </h5>
+                    ({deck.friendName})
+                  </h6>
                 </div>
               </Link>
 
@@ -109,10 +118,7 @@ const AddFriendDeck = () => {
             </CardBody>
             <CardFooter className="text-small flex justify-between items-center">
               <div className="ml-auto flex">
-                <DeckDelete 
-                deck={deck}
-                friendCards={friendCards}
-                />
+                <DeckDelete deck={deck} friendCards={friendCards} />
               </div>
             </CardFooter>
           </Card>

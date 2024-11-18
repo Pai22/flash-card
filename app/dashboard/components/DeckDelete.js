@@ -20,18 +20,8 @@ const DeckDelete = ({ deck, friendCards }) => {
 
   const handleDelete = async () => {
     if (!auth) return;
-    // setLoading(true);
 
     if (friendCards == null) {
-      // const confirmed = window.confirm(
-      //   "คุณแน่ใจหรือไม่ว่าต้องการลบเด็คและการ์ดทั้งหมด?"
-      // );
-
-      // if (!confirmed) {
-      //   setLoading(false);
-      //   return;
-      // }
-
       const deckDocRef = doc(db, "Deck", auth.uid, "title", deck.id);
       const cardsRef = collection(
         db,
@@ -86,20 +76,8 @@ const DeckDelete = ({ deck, friendCards }) => {
         console.log(`Deleted deck and all associated cards: ${deck.id}`);
       } catch (error) {
         console.log(error);
-      } 
-      // finally {
-      //   setLoading(false);
-      // }
+      }  
     } else {
-      // const confirmed = window.confirm(
-      //   "คุณแน่ใจหรือไม่ว่าต้องการลบเด็คและการ์ดทั้งหมด?"
-      // );
-
-      // if (!confirmed) {
-      //   setLoading(false);
-      //   return;
-      // }
-
       const deckDocRef = doc(db, "Deck", auth.uid, "deckFriend", deck.id);
       const cardsRef = collection(
         db,
@@ -139,9 +117,6 @@ const DeckDelete = ({ deck, friendCards }) => {
       } catch (error) {
         console.log(error);
       } 
-      // finally {
-      //   setLoading(false);
-      // }
     }
   };
 
@@ -151,29 +126,13 @@ const DeckDelete = ({ deck, friendCards }) => {
 
   return (
     <>
-      {/* <Dropdown>
-        <DropdownTrigger>
-          <div className="cursor-pointer">
-            <FontAwesomeIcon
-              style={{ fontSize: "20px" }}
-              icon={faEllipsis}
-            ></FontAwesomeIcon>
-          </div>
-        </DropdownTrigger> */}
-      {/* <DropdownMenu color="danger" variant="flat">
-          <DropdownItem size="sm" onClick={handleDelete} disabled={loading}> */}
       <div onClick={handleClick} 
-      // disabled={loading}
       >
         <FontAwesomeIcon
           style={{ fontSize: "20px" }}
           icon={faTrashAlt}
         ></FontAwesomeIcon>{" "}
       </div>
-      {/* Remove
-          </DropdownItem>
-        </DropdownMenu>
-      </Dropdown> */}
       {isPopupVisible && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white shadow-lg p-10 rounded relative">

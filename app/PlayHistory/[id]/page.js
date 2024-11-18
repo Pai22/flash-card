@@ -93,7 +93,7 @@ const PlayHistory = () => {
       <div className="font-mono ">
         <span className="text-xl font-semibold ">ประวัติการเล่นของ&nbsp;</span>
 
-        <span className="text-2xl font-semibold border-2 bg-white rounded-md p-2 mb-5">
+        <span className="uppercase text-2xl font-semibold border-2 bg-white rounded-md p-2 mb-5">
           {Title}
         </span>
 

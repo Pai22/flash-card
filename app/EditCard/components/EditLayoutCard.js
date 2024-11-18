@@ -43,6 +43,7 @@ export default function LayoutCardEdit({
   numberCard,
   cardId,
   setLoading,
+  deleteFile,
 }) {
   const [selectedContentFront, setSelectedContentFront] = useState(null);
   const [selectedContentBack, setSelectedContentBack] = useState(null);
@@ -50,7 +51,6 @@ export default function LayoutCardEdit({
   const [selectedCardIdBack, setSelectedCardIdBack] = useState(null); // สถานะเก็บ ID ของการ์ดที่ถูกเลือกหลัง
   const [isSelected, setIsSelected] = useState(false); // สถานะการเลือกหน้า
   const use = useAuth();
-  // const [defaultLayout, setDefaultLayout] = useState(false);
 
   useEffect(() => {
     if (selectedCardId) {
@@ -65,7 +65,7 @@ export default function LayoutCardEdit({
 
   useEffect(() => {
     setSelectedCardIdFront(layoutFront);
-    console.log('Selected card',selectedCardIdFront);
+    console.log("Selected card", selectedCardIdFront);
     setSelectedCardIdBack(layoutBack);
     cards(
       imageUrlFront,
@@ -74,14 +74,10 @@ export default function LayoutCardEdit({
       imageUrlBack,
       setImageBack
     ).front.map((card) => {
-      // console.log(card.type)
-      // console.log(selectedCardIdFront)
       if (layoutFront == card.type) {
-        // console.log('ok')
-      setSelectedContentFront(card)
-      // handleLayoutSelect('front', selectedCardIdFront, setLayoutFront, setLayoutBack)
-    }
-    })
+        setSelectedContentFront(card);
+      }
+    });
     cards(
       imageUrlFront,
       handleFileChange,
@@ -90,37 +86,76 @@ export default function LayoutCardEdit({
       setImageBack
     ).back.map((card) => {
       if (layoutBack == card.type) {
-      setSelectedContentBack(card)
-      // handleLayoutSelect('back', selectedCardIdBack, setLayoutFront, setLayoutBack)
-    }
-    })
-  
-    // console.log(layoutFront);
-    // console.log(layoutBack);
-  
-    // handleLayoutSelect("front", layoutFront, setLayoutFront, setLayoutBack);
-    // handleLayoutSelect('back', layoutBack, setLayoutFront, setLayoutBack);
-   },[])
+        setSelectedContentBack(card);
+      }
+    });
+  }, []);
 
-  const handleFileChange = (setter) => (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.type.startsWith("image/")) {
-        setter(file);
+  const handleFileChange = (side) => (e) => {
+    if (e.target.files.length > 0) {
+      const file = e.target.files[0];
+      
+      if (side === "front" && imageUrlFront) {
+        alert("กรุณาลบภาพด้านหน้าก่อนอัปโหลดภาพใหม่");
+        e.target.value = ""; // รีเซ็ตค่า input file
+        return;
+      }
+      
+      if (side === "back" && imageUrlBack) {
+        alert("กรุณาลบภาพด้านหลังก่อนอัปโหลดภาพใหม่");
+        e.target.value = ""; // รีเซ็ตค่า input file
+        return;
+      }
+      
+      // ตรวจสอบว่าไฟล์ที่อัปโหลดเป็นภาพ
+      if (file && file.type.startsWith("image/")) {
+        if (side === "front") {
+          setImageFront(file);
+          console.log(`ไฟล์ภาพด้านหน้า: ${file.name}`);
+        } else if (side === "back") {
+          setImageBack(file);
+          console.log(`ไฟล์ภาพด้านหลัง: ${file.name}`);
+        }
       } else {
         alert("กรุณาเลือกไฟล์ภาพเท่านั้น");
+        e.target.value = ""; // รีเซ็ตค่า input file
       }
     }
   };
 
-  const handleAudioChange = (setter) => (e) => {
-    const file = e.target.files[0];
-    if (file && file.type.startsWith("audio/")) {
-      setter(file);
-    } else {
-      alert("กรุณาเลือกไฟล์เสียงเท่านั้น");
+  const handleAudioChange = (side) => (e) => {
+    if (e.target.files.length > 0) {
+      const file = e.target.files[0];
+      
+      if (side === "front" && audioUrlFront) {
+        alert("กรุณาลบไฟล์เสียงด้านหน้าก่อนอัปโหลดไฟล์ใหม่");
+        e.target.value = ""; // รีเซ็ตค่า input file
+        return;
+      }
+      
+      if (side === "back" && audioUrlBack) {
+        alert("กรุณาลบไฟล์เสียงด้านหลังก่อนอัปโหลดไฟล์ใหม่");
+        e.target.value = ""; // รีเซ็ตค่า input file
+        return;
+      }
+      
+      // ตั้งค่าไฟล์ตามด้าน
+      if (file && file.type.startsWith("audio/")) {
+        if (side === "front") {
+          setAudioFront(file);
+          console.log(`ไฟล์เสียงด้านหน้า: ${file.name}`);
+        } else if (side === "back") {
+          setAudioBack(file);
+          console.log(`ไฟล์เสียงด้านหลัง: ${file.name}`);
+        }
+      } else {
+        alert("กรุณาเลือกไฟล์เสียงเท่านั้น");
+        e.target.value = ""; // รีเซ็ตค่า input file
+      }
     }
   };
+
+
 
   // ล้าง URL ของ image ที่ถูกสร้างขึ้นก่อนหน้า
   useEffect(() => {
@@ -132,7 +167,7 @@ export default function LayoutCardEdit({
     return () => {
       if (url) URL.revokeObjectURL(url); // ล้าง Object URL ที่ถูกสร้าง
     };
-  }, [imageFront, setImageUrlFront]);
+  }, [imageFront]);
 
   useEffect(() => {
     let url;
@@ -143,7 +178,7 @@ export default function LayoutCardEdit({
     return () => {
       if (url) URL.revokeObjectURL(url);
     };
-  }, [imageBack, setImageUrlBack]);
+  }, [imageBack]);
 
   useEffect(() => {
     let url;
@@ -154,7 +189,7 @@ export default function LayoutCardEdit({
     return () => {
       if (url) URL.revokeObjectURL(url);
     };
-  }, [audioFront, setAudioUrlFront]);
+  }, [audioFront]);
 
   useEffect(() => {
     let url;
@@ -165,9 +200,9 @@ export default function LayoutCardEdit({
     return () => {
       if (url) URL.revokeObjectURL(url);
     };
-  }, [audioBack, setAudioUrlBack]);
+  }, [audioBack]);
 
-  // layoutCard 
+  // layoutCard
   const renderCard = (card, side) => (
     <div
       key={card.id}
@@ -181,11 +216,11 @@ export default function LayoutCardEdit({
       onClick={() => {
         if (side === "front") {
           setSelectedContentFront(card);
-          setSelectedCardIdFront(card.type);  // เลือกการ์ดหน้า
+          setSelectedCardIdFront(card.type); // เลือกการ์ดหน้า
           handleLayoutSelect(side, card.type, setLayoutFront, setLayoutBack);
         } else {
           setSelectedContentBack(card);
-          setSelectedCardIdBack(card.type);  // เลือกการ์ดหน้า
+          setSelectedCardIdBack(card.type); // เลือกการ์ดหน้า
           handleLayoutSelect(side, card.type, setLayoutFront, setLayoutBack);
         }
       }}
@@ -243,9 +278,7 @@ export default function LayoutCardEdit({
         </div>
       )}
     </div>
-    
   );
-  // console.log("qqq" + questionFront);
   return (
     <>
       <div className="bg-gray-200">
@@ -253,34 +286,8 @@ export default function LayoutCardEdit({
           แก้ไขการ์ดใบที่ {numberCard}
           <div className="grid grid-cols-2 items-center justify-center gap-4 mt-10">
             {isSelected
-              ? cards(
-                  imageUrlFront,
-                  handleFileChange,
-                  setImageFront,
-                  imageUrlBack,
-                  setImageBack
-                ).back.map((card) => 
-                  // Check if selectedCardIdFront matches card.type
-                  // console.log("SDFGSDFGDSF")
-                  // console.log(card.type)
-                  // console.log("selectedCardIdBack",selectedCardIdBack)
-                  // if (selectedCardIdBack == card.type) {
-                  //   console.log("ok")
-                  //   handleLayoutSelect('back', card.type, setLayoutFront, setLayoutBack);
-                    // setSelectedContentBack(card);
-
-                  //   return renderCard(card, "back");
-
-                  // }
-                  renderCard(card, "back"))
-                // ).back.map((card) => renderCard(card, "back"))
-              : cards(
-                  imageUrlFront,
-                  handleFileChange,
-                  setImageFront,
-                  imageUrlBack,
-                  setImageBack
-                ).front.map((card) => renderCard(card, "front"))}
+              ? cards().back.map((card) => renderCard(card, "back"))
+              : cards().front.map((card) => renderCard(card, "front"))}
           </div>
         </div>
       </div>
@@ -338,10 +345,15 @@ export default function LayoutCardEdit({
                 setImageFront={setImageFront}
                 setImageBack={setImageBack}
                 setAudioFront={setAudioFront}
+                setAudioUrlBack={setAudioUrlBack}
+                setAudioUrlFront={setAudioUrlFront}
                 setAudioBack={setAudioBack}
                 audioUrlFront={audioUrlFront}
                 audioUrlBack={audioUrlBack}
                 cardId={cardId}
+                deleteFile={deleteFile}
+                setImageUrlBack={setImageUrlBack}
+                setImageUrlFront={setImageUrlFront}
               />
             </div>
           </div>

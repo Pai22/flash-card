@@ -60,7 +60,34 @@ export default function RenderSelectedCard({
                     fullWidth
                   />
                 ) : (
-                  selectedContent.top
+                  <div className="flex justify-center overflow-hidden">
+            <div className="border-2 rounded-xl pb-4 px-10 pt-4 mb-2">
+                <input
+                  type="file"
+                  label={`อัปโหลดรูปภาพ (ด้าน${
+                    side === "front" ? "หน้า" : "หลัง"
+                  })`}
+                  accept="image/*"
+                  onChange={handleFileChange(
+                    side === "front" ? setImageFront : setImageBack
+                  )}
+                  variant="bordered"
+                  fullWidth
+                  className=""
+                />
+              {(side === "front" ? imageUrlFront : imageUrlBack) && (
+                <div className="flex justify-center mt-2">
+                  <img
+                    src={side === "front" ? imageUrlFront : imageUrlBack}
+                    alt={`Image ${
+                      side.charAt(0).toUpperCase() + side.slice(1)
+                    }`}
+                    className="max-h-40 mt-2"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
                 )}
               </div>
             </div>
@@ -90,7 +117,34 @@ export default function RenderSelectedCard({
                     fullWidth
                   />
                 ) : (
-                  selectedContent.bottom
+                  <div className="flex justify-center overflow-hidden">
+            <div className="border-2 rounded-xl pb-4 px-10 pt-4 mb-2">
+                <input
+                  type="file"
+                  label={`อัปโหลดรูปภาพ (ด้าน${
+                    side === "front" ? "หน้า" : "หลัง"
+                  })`}
+                  accept="image/*"
+                  onChange={handleFileChange(
+                    side === "front" ? setImageFront : setImageBack
+                  )}
+                  variant="bordered"
+                  fullWidth
+                  className=""
+                />
+              {(side === "front" ? imageUrlFront : imageUrlBack) && (
+                <div className="flex justify-center mt-2">
+                  <img
+                    src={side === "front" ? imageUrlFront : imageUrlBack}
+                    alt={`Image ${
+                      side.charAt(0).toUpperCase() + side.slice(1)
+                    }`}
+                    className="max-h-40 mt-2"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
                 )}
               </div>
             </div>
