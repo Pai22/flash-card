@@ -3,7 +3,15 @@
 
 import React, { useEffect, useState } from "react";
 import { db } from "../../lip/firebase/clientApp";
-import { doc, setDoc,getDocs, deleteDoc,getDoc, query, orderBy  } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getDocs,
+  deleteDoc,
+  getDoc,
+  query,
+  orderBy,
+} from "firebase/firestore";
 import { collection, onSnapshot } from "firebase/firestore";
 import useAuth from "../../lip/hooks/useAuth";
 import {
@@ -27,7 +35,6 @@ const DeckListComponent = () => {
   const auth = useAuth();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [codeToCopy, setCodeToCopy] = useState(""); // ใช้ useState เพื่อเก็บโค้ด
-  
 
   useEffect(() => {
     if (!auth) return;
@@ -37,10 +44,10 @@ const DeckListComponent = () => {
     const unsubscribe = onSnapshot(deckQuery, (snapshot) => {
       if (!snapshot.empty) {
         const deckData = snapshot.docs.map((doc) => ({
-            ...doc.data(),
-            id: doc.id,
-          }))
-          // .sort((a, b) => a.timestamp - b.timestamp);
+          ...doc.data(),
+          id: doc.id,
+        }));
+        // .sort((a, b) => a.timestamp - b.timestamp);
         setDecks(deckData);
       } else {
         setDecks([]);
@@ -59,57 +66,67 @@ const DeckListComponent = () => {
           console.error("Deck นี้ไม่มีอยู่!");
           return;
         }
-  
+
         const deckData = deckSnapshot.data();
         const { title, description } = deckData;
-  
+
         // 2. ตั้งค่า onSnapshot เพื่อฟังการเปลี่ยนแปลงของการ์ด
-        const cardsCollectionRef = collection(db, "Deck", auth.uid, "title", deckId, "cards");
-        const unsubscribeCards = onSnapshot(cardsCollectionRef, (cardsSnapshot) => {
-          const totalCard = cardsSnapshot.size;
-          // const cards = cardsSnapshot.docs.map((cardDoc) => ({
-          //   ...cardDoc.data(),
-          //   id: cardDoc.id,
-          // }));
-  
-          // 3. ดึงข้อมูลชื่อเพื่อน
-          const friendRef = doc(db, "users", friendId);
-          getDoc(friendRef).then(friendSnapshot => {
-            if (!friendSnapshot.exists()) {
-              throw new Error("No name");
-            }
-            
-            const friendData = friendSnapshot.data();
-            const friendName = friendData.name;
-  
-            // 4. แสดงข้อมูลที่ดึงมา
-            console.log({
-              title,
-              description,
-              friendName,
-              // cards,
-              totalCard
+        const cardsCollectionRef = collection(
+          db,
+          "Deck",
+          auth.uid,
+          "title",
+          deckId,
+          "cards"
+        );
+        const unsubscribeCards = onSnapshot(
+          cardsCollectionRef,
+          (cardsSnapshot) => {
+            const totalCard = cardsSnapshot.size;
+            // const cards = cardsSnapshot.docs.map((cardDoc) => ({
+            //   ...cardDoc.data(),
+            //   id: cardDoc.id,
+            // }));
+
+            // 3. ดึงข้อมูลชื่อเพื่อน
+            const friendRef = doc(db, "users", friendId);
+            getDoc(friendRef).then((friendSnapshot) => {
+              if (!friendSnapshot.exists()) {
+                throw new Error("No name");
+              }
+
+              const friendData = friendSnapshot.data();
+              const friendName = friendData.name;
+
+              // 4. แสดงข้อมูลที่ดึงมา
+              console.log({
+                title,
+                description,
+                friendName,
+                // cards,
+                totalCard,
+              });
+
+              // 5. บันทึกข้อมูล deck ที่แชร์ รวมถึงการ์ดและชื่อเพื่อน
+              setDoc(doc(db, "sharedDecks", deckId), {
+                friendId,
+                deckId,
+                friendName,
+                description,
+                title,
+                // deckData,
+                // cards,
+                totalCard,
+              });
+
+              // แสดง shortCode ให้คัดลอก
+              setCodeToCopy(deckId);
+              setIsPopupVisible(!isPopupVisible);
             });
-  
-            // 5. บันทึกข้อมูล deck ที่แชร์ รวมถึงการ์ดและชื่อเพื่อน
-            setDoc(doc(db, "sharedDecks", deckId), {
-              friendId,
-              deckId,
-              friendName, 
-              description,
-              title,
-              // deckData,
-              // cards, 
-              totalCard
-            });
-  
-            // แสดง shortCode ให้คัดลอก
-            setCodeToCopy(deckId);
-            setIsPopupVisible(!isPopupVisible);
-          });
-        });
+          }
+        );
       });
-  
+
       // 6. คืนค่า unsubscribe เพื่อหยุดฟังเมื่อจำเป็น
       return () => {
         unsubscribeDeck();
@@ -119,7 +136,6 @@ const DeckListComponent = () => {
       console.error("Error sharing deck:", error);
     }
   };
-  
 
   const handleCloseClick = () => {
     setIsPopupVisible(false);
@@ -132,36 +148,41 @@ const DeckListComponent = () => {
           <Card
             shadow
             hoverable
-            className="m-2 shadow-md h-full flex flex-col justify-between"
+            className="m-2 shadow-md h-full flex flex-col justify-between "
           >
-            <CardHeader className="pt-4 px-4 flex justify-between items-center">
+            <CardHeader className="pt-4 px-4 flex justify-between items-center ">
+             <div className="overflow-auto"> 
               <Link href={`cards/${deck.id}`} underline="none">
-                <h2 className="text-lg text-neutral-700 uppercase font-semibold hover:text-amber-500">
+                <div className="text-lg text-neutral-700 uppercase font-semibold  hover:text-amber-500">
                   {deck.title}
-                </h2>
+                </div>
               </Link>
-              <div className="cursor-pointer  ml-2 mr-3 space-x-3">
-                <Link
-                  href={`PlayHistory/${deck.id}?Title=${deck.title}`}
-                  //History
-                  underline="none"
-                >
-                  <FontAwesomeIcon
-                    icon={faClipboard}
-                    size="xl"
-                    style={{ color: "#FFD43B", padding: 3 }}
-                  />
-                </Link>
-
-                <Link
-                  href={`/Play/${deck.id}?Title=${deck.title}`}
-                  underline="none"
-                >
-                  <FontAwesomeIcon
-                    style={{ fontSize: "30px", color: "#dc2626" }}
-                    icon={faGamepad}
-                  ></FontAwesomeIcon>
-                </Link>
+              </div>
+              <div className="cursor-pointer  ml-2 pr-3 grid grid-cols-2">
+                <div> 
+                  <Link
+                    href={`PlayHistory/${deck.id}?Title=${deck.title}`}
+                    //History
+                    underline="none"
+                  >
+                    <FontAwesomeIcon
+                      icon={faClipboard}
+                      size="xl"
+                      style={{ color: "#FFD43B", padding: 3 }}
+                    />
+                  </Link>
+                </div>
+                <div>
+                  <Link
+                    href={`/Play/${deck.id}?Title=${deck.title}`}
+                    underline="none"
+                  >
+                    <FontAwesomeIcon
+                      style={{ fontSize: "30px", color: "#dc2626" }}
+                      icon={faGamepad}
+                    ></FontAwesomeIcon>
+                  </Link>
+                </div>
               </div>
             </CardHeader>
             <CardBody className="pb-0 pt-2 px-4 overflow-visible py-2">

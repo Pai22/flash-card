@@ -39,14 +39,12 @@ export default function LayoutCard({
   const [selectedContentBack, setSelectedContentBack] = useState(null);
   const [isSelected, setIsSelected] = useState(false);
   const [selectedCardIdFront, setSelectedCardIdFront] = useState(null); // เก็บสถานะการเลือกการ์ดด้านหน้า
-  const [selectedCardIdBack, setSelectedCardIdBack] = useState(null);  // เก็บสถานะการเลือกการ์ดด้านหลัง state to track the selected card ID
+  const [selectedCardIdBack, setSelectedCardIdBack] = useState(null); // เก็บสถานะการเลือกการ์ดด้านหลัง state to track the selected card ID
   const use = useAuth();
 
-
-  
   const handleFileChange = (setter) => (e) => {
     const file = e.target.files[0];
-    if(file){
+    if (file) {
       if (file && file.type.startsWith("image/")) {
         setter(file);
       } else {
@@ -57,7 +55,7 @@ export default function LayoutCard({
 
   const handleAudioChange = (setter) => (e) => {
     const file = e.target.files[0];
-    if(file){
+    if (file) {
       if (file && file.type.startsWith("audio/")) {
         setter(file);
       } else {
@@ -66,8 +64,8 @@ export default function LayoutCard({
     }
   };
 
-   // ล้าง URL ของ image ที่ถูกสร้างขึ้นก่อนหน้า
-   useEffect(() => {
+  // ล้าง URL ของ image ที่ถูกสร้างขึ้นก่อนหน้า
+  useEffect(() => {
     let url;
     if (imageFront) {
       url = URL.createObjectURL(imageFront);
@@ -94,9 +92,9 @@ export default function LayoutCard({
     if (audioFront) {
       url = URL.createObjectURL(audioFront);
       setAudioUrlFront(url);
-      console.log("urlFront",url);
-      console.log("audiUrlFront",audioUrlFront)
-      console.log("audioFront",audioFront)
+      console.log("urlFront", url);
+      console.log("audiUrlFront", audioUrlFront);
+      console.log("audioFront", audioFront);
     }
     return () => {
       if (url) URL.revokeObjectURL(url);
@@ -107,10 +105,9 @@ export default function LayoutCard({
     let url;
     if (audioBack) {
       url = URL.createObjectURL(audioBack);
-      console.log("urlBack",url);
-      console.log("audiUrlBack",audioUrlBack)
-      console.log("audioBack",audioBack)
-
+      console.log("urlBack", url);
+      console.log("audiUrlBack", audioUrlBack);
+      console.log("audioBack", audioBack);
 
       setAudioUrlBack(url);
     }
@@ -118,7 +115,6 @@ export default function LayoutCard({
       if (url) URL.revokeObjectURL(url);
     };
   }, [audioBack]);
-
 
   useEffect(() => {
     if (!loading) {
@@ -138,36 +134,38 @@ export default function LayoutCard({
       setLayoutFront("");
       setLayoutBack("");
       setSelectedCardIdFront(null); // รีเซ็ตการเลือกการ์ดด้านหน้า
-      setSelectedCardIdBack(null);  // รีเซ็ตการเลือกการ์ดด้านหลัง
+      setSelectedCardIdBack(null); // รีเซ็ตการเลือกการ์ดด้านหลัง
     }
   }, [loading]);
 
   const renderCard = (card, side) => (
     <div
-    key={card.id}
-    className={`bg-gray-100 shadow-lg rounded-lg cursor-pointer transform transition-transform hover:scale-105 hover:shadow-xl ${
-      side === "front" && selectedCardIdFront === card.id
-        ? "ring-4 ring-sky-400"
-        : side === "back" && selectedCardIdBack === card.id
-        ? "ring-4 ring-sky-400"
-        : ""
-    }`} // เพิ่มเงื่อนไขการเลือกการ์ด
-    onClick={() => {
-      if (side === "front") {
-        setSelectedCardIdFront(card.id); // อัปเดตการเลือกการ์ดด้านหน้า
-        setSelectedContentFront(card);
-        handleLayoutSelect(side, card.type, setLayoutFront, setLayoutBack);
-      } else {
-        setSelectedCardIdBack(card.id); // อัปเดตการเลือกการ์ดด้านหลัง
-        setSelectedContentBack(card);
-        handleLayoutSelect(side, card.type, setLayoutFront, setLayoutBack);
-      }
-    }}
-  >
+      key={card.id}
+      className={`bg-gray-100 shadow-lg rounded-lg cursor-pointer transform transition-transform hover:scale-105 hover:shadow-xl ${
+        side === "front" && selectedCardIdFront === card.id
+          ? "ring-4 ring-sky-400"
+          : side === "back" && selectedCardIdBack === card.id
+          ? "ring-4 ring-sky-400"
+          : ""
+      }`} // เพิ่มเงื่อนไขการเลือกการ์ด
+      onClick={() => {
+        if (side === "front") {
+          setSelectedCardIdFront(card.id); // อัปเดตการเลือกการ์ดด้านหน้า
+          setSelectedContentFront(card);
+          handleLayoutSelect(side, card.type, setLayoutFront, setLayoutBack);
+        } else {
+          setSelectedCardIdBack(card.id); // อัปเดตการเลือกการ์ดด้านหลัง
+          setSelectedContentBack(card);
+          handleLayoutSelect(side, card.type, setLayoutFront, setLayoutBack);
+        }
+      }}
+    >
       {card.type === "text" ? (
         <div
           className={`min-h-48 min-w-48 flex items-center justify-center p-4 rounded-lg ${
-            selectedCardIdFront === card.id || selectedCardIdBack === card.id ? "bg-sky-300" : ""
+            selectedCardIdFront === card.id || selectedCardIdBack === card.id
+              ? "bg-sky-300 ring-4 ring-sky-400"
+              : ""
           }`}
         >
           <img
@@ -179,7 +177,9 @@ export default function LayoutCard({
       ) : card.type === "image" ? (
         <div
           className={`min-h-48 min-w-48 flex items-center justify-center p-4 rounded-lg ${
-            selectedCardIdFront === card.id || selectedCardIdBack === card.id ? "bg-sky-300" : ""
+            selectedCardIdFront === card.id || selectedCardIdBack === card.id
+              ? "bg-sky-300 ring-4 ring-sky-400"
+              : ""
           }`}
         >
           <img
@@ -191,7 +191,9 @@ export default function LayoutCard({
       ) : card.type === "TextImage" ? (
         <div
           className={`min-h-48 min-w-48 flex flex-col items-center justify-center  p-4 rounded-lg ${
-            selectedCardIdFront === card.id || selectedCardIdBack === card.id ? "bg-sky-300" : ""
+            selectedCardIdFront === card.id || selectedCardIdBack === card.id
+              ? "bg-sky-300 ring-4 ring-sky-400"
+              : ""
           }`}
         >
           <div className="mb-2">
@@ -211,11 +213,13 @@ export default function LayoutCard({
         </div>
       ) : (
         <div
-          className={`min-h-48 min-w-48 flex flex-col items-center justify-center  p-4 rounded-lg ${
-            selectedCardIdFront === card.id || selectedCardIdBack === card.id ? "bg-sky-300" : ""
+          className={`min-h-48 min-w-48 flex flex-col items-center justify-center  p-4 rounded-lg  ${
+            selectedCardIdFront === card.id || selectedCardIdBack === card.id
+              ? "bg-sky-300 ring-4 ring-sky-400"
+              : ""
           }`}
         >
-          <div className="mb-2">
+          <div className="mb-2 ">
             <img
               src="/assets/ImageIcon.png"
               alt="ImageIcon"
@@ -239,11 +243,10 @@ export default function LayoutCard({
       <div className=" bg-gray-200 ">
         <div className="flex flex-col items-center justify-center text-center overflow-hidden p-10 text-lg ">
           Choose the template
-          <div className="grid grid-cols-2 items-center justify-center gap-4 mt-10">
+          <div className="grid grid-cols-1 xl:grid-cols-2 items-center justify-center gap-4 mt-10 ">
             {isSelected
               ? cards().back.map((card) => renderCard(card, "back"))
               : cards().front.map((card) => renderCard(card, "front"))}
-                
           </div>
         </div>
       </div>
@@ -270,8 +273,8 @@ export default function LayoutCard({
               </Button>
             </div>
           </div>
-          <p className="text-small text-default-500 text-center">
-            Selected: {isSelected ? "Back" : "Front"}
+          <p className="font-mono text-md text-default-500 text-center">
+          Select : {isSelected ? "Back" : "Front"}
           </p>
           <div
             className={`container mx-auto max-w-full ${styles["flip-card"]}`}
@@ -300,8 +303,9 @@ export default function LayoutCard({
                 setAudioBack={setAudioBack}
                 audioUrlFront={audioUrlFront}
                 audioUrlBack={audioUrlBack}
-                selectedCardId={isSelected ? selectedCardIdBack : selectedCardIdFront} // ส่ง ID ของการ์ดที่เลือก
-                
+                selectedCardId={
+                  isSelected ? selectedCardIdBack : selectedCardIdFront
+                } // ส่ง ID ของการ์ดที่เลือก
               />
             </div>
           </div>

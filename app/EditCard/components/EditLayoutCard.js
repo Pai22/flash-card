@@ -206,7 +206,7 @@ export default function LayoutCardEdit({
   const renderCard = (card, side) => (
     <div
       key={card.id}
-      className={`shadow-lg rounded-lg bg-white cursor-pointer transform transition-transform hover:scale-105 hover:shadow-xl ${
+      className={`shadow-lg rounded-lg bg-white cursor-pointer transform transition-transform hover:scale-105 hover:shadow-xl overflow-hidden ${
         side === "front" && selectedCardIdFront === card.type
           ? "ring-4 ring-yellow-500 bg-yellow-300"
           : side === "back" && selectedCardIdBack === card.type
@@ -282,9 +282,10 @@ export default function LayoutCardEdit({
   return (
     <>
       <div className="bg-gray-200">
-        <div className="flex flex-col items-center justify-center text-center overflow-hidden p-10 font-mono text-xl font-medium">
-          แก้ไขการ์ดใบที่ {numberCard}
-          <div className="grid grid-cols-2 items-center justify-center gap-4 mt-10">
+        <div className="flex flex-col items-center justify-center text-center  p-10 font-mono text-xl ">
+         <div>Choose the template</div><br></br>
+          <p className="text-lg">Edit Card <span className="bg-white font-semibold border-2 py-2 px-3 rounded-lg">{numberCard}</span></p>
+          <div className="grid grid-cols-1 xl:grid-cols-2 items-center justify-center gap-4 mt-10 ">
             {isSelected
               ? cards().back.map((card) => renderCard(card, "back"))
               : cards().front.map((card) => renderCard(card, "front"))}
@@ -314,8 +315,8 @@ export default function LayoutCardEdit({
               </Button>
             </div>
           </div>
-          <p className="text-small text-default-500 text-center">
-            {isSelected ? "Back" : "Front"}
+          <p className="font-mono text-md text-default-500 text-center">
+          Select : {isSelected ? "Back" : "Front"}
           </p>
           <div
             className={`container mx-auto max-w-full ${styles["flip-card"]}`}

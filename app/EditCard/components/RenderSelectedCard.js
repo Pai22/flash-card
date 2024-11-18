@@ -105,7 +105,7 @@ export default function RenderSelectedCardEdit({
                 />
               ) : (
                 <div className="flex justify-center overflow-hidden">
-                  <div className="border-2  rounded-xl  px-10 pt-4 mb-2">
+                  <div className="border-2  rounded-xl pb-4 px-10 pt-4 mb-2">
                     <input
                       type="file"
                       label={`อัปโหลดรูปภาพ (ด้าน${
@@ -119,9 +119,9 @@ export default function RenderSelectedCardEdit({
                     />
 
                     {(side === "front" ? imageUrlFront : imageUrlBack) && (
-                      <div className="mt-2">
-                        <button
-                          className="absolute top-10 right-16 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                    <div className=" border-2 mt-2 relative">
+                    <button
+                      className="absolute top-0 right-0 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
                           onClick={() =>
                             deleteFile(
                               side === "front" ? imageUrlFront : imageUrlBack,
@@ -136,7 +136,7 @@ export default function RenderSelectedCardEdit({
                         <img
                           src={side === "front" ? imageUrlFront : imageUrlBack}
                           alt={`Image ${side}`}
-                          className="max-h-40 mt-2"
+                          className="max-h-40 ml-2 my-2"
                         />
                       </div>
                     )}
@@ -168,7 +168,7 @@ export default function RenderSelectedCardEdit({
                 />
               ) : (
                 <div className="flex justify-center overflow-hidden">
-                  <div className="border-2 rounded-xl pb-4 px-10  mb-2">
+                  <div className="bg-blackborder-2 rounded-xl pb-4 px-10 pt-4 mb-2">
                     <input
                       type="file"
                       label={`อัปโหลดรูปภาพ (ด้าน${
@@ -182,26 +182,25 @@ export default function RenderSelectedCardEdit({
                     />
 
                     {(side === "front" ? imageUrlFront : imageUrlBack) && (
-                      <div className="mt-2">
-                        <button
-                          className="absolute right-16 bottom-64 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
-                          onClick={() =>
-                            deleteFile(
-                              side === "front" ? imageUrlFront : imageUrlBack,
-                              side === "front"
-                                ? setImageUrlFront
-                                : setImageUrlBack
-                            )
-                          } // เรียกใช้ฟังก์ชันลบเมื่อคลิก
-                        >
-                          &times;
-                        </button>
-                        <img
-                          src={side === "front" ? imageUrlFront : imageUrlBack}
-                          alt={`Image ${side}`}
-                          className="max-h-40 mt-2"
-                        />
-                      </div>
+                  <div className="border-2  mt-2 relative">
+                  <button
+                    className="absolute right-0 top-0 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                    onClick={() =>
+                      deleteFile(
+                        side === "front" ? imageUrlFront : imageUrlBack,
+                        side === "front" ? setImageUrlFront : setImageUrlBack
+                      )
+                    }
+                  >
+                    &times;
+                  </button>
+                  <img
+                    src={side === "front" ? imageUrlFront : imageUrlBack}
+                    alt={`Image ${side}`}
+                    className="max-h-40 ml-2 my-2"
+                  />
+                </div>
+                
                     )}
                   </div>
                 </div>
@@ -229,7 +228,7 @@ export default function RenderSelectedCardEdit({
           </div>
         ) : (
           <div className="flex justify-center overflow-hidden">
-            <div className="border-2 rounded-xl pb-4 px-10 pt-4 mb-2">
+            <div className="border-2 rounded-xl pb-4 px-10 pt-4 mb-2 mt-2">
               <input
                 type="file"
                 label={`อัปโหลดรูปภาพ (ด้าน${
@@ -241,9 +240,9 @@ export default function RenderSelectedCardEdit({
               />
 
               {(side === "front" ? imageUrlFront : imageUrlBack) && (
-                <div className="mt-2">
+                <div className="border-2 mt-2 relative">
                   <button
-                    className="absolute top-28 right-20 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+                    className=" absolute top-0 right-0 border-2 rounded-md px-2  bg-red-600 text-white hover:bg-red-500"
                     onClick={() =>
                       deleteFile(
                         side === "front" ? imageUrlFront : imageUrlBack,
@@ -256,7 +255,7 @@ export default function RenderSelectedCardEdit({
                   <img
                     src={side === "front" ? imageUrlFront : imageUrlBack}
                     alt={`Image ${side}`}
-                    className="max-h-40 mt-2"
+                    className="max-h-40 ml-2 my-2"
                   />
                 </div>
               )}
@@ -269,7 +268,7 @@ export default function RenderSelectedCardEdit({
 
       {/* Audio Upload Section */}
       {side === "front" ? (
-        <div className="justify-center">
+        <div className="">
           <FontAwesomeIcon
             style={{ fontSize: "20px" }}
             className="text-gray-600 text-3xl p-1 rounded-full bg-gray-200 hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out transform hover:scale-110 cursor-pointer mb-2"
@@ -287,20 +286,21 @@ export default function RenderSelectedCardEdit({
             ref={fileInputRef}
           />
           {audioUrlFront && (
-            <div className="mt-2">
-              <audio controls>
-                <source src={audioUrlFront} type="audio/mpeg" />
-                Your browser does not support the audio tag.
-              </audio>
-              <button
-                className="absolute border-2 bottom-20 right-36 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
-                onClick={() =>
-                  handleDelete(audioUrlFront, setAudioUrlFront, "front")
-                }
-              >
-                &times;
-              </button>
-            </div>
+            <div className="mt-2  flex items-center">
+            <audio controls className="mr-4">
+              <source src={audioUrlFront} type="audio/mpeg" />
+              Your browser does not support the audio tag.
+            </audio>
+            <button
+              className="border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+              onClick={() =>
+                handleDelete(audioUrlFront, setAudioUrlFront, "front")
+              }
+            >
+              &times;
+            </button>
+          </div>
+          
           )}
         </div>
       ) : (
@@ -322,20 +322,21 @@ export default function RenderSelectedCardEdit({
             ref={fileInputRefB}
           />
           {audioUrlBack && (
-            <div className="mt-2">
-              <audio controls>
-                <source src={audioUrlBack} type="audio/mpeg" />
-                Your browser does not support the audio tag.
-              </audio>
-              <button
-                className="absolute bottom-20 right-36 border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
-                onClick={() =>
-                  handleDelete(audioUrlBack, setAudioUrlBack, "back")
-                }
-              >
-                &times;
-              </button>
-            </div>
+           <div className="mt-2 flex items-center">
+           <audio controls className="mr-4">
+             <source src={audioUrlBack} type="audio/mpeg" />
+             Your browser does not support the audio tag.
+           </audio>
+           <button
+             className="border-2 rounded-md px-2 bg-red-600 text-white hover:bg-red-500"
+             onClick={() =>
+               handleDelete(audioUrlBack, setAudioUrlBack, "back")
+             }
+           >
+             &times;
+           </button>
+         </div>
+         
           )}
         </div>
       )}

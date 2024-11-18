@@ -59,64 +59,55 @@ const AddFriendDeck = () => {
     <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {decks.map((deck) => (
         <div key={deck.id} className="w-full">
-          <Card
-            shadow
-            hoverable
-            className="m-2 shadow-md h-full flex flex-col justify-between"
-          >
-            <CardHeader className="pt-4 px-4 flex justify-between items-center">
-              <Link
-                href={`cards/${deck.id}?friendCards=${friendCards}`}
-                underline="none"
-              >
-                <div>
-                  <h2
-                    className="text-lg text-neutral-700 uppercase font-semibold hover:text-amber-500"
-                    style={{ display: "inline" }}
-                  >
+          <Card shadow hoverable className="m-2 shadow-md h-full ">
+            <CardHeader className="pt-4 flex flex-row justify-between">
+              <div className="flex overflow-auto">
+                <Link
+                  href={`cards/${deck.id}?friendCards=${friendCards}`}
+                  underline="none"
+                >
+                  <div className="text-lg text-neutral-700 uppercase font-semibold hover:text-amber-500 ">
                     {deck.title}
-                  </h2>
-                  <h6
-                    className="text-sm text-neutral-500 font-medium"
-                    style={{
-                      display: "inline",
-                      marginLeft: "8px", // เว้นช่องระหว่าง title และ (share)
-                      fontSize: "0.875rem", // ปรับขนาดเล็กกว่า text-lg
-                    }}
-                  >
-                    ({deck.friendName})
-                  </h6>
-                </div>
-              </Link>
-
-              <div className="cursor-pointer  ml-2 mr-3 space-x-3">
-                <Link
-                  href={`PlayHistory/${deck.id}?Title=${deck.title}&friendCards=${friendCards}`}
-                  //History
-                  underline="none"
-                >
-                  <FontAwesomeIcon
-                    icon={faClipboard}
-                    size="xl"
-                    style={{ color: "#FFD43B", padding: 3 }}
-                  />
-                </Link>
-
-                <Link
-                  href={`/Play/${deck.id}?Title=${deck.title}&friendCards=${friendCards}`}
-                  underline="none"
-                >
-                  <FontAwesomeIcon
-                    style={{ fontSize: "30px", color: "#dc2626" }}
-                    icon={faGamepad}
-                  ></FontAwesomeIcon>
+                    <div className="text-gray-500 text-sm">
+                      ({deck.friendName})
+                    </div>
+                  </div>
                 </Link>
               </div>
+
+              <div className="cursor-pointer ml-2 pr-3 grid grid-cols-2 ">
+                <div>
+                  <Link
+                    href={`PlayHistory/${deck.id}?Title=${deck.title}&friendCards=${friendCards}`}
+                    underline="none"
+                    className=" mr-3"
+                  >
+                    <FontAwesomeIcon
+                      icon={faClipboard}
+                      size="xl"
+                      style={{ color: "#FFD43B", padding: 3 }}
+                    />
+                  </Link>
+                </div>
+
+                <div>
+                  {" "}
+                  <Link
+                    href={`/Play/${deck.id}?Title=${deck.title}&friendCards=${friendCards}`}
+                    underline="none"
+                  >
+                    <FontAwesomeIcon
+                      style={{ fontSize: "30px", color: "#dc2626" }}
+                      icon={faGamepad}
+                    ></FontAwesomeIcon>
+                  </Link>
+                </div>
+              </div>
             </CardHeader>
-            <CardBody className="pb-0 pt-2 px-4 overflow-visible py-2">
-              <small className="text-default-500">{deck.description}</small>
+            <CardBody className="py-2 pt-2 px-4 overflow-auto">
+              <small className="text-default-500 ">{deck.description}</small>
             </CardBody>
-            <CardFooter className="text-small flex justify-between items-center">
+            <CardFooter className=" flex justify-between items-center">
               <div className="ml-auto flex">
                 <DeckDelete deck={deck} friendCards={friendCards} />
               </div>
