@@ -94,6 +94,9 @@ export default function LayoutCard({
     if (audioFront) {
       url = URL.createObjectURL(audioFront);
       setAudioUrlFront(url);
+      console.log("urlFront",url);
+      console.log("audiUrlFront",audioUrlFront)
+      console.log("audioFront",audioFront)
     }
     return () => {
       if (url) URL.revokeObjectURL(url);
@@ -104,6 +107,11 @@ export default function LayoutCard({
     let url;
     if (audioBack) {
       url = URL.createObjectURL(audioBack);
+      console.log("urlBack",url);
+      console.log("audiUrlBack",audioUrlBack)
+      console.log("audioBack",audioBack)
+
+
       setAudioUrlBack(url);
     }
     return () => {
