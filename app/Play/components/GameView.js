@@ -55,6 +55,7 @@ const GameView = ({
   const audioRefBack = useRef(null);
   const user = useAuth();
   const router = useRouter();
+  const [time, setTime] = useState(0);
 
   useEffect(() => {
     if (isMultipleMode) {
@@ -217,17 +218,19 @@ const GameView = ({
       handleNextCard();
     } else {
       setShowScorePopup(true);
+      handleGameEnd();
     }
   };
 
   const handleNavigate = () => {
     router.push("/dashboard");
-    handleGameEnd();
+    // handleGameEnd();
   };
 
   const handleGameEnd = async () => {
     const endTime = Date.now();
     const totalTime = Math.floor((endTime - startTime) / 1000);
+    setTime(totalTime);
     const correctAnswersCount = Object.values(answeredCards).filter(
       (card) => card.isCorrect
     ).length;
@@ -592,6 +595,7 @@ const GameView = ({
               }{" "}
               ข้อจากทั้งหมด {cardCount} ข้อ
             </p>
+            <p>เวลาที่ใช้เล่น : {time} วินาที</p>
             <button
               onClick={handleNavigate}
               className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4"

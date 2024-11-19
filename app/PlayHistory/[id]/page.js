@@ -90,7 +90,7 @@ const PlayHistory = () => {
           Back to dashboard
         </Button>
       </div>
-      <div className="font-mono ">
+      <div className="font-mono mb-10">
         <span className="text-xl font-semibold ">ประวัติการเล่นของ&nbsp;</span>
 
         <span className="uppercase text-2xl font-semibold border-2 bg-white rounded-md p-2 mb-5">
