@@ -144,16 +144,20 @@ const DeckListComponent = () => {
 
   const handleCopyClick = () => {
     if (codeToCopy) {
-      navigator.clipboard.writeText(codeToCopy).then(
-        () => {
-          console.log("คัดลอกข้อความสำเร็จ!");
-          setIsCopied(true); // เปลี่ยนสถานะเป็นคัดลอกเสร็จ
-          setTimeout(() => setIsCopied(false), 2000); // ตั้งเวลาให้เปลี่ยนกลับเป็นปกติหลัง 2      // setIsPopupVisible(false);
-        },
-        (err) => {
-          console.error("เกิดข้อผิดพลาดในการคัดลอก:", err);
-        }
-      );
+      // Assuming 'clipboard' might be undefined
+const clipboard = navigator.clipboard || {};
+clipboard.writeText?.(codeToCopy).catch(err => console.error("Failed to write text: ", err));
+
+      // navigator.clipboard.writeText(codeToCopy).then(
+      //   () => {
+      //     console.log("คัดลอกข้อความสำเร็จ!");
+      //     setIsCopied(true); // เปลี่ยนสถานะเป็นคัดลอกเสร็จ
+      //     setTimeout(() => setIsCopied(false), 2000); // ตั้งเวลาให้เปลี่ยนกลับเป็นปกติหลัง 2      // setIsPopupVisible(false);
+      //   },
+      //   (err) => {
+      //     console.error("เกิดข้อผิดพลาดในการคัดลอก:", err);
+      //   }
+      // );
     }
   };
 
