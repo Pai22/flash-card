@@ -142,20 +142,20 @@ const DeckListComponent = () => {
     setIsPopupVisible(false);
   };
 
-  const handleCopyClick = () => {
-    if (codeToCopy) {
-      navigator.clipboard.writeText(codeToCopy).then(
-        () => {
-          console.log("คัดลอกข้อความสำเร็จ!");
-          setIsCopied(true); // เปลี่ยนสถานะเป็นคัดลอกเสร็จ
-          setTimeout(() => setIsCopied(false), 2000); // ตั้งเวลาให้เปลี่ยนกลับเป็นปกติหลัง 2      // setIsPopupVisible(false);
-        },
-        (err) => {
-          console.error("เกิดข้อผิดพลาดในการคัดลอก:", err);
-        }
-      );
-    }
-  };
+  // const handleCopyClick = () => {
+  //   if (codeToCopy) {
+  //     navigator.clipboard.writeText(codeToCopy).then(
+  //       () => {
+  //         console.log("คัดลอกข้อความสำเร็จ!");
+  //         setIsCopied(true); // เปลี่ยนสถานะเป็นคัดลอกเสร็จ
+  //         setTimeout(() => setIsCopied(false), 2000); // ตั้งเวลาให้เปลี่ยนกลับเป็นปกติหลัง 2      // setIsPopupVisible(false);
+  //       },
+  //       (err) => {
+  //         console.error("เกิดข้อผิดพลาดในการคัดลอก:", err);
+  //       }
+  //     );
+  //   }
+  // };
 
   return (
     <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -225,17 +225,17 @@ const DeckListComponent = () => {
                       </button>
                       <p className="mt-4 mb-2">คัดลอกโค้ดนี้:</p>
                       <div className="flex items-center">
-                        <Snippet symbol="" hideCopyButton>
+                        <Snippet symbol="" >
                           {codeToCopy}
                         </Snippet>{" "}
-                        <button
+                        {/* <button
                           className={`ml-4 px-3 py-1 rounded-md text-white ${
                             isCopied ? "bg-green-500 " : "bg-blue-500  hover:bg-blue-300"
                           }`}
                           onClick={handleCopyClick}
                         >
                           {isCopied ? "succeed!" : "Copy"}
-                        </button>
+                        </button> */}
                         {/* โค้ดที่จะแชร์ */}
                       </div>
                     </div>
