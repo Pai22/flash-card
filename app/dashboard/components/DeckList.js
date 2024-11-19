@@ -29,16 +29,13 @@ import {
   faClipboard,
 } from "@fortawesome/free-solid-svg-icons";
 import DeckDelete from "./DeckDelete";
-import dynamic from 'next/dynamic';
 
 const DeckListComponent = () => {
-
-const Snippet = dynamic(() => import('@nextui-org/react').then(mod => mod.Snippet), { ssr: false });
-
   const [decks, setDecks] = useState([]);
   const auth = useAuth();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [codeToCopy, setCodeToCopy] = useState(""); // ใช้ useState เพื่อเก็บโค้ด
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     if (!auth) return;
@@ -145,6 +142,21 @@ const Snippet = dynamic(() => import('@nextui-org/react').then(mod => mod.Snippe
     setIsPopupVisible(false);
   };
 
+  const handleCopyClick = () => {
+    if (codeToCopy) {
+      navigator.clipboard.writeText(codeToCopy).then(
+        () => {
+          console.log("คัดลอกข้อความสำเร็จ!");
+          setIsCopied(true); // เปลี่ยนสถานะเป็นคัดลอกเสร็จ
+          setTimeout(() => setIsCopied(false), 2000); // ตั้งเวลาให้เปลี่ยนกลับเป็นปกติหลัง 2      // setIsPopupVisible(false);
+        },
+        (err) => {
+          console.error("เกิดข้อผิดพลาดในการคัดลอก:", err);
+        }
+      );
+    }
+  };
+
   return (
     <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {decks.map((deck) => (
@@ -155,15 +167,15 @@ const Snippet = dynamic(() => import('@nextui-org/react').then(mod => mod.Snippe
             className="m-2 shadow-md h-full flex flex-col justify-between "
           >
             <CardHeader className="pt-4 px-4 flex justify-between items-center ">
-             <div className="overflow-auto"> 
-              <Link href={`cards/${deck.id}`} underline="none">
-                <div className="text-lg text-neutral-700 uppercase font-semibold  hover:text-amber-500">
-                  {deck.title}
-                </div>
-              </Link>
+              <div className="overflow-auto">
+                <Link href={`cards/${deck.id}`} underline="none">
+                  <div className="text-lg text-neutral-700 uppercase font-semibold  hover:text-amber-500">
+                    {deck.title}
+                  </div>
+                </Link>
               </div>
               <div className="cursor-pointer  ml-2 pr-3 grid grid-cols-2">
-                <div> 
+                <div>
                   <Link
                     href={`PlayHistory/${deck.id}?Title=${deck.title}`}
                     //History
@@ -213,7 +225,17 @@ const Snippet = dynamic(() => import('@nextui-org/react').then(mod => mod.Snippe
                       </button>
                       <p className="mt-4 mb-2">คัดลอกโค้ดนี้:</p>
                       <div className="flex items-center">
-                        <Snippet symbol="">{codeToCopy}</Snippet>{" "}
+                        <Snippet symbol="" hideCopyButton>
+                          {codeToCopy}
+                        </Snippet>{" "}
+                        <button
+                          className={`ml-4 px-3 py-1 rounded-md text-white ${
+                            isCopied ? "bg-green-500 " : "bg-blue-500  hover:bg-blue-300"
+                          }`}
+                          onClick={handleCopyClick}
+                        >
+                          {isCopied ? "succeed!" : "Copy"}
+                        </button>
                         {/* โค้ดที่จะแชร์ */}
                       </div>
                     </div>

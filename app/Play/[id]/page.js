@@ -31,6 +31,8 @@ export default function Play() {
   const [friendId, setFriendId] = useState("");
   const [deck, setDeck] = useState("");
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [isPopupAl, setIsPopupAl] = useState(false);
+  
 
   useEffect(() => {
     if (auth && deckId) {
@@ -102,10 +104,18 @@ export default function Play() {
   };
 
   const handleStart = () => {
-    setShowPopup(false);
-    setIsFlipped(startSide === "Back");
+    if (cards.length === 0 ) {
+      setIsPopupAl(true)
+    }else {
+      setShowPopup(false);
+      setIsFlipped(startSide === "Back");
+    }
   };
-
+  
+  const closePop =()=>{
+    router.push("/dashboard");
+    setIsPopupAl(false);
+  }
   const isMultipleMode = mode === "Multiple";
 
   return (
@@ -160,6 +170,24 @@ export default function Play() {
                 onClick={() => setIsPopupVisible(false)}
               >
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isPopupAl && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white shadow-lg p-10 rounded relative">
+            <p className="ext-lg font-semibold text-gray-700">
+            No card
+            </p>
+            <div className="absolute bottom-2 right-2 flex space-x-2 ">
+              <button
+                className="px-3 py-1 text-xs font-medium rounded border border-blue-500 bg-blue-500 text-white hover:bg-blue-400"
+                onClick={closePop}
+              >
+                OK
               </button>
             </div>
           </div>

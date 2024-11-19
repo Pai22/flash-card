@@ -372,7 +372,7 @@ const GameView = ({
             >
               {/* Front side of the card */}
               <div className={`${styles["flip-card-front"]} my-2 space-y-0`}>
-                <div className={`p-4 ${currentCard.    layoutFront || ""}`}>
+                <div className={`p-4 ${currentCard.layoutFront || ""}`}>
                   {renderCardContent(currentCard, "front")}
                   {currentCard.audioUrlFront && (
                     <div className={styles.audioButton}>
