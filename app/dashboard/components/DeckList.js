@@ -29,8 +29,12 @@ import {
   faClipboard,
 } from "@fortawesome/free-solid-svg-icons";
 import DeckDelete from "./DeckDelete";
+import dynamic from 'next/dynamic';
 
 const DeckListComponent = () => {
+
+const Snippet = dynamic(() => import('@nextui-org/react').then(mod => mod.Snippet), { ssr: false });
+
   const [decks, setDecks] = useState([]);
   const auth = useAuth();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
