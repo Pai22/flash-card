@@ -83,9 +83,14 @@ export default function Dashboard() {
     
     const { friendId, deckId, friendName, description, title } = deckInfo;
     
-    console.log("Adding deck:", { friendId, deckId, friendName, description, title });
+    // console.log("Adding deck:", { friendId, deckId, friendName, description, title });
     
     try {
+      if (friendId === user?.uid) { // ตรวจสอบว่าชุดการ์ดเป็นของตัวเองหรือไม่
+        alert("ไม่สามารถเพิ่มชุดการ์ดของตัวเองได้");
+        setIsPopupVisible(false);
+        return;
+      }
       await setDoc(doc(db, "Deck", user.uid, "deckFriend", deckId), {
         friendId,
         deckId,
@@ -98,7 +103,7 @@ export default function Dashboard() {
       setIsAddingDeck(true);
       setFriendId(friendId);
       setTimeout(() => {
-        alert("Deck ได้ถูกเพิ่มเรียบร้อยแล้ว!");
+        // alert("Deck ได้ถูกเพิ่มเรียบร้อยแล้ว!");
         setIsPopupVisible(false);
         setIsAddingDeck(false);
         setCode("");  // ทำให้ค่า code กลับเป็นค่าว่าง
@@ -140,7 +145,7 @@ export default function Dashboard() {
         </div>
 
         <AddToDeckComponent/>
-        
+
         <DeckListComponent />
 
         <div className="flex items-center ml-2 mt-10 mb-5">
@@ -199,7 +204,7 @@ export default function Dashboard() {
                       onClick={handleAddDeck}
                       disabled={isAddingDeck}
                     >
-                      {isAddingDeck ? "กำลังเพิ่ม..." : "เพิ่ม Deck"}
+                      {isAddingDeck ? "Adding..." : "Add"}
                     </Button>
                     <Button
                       color="error"
